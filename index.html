@@ -1,0 +1,2970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Japan 2026 🗾</title>
+<style>
+  :root {
+    --tokyo: #E8505B;
+    --hakone: #4CAF82;
+    --kyoto: #E8963C;
+    --osaka: #7C6FCD;
+    --bg: #0F0F13;
+    --surface: #1A1A22;
+    --surface2: #22222E;
+    --border: #2E2E3E;
+    --text: #E8E8F0;
+    --text-muted: #8888A8;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+    max-width: 100%;
+    touch-action: pan-y;
+  }
+
+  /* ── Header ── */
+  .hero {
+    background: linear-gradient(135deg, #1a0a0a 0%, #0a0a1a 50%, #0a1a12 100%);
+    padding: 60px 24px 48px;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 60px);
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(232,80,91,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 50%, rgba(124,111,205,0.15) 0%, transparent 60%);
+  }
+  .hero-content { position: relative; z-index: 1; }
+  .hero-flag { font-size: 56px; margin-bottom: 16px; display: block; }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .hero-sub {
+    color: var(--text-muted);
+    font-size: 16px;
+    margin-bottom: 24px;
+  }
+  .city-pills {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .pill {
+    padding: 6px 16px;
+    border-radius: 99px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1.5px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pill:hover, .pill.active { opacity: 1; }
+  .pill[data-city="all"] { border-color: var(--text-muted); color: var(--text-muted); }
+  .pill[data-city="all"].active, .pill[data-city="all"]:hover { border-color: var(--text); color: var(--text); background: rgba(255,255,255,0.05); }
+  .pill[data-city="tokyo"] { border-color: var(--tokyo); color: var(--tokyo); }
+  .pill[data-city="tokyo"].active, .pill[data-city="tokyo"]:hover { background: rgba(232,80,91,0.12); }
+  .pill[data-city="hakone"] { border-color: var(--hakone); color: var(--hakone); }
+  .pill[data-city="hakone"].active, .pill[data-city="hakone"]:hover { background: rgba(76,175,130,0.12); }
+  .pill[data-city="kyoto"] { border-color: var(--kyoto); color: var(--kyoto); }
+  .pill[data-city="kyoto"].active, .pill[data-city="kyoto"]:hover { background: rgba(232,150,60,0.12); }
+  .pill[data-city="osaka"] { border-color: var(--osaka); color: var(--osaka); }
+  .pill[data-city="osaka"].active, .pill[data-city="osaka"]:hover { background: rgba(124,111,205,0.12); }
+
+  /* ── Nav tabs ── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(15,15,19,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scroll-snap-type: x proximity;
+    scroll-padding: 0 16px;
+    padding: 0 24px;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    padding: 16px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+  }
+  .nav-btn:hover { color: var(--text); }
+  .nav-btn.active { color: var(--text); border-bottom-color: var(--text); }
+
+  /* ── Layout ── */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ── Section ── */
+  .section { display: none; padding-top: 40px; }
+  .section.visible { display: block; }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .card-title { font-size: 17px; font-weight: 600; }
+  .card-sub { color: var(--text-muted); font-size: 14px; margin-top: 2px; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .badge-tokyo { background: rgba(232,80,91,0.15); color: var(--tokyo); }
+  .badge-hakone { background: rgba(76,175,130,0.15); color: var(--hakone); }
+  .badge-kyoto { background: rgba(232,150,60,0.15); color: var(--kyoto); }
+  .badge-osaka { background: rgba(124,111,205,0.15); color: var(--osaka); }
+  .badge-info { background: rgba(100,150,255,0.15); color: #7EB0FF; }
+  .badge-warn { background: rgba(255,200,50,0.15); color: #FFD060; }
+  .badge-success { background: rgba(76,175,130,0.15); color: #4CAF82; }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+  }
+  .info-item { display: flex; flex-direction: column; gap: 2px; }
+  .info-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .info-value { font-size: 14px; font-weight: 500; }
+
+  .conf-code {
+    font-family: monospace;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 13px;
+    color: #7EB0FF;
+  }
+
+  /* ── Timeline ── */
+  .timeline { position: relative; }
+  .day-block {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 32px;
+    transition: opacity 0.3s;
+  }
+  .day-block.hidden { display: none; }
+  .day-block::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 28px;
+    bottom: -32px;
+    width: 2px;
+    background: var(--border);
+  }
+  .day-block:last-child::before { display: none; }
+  .day-dot {
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+  }
+  .day-dot.tokyo { border-color: var(--tokyo); }
+  .day-dot.hakone { border-color: var(--hakone); }
+  .day-dot.kyoto { border-color: var(--kyoto); }
+  .day-dot.osaka { border-color: var(--osaka); }
+
+  .day-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .day-date {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+  .day-title { font-size: 17px; font-weight: 600; }
+  .day-toggle {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+  }
+  .day-toggle.open { transform: rotate(180deg); }
+
+  .day-events {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .day-events.collapsed { display: none; }
+
+  .event {
+    display: flex;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    align-items: flex-start;
+  }
+  .event-time {
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    min-width: 56px;
+    padding-top: 1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .event-text { font-size: 14px; }
+  .event-note { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .event-highlight {
+    border-color: rgba(126,176,255,0.3);
+    background: rgba(126,176,255,0.05);
+  }
+
+  /* ── Train table ── */
+  .train-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    max-width: 100%;
+    margin-bottom: 16px;
+  }
+  .train-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .train-icon { font-size: 22px; }
+  .train-name { font-size: 17px; font-weight: 700; }
+  .train-route { color: var(--text-muted); font-size: 14px; }
+  .train-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0;
+  }
+  .train-cell {
+    padding: 14px 20px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .train-cell:last-child { border-right: none; }
+
+  /* ── Activities ── */
+  .activity-group { margin-bottom: 32px; }
+  .activity-city-header {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .activity-city-header.tokyo { border-color: var(--tokyo); color: var(--tokyo); }
+  .activity-city-header.hakone { border-color: var(--hakone); color: var(--hakone); }
+  .activity-city-header.kyoto { border-color: var(--kyoto); color: var(--kyoto); }
+  .activity-city-header.osaka { border-color: var(--osaka); color: var(--osaka); }
+
+  .activity-list { display: flex; flex-direction: column; gap: 8px; }
+  .activity-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+  .activity-type {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .activity-type.must { background: rgba(232,80,91,0.15); color: var(--tokyo); }
+  .activity-type.optional { background: rgba(136,136,168,0.15); color: var(--text-muted); }
+  .activity-type.food { background: rgba(232,150,60,0.15); color: var(--kyoto); }
+  .activity-type.shopping { background: rgba(124,111,205,0.15); color: var(--osaka); }
+  .activity-type.cultural { background: rgba(76,175,130,0.15); color: var(--hakone); }
+  .activity-type.included { background: rgba(76,175,130,0.15); color: var(--hakone); }
+
+  .activity-main { flex: 1; }
+  .activity-name { font-size: 14px; font-weight: 500; }
+  .activity-note { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── Logistics ── */
+  .logistics-grid { display: grid; gap: 12px; }
+  .logistics-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .logistics-icon { font-size: 24px; flex-shrink: 0; }
+  .logistics-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .logistics-body { font-size: 14px; color: var(--text-muted); }
+
+  .phrases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .phrase-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .phrase-en { font-size: 15px; font-weight: 500; }
+  .phrase-romanji { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+  .phrase-jp { font-size: 18px; margin-top: 6px; }
+
+  .reminder-table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    word-break: break-word;
+  }
+  .reminder-table th {
+    text-align: left;
+    padding: 10px 16px;
+    background: var(--surface2);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .reminder-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .reminder-table tr:last-child td { border-bottom: none; }
+  .reminder-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .reminder-past { opacity: 0.4; text-decoration: line-through; }
+
+  /* ── Language ── */
+  .lang-section-header {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin: 28px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .lang-section-header:first-child { margin-top: 0; }
+
+  .phrase-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    transition: border-color 0.2s;
+  }
+  .phrase-row:hover { border-color: rgba(126,176,255,0.3); }
+  .phrase-row-content { flex: 1; }
+  .phrase-romanji-big {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .phrase-meaning {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .phrase-kanji {
+    font-size: 20px;
+    color: rgba(232,150,60,0.85);
+    text-align: right;
+    flex-shrink: 0;
+    min-width: 48px;
+  }
+  .phrase-tag {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+  .phrase-tag.lifesaver { background: rgba(232,80,91,0.15); color: var(--tokyo); }
+  .phrase-tag.food { background: rgba(232,150,60,0.15); color: var(--kyoto); }
+  .phrase-tag.nav { background: rgba(76,175,130,0.15); color: var(--hakone); }
+  .phrase-tag.shop { background: rgba(124,111,205,0.15); color: var(--osaka); }
+  .phrase-tag.secret { background: rgba(100,150,255,0.15); color: #7EB0FF; }
+
+  /* ── Interactive phrase builder ── */
+  .phrase-row-interactive {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+  .phrase-row-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+  }
+  .phrase-builder {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+  .phrase-builder-part { color: var(--text); }
+  .phrase-select {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: var(--surface2);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237EB0FF'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    border: 1.5px solid rgba(126,176,255,0.4);
+    border-radius: 6px;
+    color: #7EB0FF;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    padding: 5px 28px 5px 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    max-width: 260px;
+  }
+  .phrase-select:hover, .phrase-select:focus {
+    border-color: rgba(126,176,255,0.75);
+    box-shadow: 0 0 0 3px rgba(126,176,255,0.1);
+    outline: none;
+  }
+  .phrase-select option { background: #1A1A22; color: #E8E8F0; font-weight: 500; }
+  .phrase-result-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .phrase-result-box.has-value {
+    background: rgba(76,175,130,0.07);
+    border-color: rgba(76,175,130,0.28);
+  }
+  .phrase-result-main { flex: 1; min-width: 0; }
+  .phrase-result-romanji {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    word-break: break-word;
+  }
+  .phrase-result-jp {
+    font-size: 17px;
+    color: rgba(232,150,60,0.85);
+    margin-top: 2px;
+  }
+  .phrase-copy-btn {
+    flex-shrink: 0;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-family: inherit;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .phrase-copy-btn:hover {
+    border-color: rgba(76,175,130,0.4);
+    color: var(--hakone);
+    background: rgba(76,175,130,0.06);
+  }
+  .phrase-copy-btn.copied {
+    border-color: rgba(76,175,130,0.6);
+    color: var(--hakone);
+    background: rgba(76,175,130,0.12);
+  }
+
+  /* Restaurant script */
+  .restaurant-flow {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .restaurant-flow-header {
+    padding: 14px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .restaurant-flow-title {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .restaurant-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .restaurant-step:last-child { border-bottom: none; }
+  .step-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(126,176,255,0.12);
+    border: 1.5px solid rgba(126,176,255,0.35);
+    color: #7EB0FF;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #7EB0FF;
+    margin-bottom: 3px;
+  }
+  .step-body { font-size: 14px; color: var(--text); }
+  .step-note { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+  .step-phrase {
+    display: inline-block;
+    font-weight: 600;
+    color: var(--kyoto);
+    background: rgba(232,150,60,0.1);
+    border-radius: 4px;
+    padding: 0 5px;
+  }
+
+  /* Pro tip band */
+  .pro-tip {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: rgba(126,176,255,0.05);
+    border: 1px solid rgba(126,176,255,0.2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 8px;
+  }
+  .pro-tip-icon { font-size: 20px; flex-shrink: 0; }
+  .pro-tip-text { font-size: 14px; color: var(--text-muted); }
+  .pro-tip-text strong { color: var(--text); }
+
+  /* Kids section */
+  .kids-card {
+    background: linear-gradient(135deg, rgba(232,150,60,0.07) 0%, rgba(124,111,205,0.07) 100%);
+    border: 1px solid rgba(232,150,60,0.2);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 8px;
+  }
+  .kids-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .kids-title { font-size: 16px; font-weight: 700; }
+  .kids-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+  .kids-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .kids-word {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .kids-romanji { font-size: 16px; font-weight: 700; }
+  .kids-meaning { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+  .kids-hack {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: rgba(124,111,205,0.08);
+    border: 1px solid rgba(124,111,205,0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .kids-hack strong { color: var(--osaka); }
+
+  /* ── Itinerary additions ── */
+  .city-divider {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 36px 0 20px 28px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .city-divider:first-child { margin-top: 0; }
+  .city-divider.tokyo  { color: var(--tokyo);  border-color: rgba(232,80,91,0.35); }
+  .city-divider.hakone { color: var(--hakone); border-color: rgba(76,175,130,0.35); }
+  .city-divider.kyoto  { color: var(--kyoto);  border-color: rgba(232,150,60,0.35); }
+  .city-divider.osaka  { color: var(--osaka);  border-color: rgba(124,111,205,0.35); }
+
+  .period-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    padding: 8px 14px 2px;
+    opacity: 0.7;
+  }
+
+  .callout {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: rgba(255,200,50,0.06);
+    border: 1px solid rgba(255,200,50,0.22);
+    border-left: 3px solid rgba(255,200,50,0.5);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #FFD060;
+    margin-bottom: 2px;
+  }
+  .callout-icon { flex-shrink: 0; }
+  .callout strong { color: #FFE090; }
+
+  /* ── Route Builder (Map this day) ── */
+  .map-btn {
+    margin-left: auto;
+    margin-right: 8px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    background: none;
+    border: 1.5px solid rgba(126,176,255,0.35);
+    border-radius: 99px;
+    color: #7EB0FF;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    line-height: 1.4;
+  }
+  .map-btn:hover {
+    background: rgba(126,176,255,0.1);
+    border-color: rgba(126,176,255,0.6);
+  }
+  .map-btn.active {
+    background: rgba(126,176,255,0.15);
+    border-color: rgba(126,176,255,0.7);
+  }
+
+  .route-builder {
+    display: none;
+    margin-top: 8px;
+    background: rgba(126,176,255,0.04);
+    border: 1px solid rgba(126,176,255,0.18);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .route-builder.open {
+    display: block;
+    animation: rbSlideDown 0.2s ease;
+  }
+  @keyframes rbSlideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .route-builder-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid rgba(126,176,255,0.12);
+  }
+  .route-builder-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #7EB0FF;
+  }
+  .route-builder-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  .route-locations {
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .route-location {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 6px;
+  }
+  .route-location input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    accent-color: #7EB0FF;
+    cursor: pointer;
+  }
+  .route-location-label {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .route-location:hover .route-location-label { color: #7EB0FF; }
+
+  .route-actions {
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px 12px;
+    border-top: 1px solid rgba(126,176,255,0.12);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .route-open-btn {
+    flex: 1;
+    min-width: 180px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    background: rgba(126,176,255,0.15);
+    border: 1.5px solid rgba(126,176,255,0.4);
+    border-radius: 8px;
+    color: #7EB0FF;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .route-open-btn:hover {
+    background: rgba(126,176,255,0.25);
+    border-color: rgba(126,176,255,0.7);
+  }
+  .route-copy-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .route-copy-btn:hover {
+    border-color: rgba(76,175,130,0.4);
+    color: var(--hakone);
+    background: rgba(76,175,130,0.06);
+  }
+  .route-copy-btn.copied {
+    border-color: rgba(76,175,130,0.6);
+    color: var(--hakone);
+    background: rgba(76,175,130,0.12);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .hero { padding: 40px 16px 32px; }
+    .container { padding: 0 16px 60px; }
+    .info-grid { grid-template-columns: 1fr 1fr; }
+
+    /* 3-column grid nav: all 6 tabs visible in 2 rows, no horizontal scroll */
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      overflow-x: hidden;
+      padding: 6px;
+      gap: 2px;
+    }
+    .nav-btn {
+      padding: 10px 4px;
+      font-size: 12px;
+      text-align: center;
+      white-space: normal;
+      line-height: 1.3;
+      flex-shrink: unset;
+      border-bottom: none;
+      border-radius: 8px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-btn.active {
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+      border-bottom-color: transparent;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.04); }
+
+    /* Language tab: stack kanji below text, no horizontal overflow */
+    .phrase-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .phrase-row > .phrase-tag {
+      align-self: flex-start;
+    }
+    .phrase-kanji {
+      font-size: 16px;
+      text-align: left;
+      min-width: 0;
+      flex-shrink: 1;
+      padding-top: 4px;
+      opacity: 0.75;
+    }
+    .phrase-row-content {
+      width: 100%;
+      min-width: 0;
+    }
+    .phrase-select {
+      max-width: 100%;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .phrase-row-top {
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+    }
+    .phrase-builder {
+      width: 100%;
+    }
+    .phrase-result-box {
+      width: 100%;
+      box-sizing: border-box;
+    }
+  }
+
+  /* ── Edit mode ── */
+  .itinerary-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0 6px;
+  }
+  .itinerary-toolbar-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .edit-toggle-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-family: inherit;
+    -webkit-appearance: none;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .edit-toggle-btn.active {
+    background: rgba(124,111,205,0.15);
+    border-color: rgba(124,111,205,0.4);
+    color: #a78bfa;
+  }
+
+  /* Completed events */
+  .event { position: relative; cursor: pointer; transition: opacity 0.2s; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .event.completed { opacity: 0.55; }
+  .event.completed .event-text { text-decoration: line-through; }
+  .event.completed .event-note { text-decoration: line-through; }
+  .event-check {
+    position: absolute;
+    top: 50%; left: -22px;
+    transform: translateY(-50%);
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .event.completed .event-check { opacity: 1; }
+
+  /* Custom user-added events */
+  .event.custom-event {
+    border-color: rgba(124,111,205,0.35);
+    background: rgba(124,111,205,0.05);
+  }
+
+  /* Delete button (visible in edit mode) */
+  .event-del-btn {
+    display: none;
+    position: absolute;
+    top: 50%; right: -8px;
+    transform: translateY(-50%);
+    width: 24px; height: 24px;
+    background: rgba(248,113,113,0.15);
+    border: 1px solid rgba(248,113,113,0.3);
+    border-radius: 50%;
+    color: #f87171;
+    font-size: 13px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    z-index: 2;
+    line-height: 1;
+  }
+  body.edit-mode .event-del-btn { display: flex; }
+  body.edit-mode .event { cursor: default; padding-right: 28px; }
+
+  /* Add event button per day */
+  .day-add-btn {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    margin-top: 4px;
+    background: rgba(124,111,205,0.08);
+    border: 1.5px dashed rgba(124,111,205,0.3);
+    border-radius: 8px;
+    color: #a78bfa;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    font-family: inherit;
+    -webkit-appearance: none;
+  }
+  body.edit-mode .day-add-btn { display: flex; }
+
+  /* Inline add form */
+  .add-event-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: var(--surface);
+    border: 1px solid rgba(124,111,205,0.3);
+    border-radius: 10px;
+    margin-top: 4px;
+  }
+  .add-event-form input {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 15px;
+    padding: 9px 12px;
+    width: 100%;
+    outline: none;
+    -webkit-appearance: none;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+  .add-event-form input:focus { border-color: #a78bfa; }
+  .add-event-form input::placeholder { color: var(--text-muted); }
+  .add-event-form-actions { display: flex; gap: 8px; }
+  .btn-add-save {
+    flex: 1;
+    background: #7c6fcd;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 9px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-add-cancel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 14px;
+    padding: 9px 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* ── Lock screen ── */
+  #lock-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 32px);
+  }
+  #lock-screen.hidden { display: none; }
+  .lock-card {
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+  .lock-icon {
+    font-size: 52px;
+    line-height: 1;
+    filter: drop-shadow(0 0 24px rgba(232,80,91,0.4));
+  }
+  .lock-title {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    text-align: center;
+  }
+  .lock-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: -20px;
+    text-align: center;
+  }
+  .lock-input-wrap { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+  #lock-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-align: center;
+    padding: 16px;
+    outline: none;
+    -webkit-appearance: none;
+    -webkit-text-security: disc;
+    transition: border-color 0.2s;
+  }
+  #lock-input:focus { border-color: var(--tokyo); }
+  #lock-input.shake {
+    animation: shake 0.35s ease;
+    border-color: var(--tokyo);
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(4px); }
+  }
+  #lock-error {
+    font-size: 13px;
+    color: var(--tokyo);
+    text-align: center;
+    min-height: 18px;
+    transition: opacity 0.2s;
+  }
+  .lock-btn {
+    width: 100%;
+    background: var(--tokyo);
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    padding: 16px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    font-family: inherit;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .lock-btn:active { transform: scale(0.97); background: #c94050; }
+</style>
+</head>
+<body>
+
+<!-- Lock screen -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div class="lock-icon">🗾</div>
+    <div>
+      <div class="lock-title">Japan 2026</div>
+      <div class="lock-sub">Enter password to continue</div>
+    </div>
+    <div class="lock-input-wrap">
+      <input id="lock-input" type="text" inputmode="text"
+             autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
+             placeholder="Password" maxlength="20"
+             onkeydown="if(event.key==='Enter')unlock()" />
+      <div id="lock-error"></div>
+      <button class="lock-btn" onclick="unlock()">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-content">
+    <span class="hero-flag">🗾</span>
+    <h1>Japan 2026</h1>
+    <p class="hero-sub">May 25 – June 5 &nbsp;·&nbsp; 5 travellers &nbsp;·&nbsp; 12 days</p>
+    <div class="city-pills">
+      <button class="pill active" data-city="all" onclick="filterCity('all')">All cities</button>
+      <button class="pill" data-city="tokyo" onclick="filterCity('tokyo')">🗼 Tokyo</button>
+      <button class="pill" data-city="hakone" onclick="filterCity('hakone')">🏔 Hakone</button>
+      <button class="pill" data-city="kyoto" onclick="filterCity('kyoto')">⛩ Kyoto</button>
+      <button class="pill" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showSection('itinerary', this)">Itinerary</button>
+  <button class="nav-btn" onclick="showSection('hotels', this)">Hotels</button>
+  <button class="nav-btn" onclick="showSection('trains', this)">Trains</button>
+  <button class="nav-btn" onclick="showSection('activities', this)">Activities</button>
+  <button class="nav-btn" onclick="showSection('logistics', this)">Logistics</button>
+  <button class="nav-btn" onclick="showSection('language', this)">🗣️ Language</button>
+</nav>
+
+<div class="container">
+
+  <!-- ─────────────── ITINERARY ─────────────── -->
+  <div id="section-itinerary" class="section visible">
+    <div class="itinerary-toolbar">
+      <span class="itinerary-toolbar-hint" id="edit-hint">Tap any event to mark done</span>
+      <button class="edit-toggle-btn" id="edit-toggle" onclick="toggleEditMode()">✏️ Edit</button>
+    </div>
+    <div class="timeline">
+
+      <!-- ── TOKYO ── -->
+      <div class="city-divider tokyo">🗼 Tokyo &nbsp;·&nbsp; May 25–29</div>
+
+      <!-- May 25 -->
+      <div class="day-block" data-city="tokyo">
+        <div class="day-dot tokyo"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Mon · May 25</span>
+          <span class="day-title">Arrival Day</span>
+          <span class="badge badge-tokyo">Tokyo</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="callout">
+            <span class="callout-icon">😅</span>
+            Keep this night <strong>LOW KEY</strong> — jet lag will hit differently
+          </div>
+          <div class="period-label">🛬 Arrival</div>
+          <div class="event event-highlight">
+            <span class="event-time">~3:00 PM</span>
+            <div><div class="event-text">✈️ Land at airport</div><div class="event-note">Transit + check into Shibuya hotel</div></div>
+          </div>
+          <div class="period-label">🌙 Evening</div>
+          <div class="event">
+            <span class="event-time">Evening</span>
+            <div><div class="event-text">🚦 Shibuya Crossing</div><div class="event-note">Dinner nearby</div></div>
+          </div>
+          <div class="event">
+            <span class="event-time">Later</span>
+            <div><div class="event-text">🏪 Don Quijote + convenience store snack run</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- May 26 -->
+      <div class="day-block" data-city="tokyo">
+        <div class="day-dot tokyo"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Tue · May 26</span>
+          <span class="day-title">Shibuya / Harajuku Day</span>
+          <span class="badge badge-tokyo">Tokyo</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="period-label">☀️ Morning</div>
+          <div class="event">
+            <span class="event-time">7:00 AM</span>
+            <div><div class="event-text">⛩ Meiji Shrine</div><div class="event-note">Go early — peaceful before crowds</div></div>
+          </div>
+          <div class="event">
+            <span class="event-time">9:30 AM</span>
+            <div><div class="event-text">🛍 Harajuku + Takeshita Street</div></div>
+          </div>
+          <div class="period-label">🌤 Afternoon</div>
+          <div class="event">
+            <span class="event-time">Afternoon</span>
+            <div><div class="event-text">Cat Street, shopping, arcades &amp; gachapon</div></div>
+          </div>
+          <div class="period-label">🌙 Evening</div>
+          <div class="event">
+            <span class="event-time">Evening</span>
+            <div><div class="event-text">🌃 Shibuya at night</div><div class="event-note">Optional: karaoke</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- May 27 -->
+      <div class="day-block" data-city="tokyo">
+        <div class="day-dot tokyo"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Wed · May 27</span>
+          <span class="day-title">Asakusa + Akihabara</span>
+          <span class="badge badge-tokyo">Tokyo</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="period-label">☀️ Morning</div>
+          <div class="event">
+            <span class="event-time">Morning</span>
+            <div><div class="event-text">⛩ Sensō-ji</div><div class="event-note">Nakamise shopping street</div></div>
+          </div>
+          <div class="period-label">🌤 Afternoon</div>
+          <div class="event">
+            <span class="event-time">Afternoon</span>
+            <div><div class="event-text">🎮 Akihabara</div><div class="event-note">Anime stores, arcades, capsule toy hunting</div></div>
+          </div>
+          <div class="period-label">🌙 Evening</div>
+          <div class="event">
+            <span class="event-time">Evening</span>
+            <div><div class="event-text">🍽 Relaxed dinner near hotel</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- May 28 -->
+      <div class="day-block" data-city="tokyo">
+        <div class="day-dot tokyo"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Thu · May 28</span>
+          <span class="day-title">teamLab + Shibuya Sky ✨</span>
+          <span class="badge badge-tokyo">Tokyo</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="period-label">☀️ Morning</div>
+          <div class="event event-highlight">
+            <span class="event-time">Morning</span>
+            <div>
+              <div class="event-text">🎨 teamLab Planets TOKYO &nbsp;<span class="badge badge-success" style="font-size:11px; padding:2px 8px;">✓ Booked</span></div>
+              <div class="event-note">Immersive digital art — timed entry</div>
+            </div>
+          </div>
+          <div class="period-label">🌤 Afternoon</div>
+          <div class="event">
+            <span class="event-time">Afternoon</span>
+            <div><div class="event-text">🏝 Odaiba &nbsp;OR&nbsp; free shopping time</div></div>
+          </div>
+          <div class="period-label">🌙 Evening</div>
+          <div class="event event-highlight">
+            <span class="event-time">Evening</span>
+            <div>
+              <div class="event-text">✨ Shibuya Sky &nbsp;<span class="badge badge-success" style="font-size:11px; padding:2px 8px;">✓ Booked</span></div>
+              <div class="event-note">Perfect "peak Tokyo" moment — amazing views before leaving</div>
+            </div>
+          </div>
+          <div class="callout">
+            <span class="callout-icon">💡</span>
+            You'll know Shibuya well by now — energy is better by day 3, perfect timing for the rooftop views
+          </div>
+        </div>
+      </div>
+
+      <!-- ── HAKONE ── -->
+      <div class="city-divider hakone">🏔 Hakone &nbsp;·&nbsp; May 29–30</div>
+
+      <!-- May 29 -->
+      <div class="day-block" data-city="hakone">
+        <div class="day-dot hakone"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Fri · May 29</span>
+          <span class="day-title">Tokyo → Hakone</span>
+          <span class="badge badge-hakone">Hakone</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="period-label">🌤 Travel</div>
+          <div class="event event-highlight">
+            <span class="event-time">Morning</span>
+            <div>
+              <div class="event-text">🚃 Romancecar → Odawara &nbsp;<span class="badge badge-success" style="font-size:11px; padding:2px 8px;">✓ Booked</span></div>
+              <div class="event-note">Then taxi to ryokan</div>
+            </div>
+          </div>
+          <div class="period-label">🌙 Evening</div>
+          <div class="event">
+            <span class="event-time">Evening</span>
+            <div><div class="event-text">🍱 Ryokan dinner</div></div>
+          </div>
+          <div class="event">
+            <span class="event-time">Night</span>
+            <div><div class="event-text">♨ Private onsen</div><div class="event-note">Early night — fully relaxing</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── KYOTO ── -->
+      <div class="city-divider kyoto">⛩ Kyoto &nbsp;·&nbsp; May 30–June 3</div>
+
+      <!-- May 30 -->
+      <div class="day-block" data-city="kyoto">
+        <div class="day-dot kyoto"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Sat · May 30</span>
+          <span class="day-title">Hakone → Kyoto</span>
+          <span class="badge badge-kyoto">Kyoto</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="period-label">☀️ Morning</div>
+          <div class="event">
+            <span class="event-time">Morning</span>
+            <div><div class="event-text">🍳 Slow breakfast at ryokan</div></div>
+          </div>
+          <div class="period-label">🌤 Travel</div>
+          <div class="event event-highlight">
+            <span class="event-time">Midday</span>
+            <div>
+              <div class="event-text">🚄 Shinkansen → Kyoto &nbsp;<span class="badge badge-success" style="font-size:11px; padding:2px 8px;">✓ Booked</span></div>
+              <div class="event-note">Odawara → Kyoto via SmartEX</div>
+            </div>
+          </div>
+          <div class="period-label">🌙 Evening</div>
+          <div class="event">
+            <span class="event-time">Evening</span>
+            <div><div class="event-text">🏘 Explore neighborhood casually</div><div class="event-note">Settle in, low-key first night in Kyoto</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- May 31 -->
+      <div class="day-block" data-city="kyoto">
+        <div class="day-dot kyoto"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Sun · May 31</span>
+          <span class="day-title">Fushimi Inari + Gion</span>
+          <span class="badge badge-kyoto">Kyoto</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="period-label">🌅 Early Morning</div>
+          <div class="event event-highlight">
+            <span class="event-time">Early AM</span>
+            <div><div class="event-text">⛩ Fushimi Inari-taisha</div><div class="event-note">Go early — before crowds arrive</div></div>
+          </div>
+          <div class="period-label">🌤 Afternoon</div>
+          <div class="event">
+            <span class="event-time">Afternoon</span>
+            <div><div class="event-text">🛒 Nishiki Market — matcha treats &amp; shopping</div></div>
+          </div>
+          <div class="period-label">🌙 Evening</div>
+          <div class="event">
+            <span class="event-time">Sunset</span>
+            <div><div class="event-text">⛩ Gion at sunset</div><div class="event-note">Golden hour — best lighting for photos</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- June 1 -->
+      <div class="day-block" data-city="kyoto">
+        <div class="day-dot kyoto"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Mon · Jun 1</span>
+          <span class="day-title">Arashiyama Day</span>
+          <span class="badge badge-kyoto">Kyoto</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="period-label">☀️ Morning</div>
+          <div class="event">
+            <span class="event-time">Morning</span>
+            <div><div class="event-text">🎋 Bamboo Grove + river area</div></div>
+          </div>
+          <div class="event">
+            <span class="event-time">Optional</span>
+            <div><div class="event-text">🐒 Monkey Park &nbsp;OR&nbsp; scenic train</div></div>
+          </div>
+          <div class="period-label">🌙 Evening</div>
+          <div class="event">
+            <span class="event-time">Evening</span>
+            <div><div class="event-text">🍽 Relaxed Kyoto dinner</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- June 2 -->
+      <div class="day-block" data-city="kyoto">
+        <div class="day-dot kyoto"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Tue · Jun 2</span>
+          <span class="day-title">Nara Park Day Trip ✨</span>
+          <span class="badge badge-kyoto">Kyoto</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="callout">
+            <span class="callout-icon">🦌</span>
+            Great <strong>"slower day"</strong> before the Osaka energy — highly recommended
+          </div>
+          <div class="period-label">☀️ Morning</div>
+          <div class="event event-highlight">
+            <span class="event-time">Morning</span>
+            <div><div class="event-text">✨ Train from Kyoto → Nara (~45 min)</div></div>
+          </div>
+          <div class="event">
+            <span class="event-time">Morning</span>
+            <div>
+              <div class="event-text">🦌 Bowing deer · Tōdai-ji · Giant Buddha</div>
+              <div class="event-note">Mochi pounding shops nearby</div>
+            </div>
+          </div>
+          <div class="period-label">🌤 Afternoon</div>
+          <div class="event">
+            <span class="event-time">Afternoon</span>
+            <div><div class="event-text">Wander old Nara streets</div><div class="event-note">Return to Kyoto in the afternoon</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── OSAKA ── -->
+      <div class="city-divider osaka">🦀 Osaka &nbsp;·&nbsp; June 3–5</div>
+
+      <!-- June 3 -->
+      <div class="day-block" data-city="osaka">
+        <div class="day-dot osaka"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Wed · Jun 3</span>
+          <span class="day-title">Osaka + Pokémon Cafe ✨</span>
+          <span class="badge badge-osaka">Osaka</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="period-label">🌤 Travel + Afternoon</div>
+          <div class="event">
+            <span class="event-time">Midday</span>
+            <div><div class="event-text">🚃 Kyoto → Osaka</div><div class="event-note">IC card — no booking needed</div></div>
+          </div>
+          <div class="event">
+            <span class="event-time">Afternoon</span>
+            <div><div class="event-text">Check into Airbnb, explore Dotonbori</div></div>
+          </div>
+          <div class="period-label">🌙 Evening</div>
+          <div class="event event-highlight">
+            <span class="event-time">Evening</span>
+            <div>
+              <div class="event-text">✨ Pokémon Cafe Osaka &nbsp;<span class="badge badge-success" style="font-size:11px; padding:2px 8px;">✓ Booked</span></div>
+              <div class="event-note">Fun energy, great for teens, near shopping</div>
+            </div>
+          </div>
+          <div class="event">
+            <span class="event-time">Night</span>
+            <div><div class="event-text">🌃 Dotonbori at night + street food</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- June 4 -->
+      <div class="day-block" data-city="osaka">
+        <div class="day-dot osaka"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Thu · Jun 4</span>
+          <span class="day-title">Osaka Aquarium</span>
+          <span class="badge badge-osaka">Osaka</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="period-label">🌤 Afternoon</div>
+          <div class="event event-highlight">
+            <span class="event-time">3:30 PM</span>
+            <div>
+              <div class="event-text">🐋 Osaka Aquarium Kaiyukan &nbsp;<span class="badge badge-success" style="font-size:11px; padding:2px 8px;">✓ Booked</span></div>
+              <div class="event-note">One of the world's largest aquariums</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- June 5 -->
+      <div class="day-block" data-city="osaka">
+        <div class="day-dot osaka"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Fri · Jun 5</span>
+          <span class="day-title">Departure Day ✈️</span>
+          <span class="badge badge-osaka">Osaka</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="period-label">☀️ Morning</div>
+          <div class="event">
+            <span class="event-time">Morning</span>
+            <div><div class="event-text">☕ Slow morning</div></div>
+          </div>
+          <div class="event">
+            <span class="event-time">Late AM</span>
+            <div><div class="event-text">🛍 Last-minute snacks &amp; souvenirs</div></div>
+          </div>
+          <div class="period-label">✈️ Departure</div>
+          <div class="event event-highlight">
+            <span class="event-time">~1:00 PM</span>
+            <div><div class="event-text">🚄 Head to KIX airport</div><div class="event-note">HARUKA express — allow plenty of time</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────── HOTELS ─────────────── -->
+  <div id="section-hotels" class="section">
+    <div class="section-title">🏠 Accommodation</div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">KOALA BLDG. SHINJUKU</div>
+          <div class="card-sub">2-chōme-11-12 Yoyogi 3F, Shibuya, Tokyo 151-0053</div>
+        </div>
+        <span class="badge badge-tokyo">🗼 Tokyo</span>
+      </div>
+      <div class="info-grid">
+        <div class="info-item"><span class="info-label">Check-in</span><span class="info-value">May 25 · 3:00 PM</span></div>
+        <div class="info-item"><span class="info-label">Check-out</span><span class="info-value">May 29 · 10:00 AM</span></div>
+        <div class="info-item"><span class="info-label">Duration</span><span class="info-value">4 nights</span></div>
+        <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="conf-code">HMBQZPZ3QA</span></span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">箱根芦ノ湖ゴルフ Villa</div>
+          <div class="card-sub">249-3 Hakone, Ashigarashimo District, Kanagawa 250-0521</div>
+        </div>
+        <span class="badge badge-hakone">🏔 Hakone</span>
+      </div>
+      <div class="info-grid">
+        <div class="info-item"><span class="info-label">Check-in</span><span class="info-value">May 29 · 1:00 PM</span></div>
+        <div class="info-item"><span class="info-label">Check-out</span><span class="info-value">May 30 · 12:00 PM</span></div>
+        <div class="info-item"><span class="info-label">Duration</span><span class="info-value">1 night</span></div>
+        <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="conf-code">HMMAPSFSTQ</span></span></div>
+        <div class="info-item"><span class="info-label">Host phone</span><span class="info-value">+81 80-3544-1056</span></div>
+        <div class="info-item"><span class="info-label">Amenities</span><span class="info-value">♨ Onsen included</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">515 Yamadachō</div>
+          <div class="card-sub">515 Yamadachō, Nakagyo Ward, Kyoto 604-8237</div>
+        </div>
+        <span class="badge badge-kyoto">⛩ Kyoto</span>
+      </div>
+      <div class="info-grid">
+        <div class="info-item"><span class="info-label">Check-in</span><span class="info-value">May 30 · 4:00 PM</span></div>
+        <div class="info-item"><span class="info-label">Check-out</span><span class="info-value">June 3 · 11:00 AM</span></div>
+        <div class="info-item"><span class="info-label">Duration</span><span class="info-value">4 nights</span></div>
+        <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="badge badge-warn">TBC</span></span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Lien de premier リアンドプルミエ</div>
+          <div class="card-sub">2-7-12 四貫島, Osaka 554-0014</div>
+        </div>
+        <span class="badge badge-osaka">🦀 Osaka</span>
+      </div>
+      <div class="info-grid">
+        <div class="info-item"><span class="info-label">Check-in</span><span class="info-value">June 3 · 4:00 PM</span></div>
+        <div class="info-item"><span class="info-label">Check-out</span><span class="info-value">June 5 · 10:00 AM</span></div>
+        <div class="info-item"><span class="info-label">Duration</span><span class="info-value">2 nights</span></div>
+        <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="conf-code">HMR98ZMTST</span></span></div>
+        <div class="info-item"><span class="info-label">Under</span><span class="info-value">Jacob</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────── TRAINS ─────────────── -->
+  <div id="section-trains" class="section">
+    <div class="section-title">🚄 Train Bookings</div>
+
+    <div class="train-card">
+      <div class="train-header">
+        <span class="train-icon">🚃</span>
+        <div>
+          <div class="train-name">Romancecar</div>
+          <div class="train-route">Shinjuku → Hakone-Yumoto</div>
+        </div>
+        <span class="badge badge-warn" style="margin-left:auto">Book from Apr 28</span>
+      </div>
+      <div class="train-body">
+        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">May 29</div></div>
+        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">11:00 AM</div></div>
+        <div class="train-cell"><div class="info-label">Seats</div><div class="info-value">5 together</div></div>
+        <div class="train-cell"><div class="info-label">Book via</div><div class="info-value">Odakyu e-Romancecar</div></div>
+      </div>
+    </div>
+
+    <div class="train-card">
+      <div class="train-header">
+        <span class="train-icon">🚄</span>
+        <div>
+          <div class="train-name">Shinkansen</div>
+          <div class="train-route">Odawara → Kyoto</div>
+        </div>
+        <span class="badge badge-success">Book now</span>
+      </div>
+      <div class="train-body">
+        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">May 30</div></div>
+        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">1:15 PM</div></div>
+        <div class="train-cell"><div class="info-label">Seats</div><div class="info-value">5 together</div></div>
+        <div class="train-cell"><div class="info-label">Book via</div><div class="info-value">SmartEX</div></div>
+      </div>
+    </div>
+
+    <div class="train-card">
+      <div class="train-header">
+        <span class="train-icon">🚃</span>
+        <div>
+          <div class="train-name">Regional</div>
+          <div class="train-route">Kyoto → Osaka</div>
+        </div>
+        <span class="badge badge-info">IC card — no booking</span>
+      </div>
+      <div class="train-body">
+        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">June 3</div></div>
+        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">Midday</div></div>
+        <div class="train-cell"><div class="info-label">Seats</div><div class="info-value">—</div></div>
+        <div class="train-cell"><div class="info-label">Book via</div><div class="info-value">Just tap IC card</div></div>
+      </div>
+    </div>
+
+    <div class="train-card">
+      <div class="train-header">
+        <span class="train-icon">🚄</span>
+        <div>
+          <div class="train-name">HARUKA</div>
+          <div class="train-route">Osaka → Kansai Airport (KIX)</div>
+        </div>
+        <span class="badge badge-warn">Book from May 4</span>
+      </div>
+      <div class="train-body">
+        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">June 5</div></div>
+        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">1:03 PM</div></div>
+        <div class="train-cell"><div class="info-label">Seats</div><div class="info-value">5 together</div></div>
+        <div class="train-cell"><div class="info-label">Book via</div><div class="info-value">JR West</div></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:36px; font-size:18px;">📅 Booking Reminders</div>
+    <div class="card">
+      <table class="reminder-table">
+        <thead>
+          <tr><th>When</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr class="reminder-past">
+            <td><strong>Now (Apr)</strong></td>
+            <td>Book Shinkansen Odawara → Kyoto (May 30, 1:15 PM) via SmartEX — 5 seats</td>
+          </tr>
+          <tr class="reminder-past">
+            <td><strong>Apr 28</strong></td>
+            <td>Book Romancecar Shinjuku → Hakone-Yumoto (May 29, 11:00 AM) via Odakyu e-Romancecar — 5 seats together</td>
+          </tr>
+          <tr class="reminder-past">
+            <td><strong>~May 1–3</strong></td>
+            <td>Book teamLab Planets timed entry (May 27) if wanted</td>
+          </tr>
+          <tr>
+            <td><strong>May 4</strong></td>
+            <td>Book HARUKA Osaka → KIX (Jun 5, 1:03 PM) via JR West — 5 seats</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─────────────── ACTIVITIES ─────────────── -->
+  <div id="section-activities" class="section">
+    <div class="section-title">📍 Activities by City</div>
+
+    <div class="activity-group">
+      <div class="activity-city-header tokyo">🗼 Tokyo</div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Shibuya Crossing</div>
+            <div class="activity-note">Iconic scramble intersection</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Shinjuku neon district + Omoide Yokocho</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Meiji Shrine</div>
+            <div class="activity-note">Early morning is best</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Harajuku Takeshita Street</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type optional">Optional</span>
+          <div class="activity-main">
+            <div class="activity-name">teamLab Planets</div>
+            <div class="activity-note">Book timed entry 2–3 weeks ahead</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type optional">Optional</span>
+          <div class="activity-main">
+            <div class="activity-name">Tokyo Skytree</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type optional">Optional</span>
+          <div class="activity-main">
+            <div class="activity-name">Tsukiji Outer Market</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type shopping">Shopping</span>
+          <div class="activity-main">
+            <div class="activity-name">Pokémon Center</div>
+            <div class="activity-note">Walk-in</div>
+          </div>
+        </div>
+        <div class="activity-item" style="opacity:0.5">
+          <span class="activity-type optional">Closed</span>
+          <div class="activity-main">
+            <div class="activity-name" style="text-decoration:line-through">Pokémon Café Tokyo</div>
+            <div class="activity-note">Closed during trip dates — Osaka backup on Jun 4</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="activity-group">
+      <div class="activity-city-header hakone">🏔 Hakone</div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Hakone Ropeway</div>
+            <div class="activity-note">Over volcanic valley</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Owakudani Valley</div>
+            <div class="activity-note">Volcanic area, Mt. Fuji views</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Lake Ashi Pirate Ship Cruise</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type included">Included</span>
+          <div class="activity-main">
+            <div class="activity-name">Onsen at villa</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Kaiseki dinner</div>
+            <div class="activity-note">Traditional multi-course</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="activity-group">
+      <div class="activity-city-header kyoto">⛩ Kyoto</div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Fushimi Inari Shrine</div>
+            <div class="activity-note">Red torii gates — go early</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Arashiyama Bamboo Grove</div>
+            <div class="activity-note">Morning is best</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Kinkaku-ji (Golden Pavilion)</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Gion District</div>
+            <div class="activity-note">Geisha area — respectful photography</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Nishiki Market</div>
+            <div class="activity-note">Food market</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type cultural">Cultural</span>
+          <div class="activity-main">
+            <div class="activity-name">Tea ceremony</div>
+            <div class="activity-note">Book in advance</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type cultural">Cultural</span>
+          <div class="activity-main">
+            <div class="activity-name">Kimono rental</div>
+            <div class="activity-note">Book in advance</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type optional">Optional</span>
+          <div class="activity-main">
+            <div class="activity-name">Philosopher's Path</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type optional">Optional</span>
+          <div class="activity-main">
+            <div class="activity-name">Nijo Castle</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="activity-group">
+      <div class="activity-city-header osaka">🦀 Osaka</div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Dotonbori</div>
+            <div class="activity-note">Food + nightlife</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Osaka Castle</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type must">Must-do</span>
+          <div class="activity-main">
+            <div class="activity-name">Shinsekai district</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type food">Food</span>
+          <div class="activity-main">
+            <div class="activity-name">Takoyaki</div>
+            <div class="activity-note">Classic Osaka street food</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type food">Food</span>
+          <div class="activity-main">
+            <div class="activity-name">Okonomiyaki</div>
+            <div class="activity-note">Savory pancake</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type optional">Optional</span>
+          <div class="activity-main">
+            <div class="activity-name">Universal Studios Japan</div>
+            <div class="activity-note">Get Express Pass</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <span class="activity-type optional">Optional</span>
+          <div class="activity-main">
+            <div class="activity-name">Pokémon Café Osaka</div>
+            <div class="activity-note">Backup for Tokyo Café</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────── LOGISTICS ─────────────── -->
+  <div id="section-logistics" class="section">
+    <div class="section-title">📋 Logistics</div>
+
+    <div class="logistics-grid">
+      <div class="logistics-item">
+        <span class="logistics-icon">💳</span>
+        <div>
+          <div class="logistics-title">Suica Card</div>
+          <div class="logistics-body">Add to Apple Wallet before departure. Load a starting balance — used for trains, buses, and many convenience stores.</div>
+        </div>
+      </div>
+      <div class="logistics-item">
+        <span class="logistics-icon">🗺</span>
+        <div>
+          <div class="logistics-title">Navigation</div>
+          <div class="logistics-body">Google Maps as primary. Use JR West route finder for train connections and regional journeys.</div>
+        </div>
+      </div>
+      <div class="logistics-item">
+        <span class="logistics-icon">🚃</span>
+        <div>
+          <div class="logistics-title">Kyoto → Osaka</div>
+          <div class="logistics-body">IC card day-of, no advance booking needed. Easy regional train ride.</div>
+        </div>
+      </div>
+      <div class="logistics-item">
+        <span class="logistics-icon">🧳</span>
+        <div>
+          <div class="logistics-title">Luggage Forwarding</div>
+          <div class="logistics-body">Consider takuhaibin (luggage forwarding) from Tokyo to Kyoto if you want to travel light on the Romancecar + Shinkansen day.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:36px; font-size:18px;">🗣 Key Phrases</div>
+    <div class="phrases-grid">
+      <div class="phrase-card">
+        <div class="phrase-en">Thank you</div>
+        <div class="phrase-romanji">Arigatou gozaimasu</div>
+        <div class="phrase-jp">ありがとうございます</div>
+      </div>
+      <div class="phrase-card">
+        <div class="phrase-en">Excuse me</div>
+        <div class="phrase-romanji">Sumimasen</div>
+        <div class="phrase-jp">すみません</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─────────────── LANGUAGE ─────────────── -->
+  <div id="section-language" class="section">
+    <div class="section-title">🗣️ Japanese Language Guide</div>
+
+    <!-- BASIC LIFE SAVERS -->
+    <div class="lang-section-header">🆘 Basic life savers</div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag lifesaver">Essential</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Konnichiwa</div>
+        <div class="phrase-meaning">Hello / Good afternoon</div>
+      </div>
+      <div class="phrase-kanji">こんにちは</div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag lifesaver">Essential</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Arigatou gozaimasu</div>
+        <div class="phrase-meaning">Thank you (formal)</div>
+      </div>
+      <div class="phrase-kanji">ありがとう<br>ございます</div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag lifesaver">Essential</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Sumimasen</div>
+        <div class="phrase-meaning">Excuse me · Sorry · Help</div>
+      </div>
+      <div class="phrase-kanji">すみません</div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag lifesaver">Essential</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Wakarimasen</div>
+        <div class="phrase-meaning">I don't understand</div>
+      </div>
+      <div class="phrase-kanji">わかりません</div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag lifesaver">Essential</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Eigo wa hanasemasu ka?</div>
+        <div class="phrase-meaning">Do you speak English?</div>
+      </div>
+      <div class="phrase-kanji">英語は<br>話せますか？</div>
+    </div>
+
+    <!-- FOOD -->
+    <div class="lang-section-header">🍜 Food & restaurants</div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag food">Food</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Kore onegaishimasu</div>
+        <div class="phrase-meaning">This please — point at menu item</div>
+      </div>
+      <div class="phrase-kanji">これ<br>お願いします</div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag food">Food</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Menu onegaishimasu</div>
+        <div class="phrase-meaning">Menu please</div>
+      </div>
+      <div class="phrase-kanji">メニュー<br>お願いします</div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag food">Food</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Mizu onegaishimasu</div>
+        <div class="phrase-meaning">Water please</div>
+      </div>
+      <div class="phrase-kanji">水<br>お願いします</div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag food">Food</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Oishii!</div>
+        <div class="phrase-meaning">Delicious! — staff love hearing this</div>
+      </div>
+      <div class="phrase-kanji">美味しい！</div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag food">Food</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">O-kanjo onegaishimasu</div>
+        <div class="phrase-meaning">Check please</div>
+      </div>
+      <div class="phrase-kanji">お勘定<br>お願いします</div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag food">Food</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Osusume wa?</div>
+        <div class="phrase-meaning">What do you recommend?</div>
+      </div>
+      <div class="phrase-kanji">おすすめは？</div>
+    </div>
+
+    <!-- GETTING AROUND -->
+    <div class="lang-section-header">🚃 Getting around</div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag nav">Transit</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Doko desu ka?</div>
+        <div class="phrase-meaning">Where is it? — add place name before</div>
+      </div>
+      <div class="phrase-kanji">どこ<br>ですか？</div>
+    </div>
+
+    <div class="phrase-row phrase-row-interactive">
+      <div class="phrase-row-top">
+        <span class="phrase-tag nav" style="flex-shrink:0; margin-top:4px;">Transit</span>
+        <div class="phrase-row-content" style="flex:1;">
+          <div class="phrase-builder">
+            <span class="phrase-builder-part">Kore wa</span>
+            <select class="phrase-select" id="select-kore" onchange="updatePhrase('kore')">
+              <option value="" data-romanji="" data-jp="">— pick a place type —</option>
+              <option value="1" data-romanji="eki" data-jp="駅">eki (駅) · the station</option>
+              <option value="2" data-romanji="chikatetsu" data-jp="地下鉄">chikatetsu (地下鉄) · the subway</option>
+              <option value="3" data-romanji="basu tei" data-jp="バス停">basu tei (バス停) · the bus stop</option>
+              <option value="4" data-romanji="takushii noriba" data-jp="タクシー乗り場">takushii noriba (タクシー乗り場) · taxi stand</option>
+              <option value="5" data-romanji="kūkō" data-jp="空港">kūkō (空港) · the airport</option>
+              <option value="6" data-romanji="hoteru" data-jp="ホテル">hoteru (ホテル) · the hotel</option>
+              <option value="7" data-romanji="deguchi" data-jp="出口">deguchi (出口) · the exit</option>
+            </select>
+            <span class="phrase-builder-part">desu ka?</span>
+          </div>
+          <div class="phrase-meaning">Is this ___? — point at sign or map</div>
+        </div>
+        <div class="phrase-kanji" id="kanji-kore">これは___<br>ですか？</div>
+      </div>
+      <div class="phrase-result-box" id="result-kore">
+        <div class="phrase-result-main">
+          <div class="phrase-result-romanji" id="romanji-kore">Kore wa ___ desu ka?</div>
+          <div class="phrase-result-jp" id="jp-kore">これは___ですか？</div>
+        </div>
+        <button class="phrase-copy-btn" id="copy-kore" onclick="copyPhrase('kore')">📋 Copy</button>
+      </div>
+    </div>
+
+    <div class="phrase-row phrase-row-interactive">
+      <div class="phrase-row-top">
+        <span class="phrase-tag nav" style="flex-shrink:0; margin-top:4px;">Transit</span>
+        <div class="phrase-row-content" style="flex:1;">
+          <div class="phrase-builder">
+            <select class="phrase-select" id="select-ikitai" onchange="updatePhrase('ikitai')">
+              <option value="" data-romanji="" data-jp="">— pick a destination —</option>
+              <option value="1" data-romanji="Shibuya" data-jp="渋谷">Shibuya (渋谷)</option>
+              <option value="2" data-romanji="Shinjuku" data-jp="新宿">Shinjuku (新宿)</option>
+              <option value="3" data-romanji="Asakusa" data-jp="浅草">Asakusa (浅草)</option>
+              <option value="4" data-romanji="Akihabara" data-jp="秋葉原">Akihabara (秋葉原)</option>
+              <option value="5" data-romanji="Harajuku" data-jp="原宿">Harajuku (原宿)</option>
+              <option value="6" data-romanji="Fushimi Inari" data-jp="伏見稲荷">Fushimi Inari (伏見稲荷)</option>
+              <option value="7" data-romanji="Dotonbori" data-jp="道頓堀">Dotonbori (道頓堀)</option>
+              <option value="8" data-romanji="kūkō" data-jp="空港">kūkō (空港) · the airport</option>
+              <option value="9" data-romanji="Kyoto-eki" data-jp="京都駅">Kyoto-eki (京都駅) · Kyoto Station</option>
+              <option value="10" data-romanji="Osaka-eki" data-jp="大阪駅">Osaka-eki (大阪駅) · Osaka Station</option>
+              <option value="11" data-romanji="Nara" data-jp="奈良">Nara (奈良)</option>
+            </select>
+            <span class="phrase-builder-part">ni ikitai desu</span>
+          </div>
+          <div class="phrase-meaning">I want to go to ___</div>
+        </div>
+        <div class="phrase-kanji" id="kanji-ikitai">___に<br>行きたいです</div>
+      </div>
+      <div class="phrase-result-box" id="result-ikitai">
+        <div class="phrase-result-main">
+          <div class="phrase-result-romanji" id="romanji-ikitai">___ ni ikitai desu</div>
+          <div class="phrase-result-jp" id="jp-ikitai">___に行きたいです</div>
+        </div>
+        <button class="phrase-copy-btn" id="copy-ikitai" onclick="copyPhrase('ikitai')">📋 Copy</button>
+      </div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag nav">Transit</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Toire wa doko desu ka?</div>
+        <div class="phrase-meaning">Where's the bathroom?</div>
+      </div>
+      <div class="phrase-kanji">トイレは<br>どこですか？</div>
+    </div>
+
+    <!-- SHOPPING -->
+    <div class="lang-section-header">🛍 Shopping</div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag shop">Shop</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Ikura desu ka?</div>
+        <div class="phrase-meaning">How much is this?</div>
+      </div>
+      <div class="phrase-kanji">いくら<br>ですか？</div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag shop">Shop</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Kurejitto kaado tsukaemasu ka?</div>
+        <div class="phrase-meaning">Can I pay by card?</div>
+      </div>
+      <div class="phrase-kanji">クレジット<br>カード使えますか？</div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag shop">Shop</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Tax free onegaishimasu</div>
+        <div class="phrase-meaning">Tax free please — show passport</div>
+      </div>
+      <div class="phrase-kanji">—</div>
+    </div>
+
+    <!-- SECRET WEAPONS -->
+    <div class="lang-section-header">🔑 Secret weapons</div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag secret">Pro</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Yukkuri onegaishimasu</div>
+        <div class="phrase-meaning">Please slow down — if someone speaks too fast</div>
+      </div>
+      <div class="phrase-kanji">ゆっくり<br>お願いします</div>
+    </div>
+
+    <div class="phrase-row">
+      <span class="phrase-tag secret">Pro</span>
+      <div class="phrase-row-content">
+        <div class="phrase-romanji-big">Daijoubu desu</div>
+        <div class="phrase-meaning">It's okay · No problem · I'm fine</div>
+      </div>
+      <div class="phrase-kanji">大丈夫です</div>
+    </div>
+
+    <div class="pro-tip">
+      <span class="pro-tip-icon">💡</span>
+      <div class="pro-tip-text"><strong>Show, don't speak.</strong> Open Google Translate, type in English, and show the Japanese characters on screen. Works everywhere — convenience stores, pharmacies, train stations.</div>
+    </div>
+
+    <!-- RESTAURANT SCRIPT -->
+    <div class="lang-section-header" style="margin-top:32px;">🍽 Restaurant script — step by step</div>
+
+    <div class="restaurant-flow">
+      <div class="restaurant-flow-header">
+        <span style="font-size:20px">🗺</span>
+        <div>
+          <div class="restaurant-flow-title">From door to dessert</div>
+          <div style="font-size:13px; color:var(--text-muted); margin-top:2px;">A complete script for any sit-down restaurant in Japan</div>
+        </div>
+      </div>
+
+      <div class="restaurant-step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-label">Entering</div>
+          <div class="step-body">Say <span class="step-phrase">Konnichiwa</span> and smile. Wait to be seated — don't sit down before staff guides you. Follow them to your table.</div>
+        </div>
+      </div>
+
+      <div class="restaurant-step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-label">Ordering</div>
+          <div class="step-body">Point at the menu item and say <span class="step-phrase">Kore onegaishimasu</span>. Repeat for each item. For quantity, hold up fingers.</div>
+          <div class="step-note">For multiple items: point and say "kore" each time, then "onegaishimasu" at the end.</div>
+        </div>
+      </div>
+
+      <div class="restaurant-step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-label">Drinks</div>
+          <div class="step-body">Say <span class="step-phrase">Mizu onegaishimasu</span> for water. For other drinks, point at the menu.</div>
+        </div>
+      </div>
+
+      <div class="restaurant-step">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-label">After eating</div>
+          <div class="step-body">Compliment the chef: <span class="step-phrase">Oishii!</span> When leaving, say <span class="step-phrase">Arigatou gozaimasu</span> to the staff. It's always warmly received.</div>
+        </div>
+      </div>
+
+      <div class="restaurant-step">
+        <div class="step-num">5</div>
+        <div>
+          <div class="step-label">Paying</div>
+          <div class="step-body">Say <span class="step-phrase">O-kanjo onegaishimasu</span> for the bill. Payment is usually at a register near the door, not at the table.</div>
+          <div class="step-note">Many casual spots use ticket machines (pay first!) or have picture menus — just point and the system works perfectly without any Japanese.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KID-FRIENDLY MAGIC 5 -->
+    <div class="lang-section-header" style="margin-top:32px;">⭐ Kid-friendly magic 5</div>
+
+    <div class="kids-card">
+      <div class="kids-header">
+        <div>
+          <div class="kids-title">Five words that'll get the kids everywhere</div>
+          <div class="kids-sub">Simple, fun, and genuinely useful</div>
+        </div>
+      </div>
+
+      <div class="kids-grid">
+        <div class="kids-word">
+          <div class="kids-romanji">Konnichiwa</div>
+          <div class="kids-meaning">= hi</div>
+        </div>
+        <div class="kids-word">
+          <div class="kids-romanji">Arigatou</div>
+          <div class="kids-meaning">= thanks</div>
+        </div>
+        <div class="kids-word">
+          <div class="kids-romanji">Sumimasen</div>
+          <div class="kids-meaning">= excuse me</div>
+        </div>
+        <div class="kids-word">
+          <div class="kids-romanji">Oishii!</div>
+          <div class="kids-meaning">= yum!</div>
+        </div>
+        <div class="kids-word">
+          <div class="kids-romanji">Doko?</div>
+          <div class="kids-meaning">= where?</div>
+        </div>
+      </div>
+
+      <div class="kids-hack">
+        <span style="font-size:18px">🍱</span>
+        <div><strong>Food hack:</strong> Point at a menu item and say <strong style="color:var(--kyoto)">Kore onegaishimasu</strong> — they'll feel like pros and the staff will love it.</div>
+      </div>
+      <div class="kids-hack" style="margin-top:8px;">
+        <span style="font-size:18px">🚃</span>
+        <div><strong>Travel game:</strong> Use <strong style="color:var(--hakone)">Doko?</strong> and <strong style="color:var(--hakone)">Kore?</strong> to make train navigation into a guessing game.</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('section-' + id).classList.add('visible');
+    btn.classList.add('active');
+    btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+
+  function toggleDay(header) {
+    const events = header.nextElementSibling;
+    const toggle = header.querySelector('.day-toggle');
+    const collapsed = events.classList.toggle('collapsed');
+    toggle.classList.toggle('open', !collapsed);
+  }
+
+  function filterCity(city) {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    document.querySelector(`.pill[data-city="${city}"]`).classList.add('active');
+
+    document.querySelectorAll('.day-block').forEach(block => {
+      if (city === 'all' || block.dataset.city === city) {
+        block.classList.remove('hidden');
+      } else {
+        block.classList.add('hidden');
+      }
+    });
+
+    // Switch to itinerary tab when filtering by city
+    if (city !== 'all') {
+      const itinBtn = document.querySelector('.nav-btn');
+      showSection('itinerary', itinBtn);
+    }
+  }
+
+  // ── Interactive phrase builder ──
+  const phraseConfigs = {
+    kore: {
+      prefix: 'Kore wa ',
+      suffix: ' desu ka?',
+      jpPrefix: 'これは',
+      jpSuffix: 'ですか？',
+      defaultRomanji: 'Kore wa ___ desu ka?',
+      defaultJp: 'これは___ですか？',
+      defaultKanji: 'これは___<br>ですか？'
+    },
+    ikitai: {
+      prefix: '',
+      suffix: ' ni ikitai desu',
+      jpPrefix: '',
+      jpSuffix: 'に行きたいです',
+      defaultRomanji: '___ ni ikitai desu',
+      defaultJp: '___に行きたいです',
+      defaultKanji: '___に<br>行きたいです'
+    }
+  };
+
+  function updatePhrase(id) {
+    const select = document.getElementById('select-' + id);
+    const cfg = phraseConfigs[id];
+    const selected = select.options[select.selectedIndex];
+    const romanjiVal = selected.dataset.romanji;
+    const jpVal = selected.dataset.jp;
+
+    const resultBox = document.getElementById('result-' + id);
+    const romanjiEl = document.getElementById('romanji-' + id);
+    const jpEl = document.getElementById('jp-' + id);
+    const kanjiEl = document.getElementById('kanji-' + id);
+
+    if (!romanjiVal) {
+      romanjiEl.textContent = cfg.defaultRomanji;
+      jpEl.textContent = cfg.defaultJp;
+      if (kanjiEl) kanjiEl.innerHTML = cfg.defaultKanji;
+      resultBox.classList.remove('has-value');
+      return;
+    }
+
+    const fullRomanji = cfg.prefix + romanjiVal + cfg.suffix;
+    const fullJp = cfg.jpPrefix + jpVal + cfg.jpSuffix;
+    romanjiEl.textContent = fullRomanji;
+    jpEl.textContent = fullJp;
+    if (kanjiEl) kanjiEl.innerHTML = jpVal;
+    resultBox.classList.add('has-value');
+  }
+
+  function copyPhrase(id) {
+    const romanjiEl = document.getElementById('romanji-' + id);
+    const jpEl = document.getElementById('jp-' + id);
+    const btn = document.getElementById('copy-' + id);
+    const text = romanjiEl.textContent + '\n' + jpEl.textContent;
+
+    function flashCopied() {
+      btn.textContent = '✓ Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋 Copy'; btn.classList.remove('copied'); }, 2000);
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(flashCopied).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+        flashCopied();
+      });
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      flashCopied();
+    }
+  }
+
+  // ── 📍 Map this day — Route Builder ──
+  const DAY_LOCATIONS = [
+    // May 25 — Tokyo Arrival
+    [
+      { label: 'Shibuya Station, Tokyo (渋谷駅)', query: 'Shibuya Station Tokyo 渋谷駅', checked: false },
+      { label: 'Shibuya Crossing (渋谷スクランブル交差点)', query: 'Shibuya Crossing Tokyo 渋谷スクランブル交差点', checked: true },
+      { label: 'Don Quijote Shibuya (ドン・キホーテ 渋谷本店)', query: 'Don Quijote Shibuya Tokyo ドン・キホーテ 渋谷本店', checked: true },
+    ],
+    // May 26 — Shibuya / Harajuku
+    [
+      { label: 'Meiji Shrine, Tokyo (明治神宮)', query: 'Meiji Shrine Tokyo 明治神宮', checked: true },
+      { label: 'Takeshita Street, Harajuku (竹下通り)', query: 'Takeshita Street Harajuku Tokyo 竹下通り', checked: true },
+      { label: 'Cat Street, Harajuku (キャットストリート)', query: 'Cat Street Harajuku Tokyo キャットストリート', checked: true },
+      { label: 'Shibuya Crossing (渋谷スクランブル交差点)', query: 'Shibuya Crossing Tokyo 渋谷スクランブル交差点', checked: true },
+    ],
+    // May 27 — Asakusa + Akihabara
+    [
+      { label: 'Senso-ji Temple, Asakusa (浅草寺)', query: 'Senso-ji Temple Asakusa Tokyo 浅草寺', checked: true },
+      { label: 'Nakamise Shopping Street (仲見世通り)', query: 'Nakamise Shopping Street Asakusa Tokyo 仲見世通り', checked: true },
+      { label: 'Akihabara Electric Town (秋葉原電気街)', query: 'Akihabara Electric Town Tokyo 秋葉原', checked: true },
+    ],
+    // May 28 — teamLab + Shibuya Sky
+    [
+      { label: 'teamLab Planets TOKYO (チームラボプラネッツ)', query: 'teamLab Planets TOKYO Toyosu チームラボプラネッツ TOKYO', checked: true },
+      { label: 'Odaiba, Tokyo (お台場)', query: 'Odaiba Tokyo お台場', checked: true },
+      { label: 'Shibuya Sky (渋谷スカイ)', query: 'Shibuya Sky Tokyo 渋谷スカイ', checked: true },
+    ],
+    // May 29 — Tokyo → Hakone
+    [
+      { label: 'Odawara Station (小田原駅)', query: 'Odawara Station Kanagawa 小田原駅', checked: false },
+      { label: 'Hakone, Kanagawa (箱根)', query: 'Hakone Kanagawa Japan 箱根', checked: true },
+    ],
+    // May 30 — Hakone → Kyoto
+    [
+      { label: 'Hakone-Yumoto Station (箱根湯本駅)', query: 'Hakone-Yumoto Station Kanagawa 箱根湯本駅', checked: false },
+      { label: 'Kyoto Station (京都駅)', query: 'Kyoto Station Japan 京都駅', checked: false },
+    ],
+    // May 31 — Fushimi Inari + Gion
+    [
+      { label: 'Fushimi Inari Shrine, Kyoto (伏見稲荷大社)', query: 'Fushimi Inari Shrine Kyoto 伏見稲荷大社', checked: true },
+      { label: 'Nishiki Market, Kyoto (錦市場)', query: 'Nishiki Market Kyoto 錦市場', checked: true },
+      { label: 'Gion District, Kyoto (祇園)', query: 'Gion District Kyoto 祇園', checked: true },
+    ],
+    // June 1 — Arashiyama
+    [
+      { label: 'Arashiyama Bamboo Grove (嵐山竹林)', query: 'Arashiyama Bamboo Grove Kyoto 嵐山竹林', checked: true },
+      { label: 'Togetsukyo Bridge, Arashiyama (渡月橋)', query: 'Togetsukyo Bridge Arashiyama Kyoto 渡月橋', checked: true },
+      { label: 'Iwatayama Monkey Park (嵐山モンキーパーク)', query: 'Iwatayama Monkey Park Arashiyama Kyoto 嵐山モンキーパーク', checked: true },
+    ],
+    // June 2 — Nara Day Trip
+    [
+      { label: 'Nara Park (奈良公園)', query: 'Nara Park Nara Japan 奈良公園', checked: true },
+      { label: 'Todai-ji Temple, Nara (東大寺)', query: 'Todai-ji Temple Nara 東大寺', checked: true },
+      { label: 'Naramachi, Nara (奈良町)', query: 'Naramachi Nara Japan 奈良町', checked: true },
+    ],
+    // June 3 — Osaka + Pokémon Cafe
+    [
+      { label: 'Dotonbori, Osaka (道頓堀)', query: 'Dotonbori Osaka 道頓堀', checked: true },
+      { label: 'Pokemon Cafe Osaka (ポケモンカフェ 大阪)', query: 'Pokemon Cafe Osaka Shinsaibashi ポケモンカフェ 大阪', checked: true },
+      { label: 'Shinsaibashi Shopping Street (心斎橋筋商店街)', query: 'Shinsaibashi Shopping Street Osaka 心斎橋筋商店街', checked: true },
+    ],
+    // June 4 — Osaka Aquarium
+    [
+      { label: 'Osaka Aquarium Kaiyukan (海遊館)', query: 'Osaka Aquarium Kaiyukan 海遊館', checked: true },
+      { label: 'Universal CityWalk Osaka (ユニバーサルシティウォーク)', query: 'Universal CityWalk Osaka ユニバーサルシティウォーク大阪', checked: false },
+    ],
+    // June 5 — Departure
+    [
+      { label: 'Namba Station, Osaka (大阪難波駅)', query: 'Namba Station Osaka 大阪難波駅', checked: false },
+      { label: 'Kansai International Airport (関西国際空港)', query: 'Kansai International Airport 関西国際空港', checked: true },
+    ],
+  ];
+
+  function buildMapURL(dayIndex) {
+    const panel = document.querySelector('.route-builder[data-day="' + dayIndex + '"]');
+    const checked = panel.querySelectorAll('input[type="checkbox"]:checked');
+    if (checked.length === 0) return null;
+    const places = Array.from(checked).map(cb => encodeURIComponent(cb.dataset.query));
+    return 'https://www.google.com/maps/dir/' + places.join('/');
+  }
+
+  function toggleRouteBuilder(btn, dayIndex) {
+    const panel = document.querySelector('.route-builder[data-day="' + dayIndex + '"]');
+    const isOpen = panel.classList.toggle('open');
+    btn.classList.toggle('active', isOpen);
+  }
+
+  function openMapRoute(dayIndex) {
+    const url = buildMapURL(dayIndex);
+    if (url) window.open(url, '_blank');
+  }
+
+  function copyMapRoute(dayIndex) {
+    const url = buildMapURL(dayIndex);
+    const btn = document.querySelector('.route-builder[data-day="' + dayIndex + '"] .route-copy-btn');
+    if (!url) return;
+    function flashCopied() {
+      btn.textContent = '✓ Copied!';
+      btn.classList.add('copied');
+      setTimeout(function() { btn.textContent = '📋 Copy link'; btn.classList.remove('copied'); }, 2000);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(flashCopied).catch(function() {
+        var ta = document.createElement('textarea');
+        ta.value = url; ta.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+        flashCopied();
+      });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = url; ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      flashCopied();
+    }
+  }
+
+  // Inject Map buttons + Route Builder panels into each day card
+  document.addEventListener('DOMContentLoaded', function() {
+    var dayBlocks = document.querySelectorAll('.day-block');
+    dayBlocks.forEach(function(block, idx) {
+      if (!DAY_LOCATIONS[idx]) return;
+
+      // Add 📍 Map button to day-header (before the toggle chevron)
+      var header = block.querySelector('.day-header');
+      var toggle = header.querySelector('.day-toggle');
+      var mapBtn = document.createElement('button');
+      mapBtn.className = 'map-btn';
+      mapBtn.textContent = '📍 Map';
+      mapBtn.setAttribute('title', 'Build a Google Maps route for this day');
+      mapBtn.onclick = function(e) { e.stopPropagation(); toggleRouteBuilder(this, idx); };
+      header.insertBefore(mapBtn, toggle);
+
+      // Build checklist HTML
+      var locsHtml = DAY_LOCATIONS[idx].map(function(loc) {
+        var safeQuery = loc.query.replace(/"/g, '&quot;');
+        return '<label class="route-location">' +
+          '<input type="checkbox" data-query="' + safeQuery + '"' + (loc.checked ? ' checked' : '') + '>' +
+          '<span class="route-location-label">' + loc.label + '</span>' +
+          '</label>';
+      }).join('');
+
+      // Build panel
+      var panel = document.createElement('div');
+      panel.className = 'route-builder';
+      panel.setAttribute('data-day', idx);
+      panel.innerHTML =
+        '<div class="route-builder-header">' +
+          '<span class="route-builder-title">📍 Route Builder</span>' +
+          '<span class="route-builder-hint">Tick stops · open in Maps</span>' +
+        '</div>' +
+        '<div class="route-locations">' + locsHtml + '</div>' +
+        '<div class="route-actions">' +
+          '<button class="route-open-btn" onclick="openMapRoute(' + idx + ')">Open in Google Maps →</button>' +
+          '<button class="route-copy-btn" onclick="copyMapRoute(' + idx + ')">📋 Copy link</button>' +
+        '</div>';
+
+      // Insert after .day-events
+      var dayEvents = block.querySelector('.day-events');
+      dayEvents.parentNode.insertBefore(panel, dayEvents.nextSibling);
+    });
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    const btns = document.querySelectorAll('.nav-btn');
+    const map = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5 };
+    if (e.key in map && !e.metaKey && !e.ctrlKey) {
+      btns[map[e.key]]?.click();
+    }
+  });
+</script>
+<script>
+  // ── Editable itinerary ──
+  const STATE_KEY = 'j26_state';
+  let tripState = { completed: [], deleted: [], custom: [] };
+  let editMode = false;
+
+  function loadTripState() {
+    try {
+      const raw = localStorage.getItem(STATE_KEY);
+      if (raw) tripState = JSON.parse(raw);
+      if (!Array.isArray(tripState.completed)) tripState.completed = [];
+      if (!Array.isArray(tripState.deleted))   tripState.deleted   = [];
+      if (!Array.isArray(tripState.custom))    tripState.custom    = [];
+    } catch(e) { tripState = { completed: [], deleted: [], custom: [] }; }
+  }
+
+  function saveTripState() {
+    localStorage.setItem(STATE_KEY, JSON.stringify(tripState));
+  }
+
+  function initItinerary() {
+    loadTripState();
+
+    // Assign stable IDs to every built-in event
+    document.querySelectorAll('#section-itinerary .event:not(.custom-event)').forEach((el, i) => {
+      el.dataset.eid = 'ev-' + i;
+      // Completion check indicator
+      const check = document.createElement('span');
+      check.className = 'event-check';
+      check.textContent = '✓';
+      el.appendChild(check);
+      // Delete button
+      const del = document.createElement('button');
+      del.className = 'event-del-btn';
+      del.innerHTML = '×';
+      del.onclick = (e) => { e.stopPropagation(); deleteEvent('ev-' + i); };
+      el.appendChild(del);
+      // Tap to complete (only outside edit mode)
+      el.addEventListener('click', () => { if (!editMode) toggleComplete('ev-' + i); });
+    });
+
+    // Assign stable IDs to each day's event container
+    document.querySelectorAll('#section-itinerary .day-events').forEach((el, i) => {
+      el.dataset.did = 'day-' + i;
+      // Add event button
+      const addBtn = document.createElement('button');
+      addBtn.className = 'day-add-btn';
+      addBtn.innerHTML = '＋ Add event';
+      addBtn.onclick = () => showAddForm(el.dataset.did);
+      el.appendChild(addBtn);
+    });
+
+    applyTripState();
+  }
+
+  function applyTripState() {
+    // Apply completed
+    document.querySelectorAll('#section-itinerary .event[data-eid]').forEach(el => {
+      el.classList.toggle('completed', tripState.completed.includes(el.dataset.eid));
+    });
+
+    // Apply deleted (built-in)
+    document.querySelectorAll('#section-itinerary .event[data-eid]').forEach(el => {
+      el.style.display = tripState.deleted.includes(el.dataset.eid) ? 'none' : '';
+    });
+
+    // Render custom events (clear old ones first)
+    document.querySelectorAll('.event.custom-event').forEach(el => el.remove());
+    tripState.custom.forEach(c => renderCustomEvent(c));
+  }
+
+  function renderCustomEvent(c) {
+    const container = document.querySelector('[data-did="' + c.did + '"]');
+    if (!container) return;
+    const addBtn = container.querySelector('.day-add-btn');
+
+    const el = document.createElement('div');
+    el.className = 'event custom-event';
+    el.dataset.cid = c.id;
+    el.innerHTML =
+      '<span class="event-check">✓</span>' +
+      '<span class="event-time">' + escHtmlEdit(c.time) + '</span>' +
+      '<div><div class="event-text">' + escHtmlEdit(c.text) + '</div></div>';
+
+    const check = el.querySelector('.event-check');
+    check; // already in innerHTML
+
+    const del = document.createElement('button');
+    del.className = 'event-del-btn';
+    del.innerHTML = '×';
+    del.onclick = (e) => { e.stopPropagation(); deleteCustomEvent(c.id); };
+    el.appendChild(del);
+
+    el.addEventListener('click', () => { if (!editMode) toggleCompleteCustom(c.id, el); });
+
+    if (tripState.completed.includes('c-' + c.id)) el.classList.add('completed');
+
+    container.insertBefore(el, addBtn);
+  }
+
+  function toggleComplete(eid) {
+    const idx = tripState.completed.indexOf(eid);
+    if (idx === -1) tripState.completed.push(eid);
+    else tripState.completed.splice(idx, 1);
+    saveTripState();
+    applyTripState();
+  }
+
+  function toggleCompleteCustom(cid, el) {
+    const key = 'c-' + cid;
+    const idx = tripState.completed.indexOf(key);
+    if (idx === -1) tripState.completed.push(key);
+    else tripState.completed.splice(idx, 1);
+    saveTripState();
+    el.classList.toggle('completed', tripState.completed.includes(key));
+  }
+
+  function deleteEvent(eid) {
+    if (!tripState.deleted.includes(eid)) tripState.deleted.push(eid);
+    saveTripState();
+    applyTripState();
+  }
+
+  function deleteCustomEvent(cid) {
+    tripState.custom = tripState.custom.filter(c => c.id !== cid);
+    tripState.completed = tripState.completed.filter(k => k !== 'c-' + cid);
+    saveTripState();
+    applyTripState();
+  }
+
+  function showAddForm(did) {
+    // Remove any existing open form
+    document.querySelectorAll('.add-event-form').forEach(f => f.remove());
+
+    const container = document.querySelector('[data-did="' + did + '"]');
+    const addBtn = container.querySelector('.day-add-btn');
+
+    const form = document.createElement('div');
+    form.className = 'add-event-form';
+    form.innerHTML =
+      '<input type="text" id="add-time" placeholder="Time (e.g. 2:00 PM)" />' +
+      '<input type="text" id="add-text" placeholder="What\'s happening?" />' +
+      '<div class="add-event-form-actions">' +
+        '<button class="btn-add-cancel" onclick="this.closest(\'.add-event-form\').remove()">Cancel</button>' +
+        '<button class="btn-add-save" onclick="saveNewEvent(\'' + did + '\')">Add</button>' +
+      '</div>';
+
+    container.insertBefore(form, addBtn);
+    form.querySelector('#add-text').focus();
+  }
+
+  function saveNewEvent(did) {
+    const time = (document.getElementById('add-time').value || '').trim();
+    const text = (document.getElementById('add-text').value || '').trim();
+    if (!text) return;
+
+    const custom = { id: Date.now().toString(36), did, time: time || '—', text };
+    tripState.custom.push(custom);
+    saveTripState();
+
+    document.querySelectorAll('.add-event-form').forEach(f => f.remove());
+    renderCustomEvent(custom);
+  }
+
+  function toggleEditMode() {
+    editMode = !editMode;
+    document.body.classList.toggle('edit-mode', editMode);
+    const btn = document.getElementById('edit-toggle');
+    const hint = document.getElementById('edit-hint');
+    if (editMode) {
+      btn.textContent = '✅ Done';
+      btn.classList.add('active');
+      hint.textContent = 'Tap × to remove · ＋ to add';
+      // Close any open add forms when exiting
+    } else {
+      btn.textContent = '✏️ Edit';
+      btn.classList.remove('active');
+      hint.textContent = 'Tap any event to mark done';
+      document.querySelectorAll('.add-event-form').forEach(f => f.remove());
+    }
+  }
+
+  function escHtmlEdit(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Password protection ──
+  // Change the value below to set your password
+  const PASS = '041517';
+  const AUTH_KEY = 'j26_auth';
+
+  function checkAuth() {
+    if (localStorage.getItem(AUTH_KEY) === '1') {
+      document.getElementById('lock-screen').classList.add('hidden');
+    }
+  }
+
+  function unlock() {
+    const input = document.getElementById('lock-input');
+    if (input.value === PASS) {
+      localStorage.setItem(AUTH_KEY, '1');
+      document.getElementById('lock-screen').classList.add('hidden');
+    } else {
+      document.getElementById('lock-error').textContent = 'Incorrect password';
+      input.classList.add('shake');
+      input.value = '';
+      setTimeout(() => {
+        input.classList.remove('shake');
+        document.getElementById('lock-error').textContent = '';
+      }, 600);
+    }
+  }
+
+  checkAuth();
+  initItinerary();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js');
+  }
+</script>
+</body>
+</html>
