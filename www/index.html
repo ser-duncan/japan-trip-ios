@@ -1591,7 +1591,7 @@
         <div class="info-item"><span class="info-label">Check-in</span><span class="info-value">May 30 · 4:00 PM</span></div>
         <div class="info-item"><span class="info-label">Check-out</span><span class="info-value">June 3 · 11:00 AM</span></div>
         <div class="info-item"><span class="info-label">Duration</span><span class="info-value">4 nights</span></div>
-        <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="badge badge-warn">TBC</span></span></div>
+        <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="conf-code">HMQ2MS55BF</span></span></div>
       </div>
       <div class="hotel-card-footer">View details ›</div>
     </div>
@@ -1619,45 +1619,47 @@
   <div id="section-trains" class="section">
     <div class="section-title">🚄 Train Bookings</div>
 
-    <div class="train-card">
+    <div class="train-card hotel-card" onclick="openTrainDetail('romancecar')">
       <div class="train-header">
         <span class="train-icon">🚃</span>
         <div>
-          <div class="train-name">Romancecar</div>
+          <div class="train-name">Romancecar (Hakone 3 · GSE)</div>
           <div class="train-route">Shinjuku → Hakone-Yumoto</div>
         </div>
-        <span class="badge badge-warn" style="margin-left:auto">Book from Apr 28</span>
+        <span class="badge badge-success" style="margin-left:auto">✓ Booked</span>
       </div>
       <div class="train-body">
         <div class="train-cell"><div class="info-label">Date</div><div class="info-value">May 29</div></div>
-        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">11:00 AM</div></div>
-        <div class="train-cell"><div class="info-label">Seats</div><div class="info-value">5 together</div></div>
-        <div class="train-cell"><div class="info-label">Book via</div><div class="info-value">Odakyu e-Romancecar</div></div>
+        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">10:00 AM</div></div>
+        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">11:27 AM</div></div>
+        <div class="train-cell"><div class="info-label">Car · Seats</div><div class="info-value">Car 2 · 5C 5D 6C 6D 7D</div></div>
       </div>
+      <div class="hotel-card-footer">Seat details ›</div>
     </div>
 
-    <div class="train-card">
+    <div class="train-card hotel-card" onclick="openTrainDetail('shinkansen')">
       <div class="train-header">
         <span class="train-icon">🚄</span>
         <div>
-          <div class="train-name">Shinkansen</div>
+          <div class="train-name">Shinkansen (Hikari 641)</div>
           <div class="train-route">Odawara → Kyoto</div>
         </div>
-        <span class="badge badge-success">Book now</span>
+        <span class="badge badge-success">✓ Booked</span>
       </div>
       <div class="train-body">
         <div class="train-cell"><div class="info-label">Date</div><div class="info-value">May 30</div></div>
-        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">1:15 PM</div></div>
-        <div class="train-cell"><div class="info-label">Seats</div><div class="info-value">5 together</div></div>
-        <div class="train-cell"><div class="info-label">Book via</div><div class="info-value">SmartEX</div></div>
+        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">12:07 PM</div></div>
+        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">2:12 PM</div></div>
+        <div class="train-cell"><div class="info-label">Car · Seats</div><div class="info-value">Car 6 · 14A 14B 14C 15A 15B</div></div>
       </div>
+      <div class="hotel-card-footer">Seat details ›</div>
     </div>
 
-    <div class="train-card">
+    <div class="train-card hotel-card" onclick="openTrainDetail('kyoto-osaka')">
       <div class="train-header">
         <span class="train-icon">🚃</span>
         <div>
-          <div class="train-name">Regional</div>
+          <div class="train-name">Regional (JR Kyoto Line)</div>
           <div class="train-route">Kyoto → Osaka</div>
         </div>
         <span class="badge badge-info">IC card — no booking</span>
@@ -1665,19 +1667,20 @@
       <div class="train-body">
         <div class="train-cell"><div class="info-label">Date</div><div class="info-value">June 3</div></div>
         <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">Midday</div></div>
-        <div class="train-cell"><div class="info-label">Seats</div><div class="info-value">—</div></div>
-        <div class="train-cell"><div class="info-label">Book via</div><div class="info-value">Just tap IC card</div></div>
+        <div class="train-cell"><div class="info-label">Duration</div><div class="info-value">~75 min</div></div>
+        <div class="train-cell"><div class="info-label">Ticket</div><div class="info-value">Tap IC card</div></div>
       </div>
+      <div class="hotel-card-footer">Route info ›</div>
     </div>
 
-    <div class="train-card">
+    <div class="train-card hotel-card" onclick="openTrainDetail('haruka')">
       <div class="train-header">
         <span class="train-icon">🚄</span>
         <div>
           <div class="train-name">HARUKA</div>
           <div class="train-route">Osaka → Kansai Airport (KIX)</div>
         </div>
-        <span class="badge badge-warn">Book from May 4</span>
+        <span class="badge badge-warn">Needs booking</span>
       </div>
       <div class="train-body">
         <div class="train-cell"><div class="info-label">Date</div><div class="info-value">June 5</div></div>
@@ -1685,6 +1688,7 @@
         <div class="train-cell"><div class="info-label">Seats</div><div class="info-value">5 together</div></div>
         <div class="train-cell"><div class="info-label">Book via</div><div class="info-value">JR West</div></div>
       </div>
+      <div class="hotel-card-footer">Booking info ›</div>
     </div>
 
     <div class="section-title" style="margin-top:36px; font-size:18px;">📅 Booking Reminders</div>
@@ -2657,7 +2661,7 @@
       name: 'KOALA BLDG. SHINJUKU',
       sub: '2-chōme-11-12 Yoyogi 3F, Shibuya, Tokyo 151-0053',
       badge: '<span class="badge badge-tokyo">🗼 Tokyo</span>',
-      note: 'Self check-in — you can unlock the door yourself. See the check-in guide URL for directions from the nearest station.',
+      note: 'Self check-in — no staff on site. 1-min walk from Shinjuku Station. Quiet after 9:00 PM. Strictly no smoking (¥50,000 fine).',
       sections: [
         {
           title: 'Dates',
@@ -2666,6 +2670,7 @@
             { label: 'Check-out', value: 'May 29 · 10:00 AM' },
             { label: 'Duration', value: '4 nights' },
             { label: 'Confirmation', value: '<span class="conf-code">HMBQZPZ3QA</span>' },
+            { label: 'Host', value: 'Miwa / Sakura (CROOZ Hotel)' },
           ]
         },
         {
@@ -2684,6 +2689,20 @@
             { label: 'To lock', value: 'Press the key button on the lock' },
             { label: 'Laundry Room', value: 'Same PIN as guest room' },
           ]
+        },
+        {
+          title: 'Getting There',
+          rows: [
+            { label: 'Maps', value: '<a href="https://maps.app.goo.gl/fFH8xWYnGbPiQ52p6" style="color:#7EB0FF">Open in Maps ↗</a>' },
+            { label: 'Check-in guide', value: '<a href="https://www.dropbox.com/scl/fo/yazffb03kksbp977abstv/APqkqguW_IzLNgjw6NHW_hQ?rlkey=yr63rns9q701fbcdj24633ot0&st=1ysi2nuk&dl=0" style="color:#7EB0FF">Dropbox (directions + lock) ↗</a>' },
+            { label: 'House manual', value: '<a href="https://www.dropbox.com/scl/fo/cls7jzgkioqrxuvdhracr/ABbiV5jpl7Kv_ku_cSBu3bU?rlkey=sdw5lm2bthqj0p28h6zdijf1p&st=m3h5gdy6&dl=0" style="color:#7EB0FF">Dropbox (WiFi inside) ↗</a>' },
+          ]
+        },
+        {
+          title: 'Travel Services',
+          rows: [
+            { label: 'Airport taxi', value: '¥500 off — code <span class="conf-code">2026APTX</span>' },
+          ]
         }
       ]
     },
@@ -2691,6 +2710,7 @@
       name: '箱根芦ノ湖ゴルフ Villa',
       sub: '249-3 Hakone, Ashigarashimo District, Kanagawa 250-0521',
       badge: '<span class="badge badge-hakone">🏔 Hakone</span>',
+      note: 'Key exchange — contact host to coordinate arrival. Quiet hours 9:00 PM – 8:00 AM.',
       sections: [
         {
           title: 'Dates',
@@ -2699,8 +2719,26 @@
             { label: 'Check-out', value: 'May 30 · 12:00 PM' },
             { label: 'Duration', value: '1 night' },
             { label: 'Confirmation', value: '<span class="conf-code">HMMAPSFSTQ</span>' },
+          ]
+        },
+        {
+          title: 'Contact',
+          rows: [
             { label: 'Host phone', value: '+81 80-3544-1056' },
-            { label: 'Amenities', value: '♨ Onsen included' },
+          ]
+        },
+        {
+          title: 'Amenities',
+          rows: [
+            { label: 'Onsen', value: '♨ Included' },
+            { label: 'Golf', value: '⛳ On-site' },
+            { label: 'Sauna', value: 'VIP sauna included' },
+          ]
+        },
+        {
+          title: 'Getting There',
+          rows: [
+            { label: 'Maps', value: '<a href="https://maps.google.com/maps?daddr=35.187934677883526,139.0262963647347" style="color:#7EB0FF">Open in Maps ↗</a>' },
           ]
         }
       ]
@@ -2709,6 +2747,7 @@
       name: '515 Yamadachō',
       sub: '515 Yamadachō, Nakagyo Ward, Kyoto 604-8237',
       badge: '<span class="badge badge-kyoto">⛩ Kyoto</span>',
+      note: '100-year-old machiya townhouse. Contact host Derrick to coordinate key exchange. Quiet hours 9:00 PM – 8:00 AM.',
       sections: [
         {
           title: 'Dates',
@@ -2716,15 +2755,29 @@
             { label: 'Check-in', value: 'May 30 · 4:00 PM' },
             { label: 'Check-out', value: 'June 3 · 11:00 AM' },
             { label: 'Duration', value: '4 nights' },
-            { label: 'Confirmation', value: '<span class="badge badge-warn">TBC</span>' },
+            { label: 'Confirmation', value: '<span class="conf-code">HMQ2MS55BF</span>' },
+          ]
+        },
+        {
+          title: 'Contact',
+          rows: [
+            { label: 'Host', value: 'Derrick' },
+            { label: 'Host phone', value: '+81 80-1422-8964' },
+          ]
+        },
+        {
+          title: 'Getting There',
+          rows: [
+            { label: 'Maps', value: '<a href="https://maps.app.goo.gl/pva56GcneQyQUsAu9" style="color:#7EB0FF">Open in Maps ↗</a>' },
           ]
         }
       ]
     },
     osaka: {
       name: 'Lien de premier リアンドプルミエ',
-      sub: '2-7-12 四貫島, Osaka 554-0014',
+      sub: '2-7-12 四貫島, Konohana Ward, Osaka 554-0014',
       badge: '<span class="badge badge-osaka">🦀 Osaka</span>',
+      note: 'Self check-in with lockbox. 5-min walk from nearest station. 15-min by train to USJ.',
       sections: [
         {
           title: 'Dates',
@@ -2733,12 +2786,186 @@
             { label: 'Check-out', value: 'June 5 · 10:00 AM' },
             { label: 'Duration', value: '2 nights' },
             { label: 'Confirmation', value: '<span class="conf-code">HMR98ZMTST</span>' },
-            { label: 'Booked under', value: 'Jacob' },
+          ]
+        },
+        {
+          title: 'Contact',
+          rows: [
+            { label: 'Host', value: 'Taiga' },
+            { label: 'Host phone', value: '+81 70-4389-4145' },
+          ]
+        },
+        {
+          title: 'Property',
+          rows: [
+            { label: 'Size', value: '6LDK · 183.4㎡' },
+            { label: 'Beds', value: '8 beds' },
+            { label: 'Entry', value: 'Lockbox — PIN sent 2 days before by Taiga' },
+            { label: 'Access guide', value: '<a href="http://liendepremier.jp/access/#facility2" style="color:#7EB0FF">liendepremier.jp ↗</a>' },
+          ]
+        },
+        {
+          title: 'Getting There',
+          rows: [
+            { label: 'Maps', value: '<a href="https://maps.google.com/maps?daddr=34.684296141287135,135.45524307486878" style="color:#7EB0FF">Open in Maps ↗</a>' },
           ]
         }
       ]
     }
   };
+
+  const TRAIN_DETAILS = {
+    romancecar: {
+      name: 'Romancecar · Hakone 3 (GSE)',
+      sub: 'Shinjuku → Hakone-Yumoto · May 29',
+      badge: '<span class="badge badge-success">✓ Booked</span>',
+      sections: [
+        {
+          title: 'Journey',
+          rows: [
+            { label: 'Date', value: 'Friday, May 29' },
+            { label: 'Departs', value: '10:00 AM — Shinjuku' },
+            { label: 'Arrives', value: '11:27 AM — Hakone-Yumoto' },
+            { label: 'Train', value: 'Hakone 3 (GSE)' },
+          ]
+        },
+        {
+          title: 'Seats — Car 2 (Standard)',
+          rows: [
+            { label: 'Seat 1', value: '7D' },
+            { label: 'Seat 2', value: '6C' },
+            { label: 'Seat 3', value: '6D' },
+            { label: 'Seat 4', value: '5C' },
+            { label: 'Seat 5', value: '5D' },
+          ]
+        },
+        {
+          title: 'Ticket Info',
+          rows: [
+            { label: 'Control no.', value: '<span class="conf-code">E009</span>' },
+            { label: 'Booked via', value: 'Odakyu EMot app' },
+            { label: 'Boarding', value: 'Show QR in EMot app + IC card / Freepass' },
+            { label: 'Paid', value: '¥5,750 (tax incl.)' },
+          ]
+        }
+      ]
+    },
+    shinkansen: {
+      name: 'Shinkansen · Hikari 641',
+      sub: 'Odawara → Kyoto · May 30',
+      badge: '<span class="badge badge-success">✓ Booked</span>',
+      sections: [
+        {
+          title: 'Journey',
+          rows: [
+            { label: 'Date', value: 'Saturday, May 30' },
+            { label: 'Departs', value: '12:07 PM — Odawara (Platform 13*)' },
+            { label: 'Arrives', value: '2:12 PM — Kyoto' },
+            { label: 'Train', value: 'Hikari 641 · Ordinary Car' },
+          ]
+        },
+        {
+          title: 'Seats — Car 6 (Reserved)',
+          rows: [
+            { label: 'Seat 1', value: '14-A' },
+            { label: 'Seat 2', value: '14-B' },
+            { label: 'Seat 3', value: '14-C' },
+            { label: 'Seat 4', value: '15-A' },
+            { label: 'Seat 5', value: '15-B' },
+          ]
+        },
+        {
+          title: 'Ticket Info',
+          rows: [
+            { label: 'Booking ref', value: '<span class="conf-code">BHG063551</span>' },
+            { label: 'Booked via', value: 'Klook' },
+            { label: 'Boarding', value: 'Scan QR at gate — do not insert ticket' },
+            { label: 'Platform', value: '13 (subject to change — check at station)' },
+            { label: 'Paid', value: 'US$446.00' },
+          ]
+        }
+      ]
+    },
+    'kyoto-osaka': {
+      name: 'JR Kyoto Line',
+      sub: 'Kyoto → Osaka · June 3',
+      badge: '<span class="badge badge-info">No booking needed</span>',
+      note: 'No reservation required — just tap your IC card (Suica/PASMO) at the gate.',
+      sections: [
+        {
+          title: 'Journey',
+          rows: [
+            { label: 'Date', value: 'Wednesday, June 3' },
+            { label: 'Departs', value: 'Midday (flexible)' },
+            { label: 'Duration', value: '~75 min (Rapid / Special Rapid)' },
+            { label: 'Route', value: 'Kyoto → Shin-Osaka or Osaka' },
+          ]
+        },
+        {
+          title: 'Tips',
+          rows: [
+            { label: 'Train type', value: 'Special Rapid is fastest (shinkyu)' },
+            { label: 'Ticket', value: 'IC card tap-in / tap-out' },
+            { label: 'Fare', value: '~¥560 per person' },
+          ]
+        }
+      ]
+    },
+    haruka: {
+      name: 'HARUKA Limited Express',
+      sub: 'Osaka → Kansai Airport (KIX) · June 5',
+      badge: '<span class="badge badge-warn">Needs booking</span>',
+      note: 'Book via JR West website. Target the 1:03 PM departure for 5 seats together.',
+      sections: [
+        {
+          title: 'Journey',
+          rows: [
+            { label: 'Date', value: 'Friday, June 5' },
+            { label: 'Target departs', value: '1:03 PM — Osaka/Tennoji' },
+            { label: 'Destination', value: 'Kansai Airport (KIX)' },
+            { label: 'Duration', value: '~75 min' },
+          ]
+        },
+        {
+          title: 'Booking',
+          rows: [
+            { label: 'Book via', value: 'JR West Online Reservation' },
+            { label: 'Seats needed', value: '5 together' },
+            { label: 'Status', value: '<span class="badge badge-warn">Not yet confirmed</span>' },
+          ]
+        }
+      ]
+    }
+  };
+
+  function openTrainDetail(id) {
+    const train = TRAIN_DETAILS[id];
+    if (!train) return;
+    document.getElementById('hotel-modal-name').textContent = train.name;
+    document.getElementById('hotel-modal-sub').textContent = train.sub;
+    document.getElementById('hotel-modal-badge').innerHTML = train.badge;
+    const noteEl = document.getElementById('hotel-modal-note');
+    if (train.note) {
+      noteEl.textContent = train.note;
+      noteEl.style.display = 'block';
+    } else {
+      noteEl.style.display = 'none';
+    }
+    document.getElementById('hotel-modal-sections').innerHTML = train.sections.map(sec => `
+      <div class="hotel-detail-section">
+        <div class="hotel-detail-section-title">${sec.title}</div>
+        ${sec.rows.map(row => `
+          <div class="hotel-detail-row">
+            <span class="hotel-detail-label">${row.label}</span>
+            <span class="hotel-detail-value">${row.value}</span>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+    document.getElementById('hotel-modal-overlay').classList.add('open');
+    document.getElementById('hotel-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 
   function openHotelDetail(id) {
     const hotel = HOTEL_DETAILS[id];
