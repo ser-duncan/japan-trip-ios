@@ -2379,7 +2379,7 @@
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('section-' + id).classList.add('visible');
     btn.classList.add('active');
-    btn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function toggleDay(header) {
