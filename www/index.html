@@ -139,7 +139,7 @@
   .container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
 
   /* ── Section ── */
-  .section { display: none; padding-top: 40px; }
+  .section { display: none; padding-top: 40px; overflow-x: hidden; }
   .section.visible { display: block; }
 
   .section-title {
@@ -541,7 +541,8 @@
     padding: 5px 28px 5px 10px;
     cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s;
-    max-width: 260px;
+    max-width: min(260px, calc(100vw - 80px));
+    width: 100%;
   }
   .phrase-select:hover, .phrase-select:focus {
     border-color: rgba(126,176,255,0.75);
@@ -2378,7 +2379,7 @@
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('section-' + id).classList.add('visible');
     btn.classList.add('active');
-    btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    btn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
   }
 
   function toggleDay(header) {
