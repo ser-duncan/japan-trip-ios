@@ -945,6 +945,123 @@
     }
     .nav-btn:hover { background: rgba(255,255,255,0.04); }
   }
+
+  /* ── Hotel Detail Modal ── */
+  .hotel-card { cursor: pointer; transition: background 0.15s; user-select: none; }
+  .hotel-card:active { background: var(--surface2); }
+  .hotel-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+    gap: 4px;
+  }
+  .hotel-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .hotel-modal-overlay.open { opacity: 1; pointer-events: all; }
+  .hotel-modal {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-radius: 20px 20px 0 0;
+    border-top: 1px solid var(--border);
+    z-index: 1001;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    max-height: 85vh;
+    overflow-y: auto;
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+  }
+  .hotel-modal.open { transform: translateY(0); }
+  .hotel-modal-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 12px auto 0;
+    flex-shrink: 0;
+  }
+  .hotel-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 14px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .hotel-modal-badge { margin-bottom: 6px; }
+  .hotel-modal-title { font-size: 18px; font-weight: 700; }
+  .hotel-modal-sub { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+  .hotel-modal-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .hotel-modal-body { padding: 20px; }
+  .hotel-note {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .hotel-detail-section { margin-bottom: 24px; }
+  .hotel-detail-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .hotel-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+  }
+  .hotel-detail-row:last-child { border-bottom: none; }
+  .hotel-detail-label { font-size: 13px; color: var(--text-muted); flex-shrink: 0; }
+  .hotel-detail-value { font-size: 14px; font-weight: 500; text-align: right; }
+  .hotel-pin {
+    font-family: monospace;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 14px;
+    color: #7EB0FF;
+  }
 </style>
 </head>
 <body>
@@ -1361,7 +1478,7 @@
   <div id="section-hotels" class="section">
     <div class="section-title">🏠 Accommodation</div>
 
-    <div class="card">
+    <div class="card hotel-card" onclick="openHotelDetail('koala')">
       <div class="card-header">
         <div>
           <div class="card-title">KOALA BLDG. SHINJUKU</div>
@@ -1375,9 +1492,10 @@
         <div class="info-item"><span class="info-label">Duration</span><span class="info-value">4 nights</span></div>
         <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="conf-code">HMBQZPZ3QA</span></span></div>
       </div>
+      <div class="hotel-card-footer">Check-in details &amp; PIN codes ›</div>
     </div>
 
-    <div class="card">
+    <div class="card hotel-card" onclick="openHotelDetail('hakone')">
       <div class="card-header">
         <div>
           <div class="card-title">箱根芦ノ湖ゴルフ Villa</div>
@@ -1393,9 +1511,10 @@
         <div class="info-item"><span class="info-label">Host phone</span><span class="info-value">+81 80-3544-1056</span></div>
         <div class="info-item"><span class="info-label">Amenities</span><span class="info-value">♨ Onsen included</span></div>
       </div>
+      <div class="hotel-card-footer">View details ›</div>
     </div>
 
-    <div class="card">
+    <div class="card hotel-card" onclick="openHotelDetail('kyoto')">
       <div class="card-header">
         <div>
           <div class="card-title">515 Yamadachō</div>
@@ -1409,9 +1528,10 @@
         <div class="info-item"><span class="info-label">Duration</span><span class="info-value">4 nights</span></div>
         <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="badge badge-warn">TBC</span></span></div>
       </div>
+      <div class="hotel-card-footer">View details ›</div>
     </div>
 
-    <div class="card">
+    <div class="card hotel-card" onclick="openHotelDetail('osaka')">
       <div class="card-header">
         <div>
           <div class="card-title">Lien de premier リアンドプルミエ</div>
@@ -1426,6 +1546,7 @@
         <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="conf-code">HMR98ZMTST</span></span></div>
         <div class="info-item"><span class="info-label">Under</span><span class="info-value">Jacob</span></div>
       </div>
+      <div class="hotel-card-footer">View details ›</div>
     </div>
   </div>
 
@@ -2440,6 +2561,130 @@
     });
   });
 
+  // ── Hotel detail modal ──
+  const HOTEL_DETAILS = {
+    koala: {
+      name: 'KOALA BLDG. SHINJUKU',
+      sub: '2-chōme-11-12 Yoyogi 3F, Shibuya, Tokyo 151-0053',
+      badge: '<span class="badge badge-tokyo">🗼 Tokyo</span>',
+      note: 'Self check-in — you can unlock the door yourself. See the check-in guide URL for directions from the nearest station.',
+      sections: [
+        {
+          title: 'Dates',
+          rows: [
+            { label: 'Check-in', value: 'May 25 · 3:00 PM' },
+            { label: 'Check-out', value: 'May 29 · 10:00 AM' },
+            { label: 'Duration', value: '4 nights' },
+            { label: 'Confirmation', value: '<span class="conf-code">HMBQZPZ3QA</span>' },
+          ]
+        },
+        {
+          title: 'Entrance Door — Smart Lock',
+          rows: [
+            { label: 'PIN Code', value: '<span class="hotel-pin">7634</span>' },
+            { label: 'To unlock', value: 'Enter PIN + Confirm button' },
+            { label: 'To lock', value: 'Press the key button on the lock' },
+          ]
+        },
+        {
+          title: 'Guest Room Door — Smart Lock',
+          rows: [
+            { label: 'PIN Code', value: '<span class="hotel-pin">2653</span>' },
+            { label: 'To unlock', value: 'Enter PIN + Confirm button' },
+            { label: 'To lock', value: 'Press the key button on the lock' },
+            { label: 'Laundry Room', value: 'Same PIN as guest room' },
+          ]
+        }
+      ]
+    },
+    hakone: {
+      name: '箱根芦ノ湖ゴルフ Villa',
+      sub: '249-3 Hakone, Ashigarashimo District, Kanagawa 250-0521',
+      badge: '<span class="badge badge-hakone">🏔 Hakone</span>',
+      sections: [
+        {
+          title: 'Dates',
+          rows: [
+            { label: 'Check-in', value: 'May 29 · 1:00 PM' },
+            { label: 'Check-out', value: 'May 30 · 12:00 PM' },
+            { label: 'Duration', value: '1 night' },
+            { label: 'Confirmation', value: '<span class="conf-code">HMMAPSFSTQ</span>' },
+            { label: 'Host phone', value: '+81 80-3544-1056' },
+            { label: 'Amenities', value: '♨ Onsen included' },
+          ]
+        }
+      ]
+    },
+    kyoto: {
+      name: '515 Yamadachō',
+      sub: '515 Yamadachō, Nakagyo Ward, Kyoto 604-8237',
+      badge: '<span class="badge badge-kyoto">⛩ Kyoto</span>',
+      sections: [
+        {
+          title: 'Dates',
+          rows: [
+            { label: 'Check-in', value: 'May 30 · 4:00 PM' },
+            { label: 'Check-out', value: 'June 3 · 11:00 AM' },
+            { label: 'Duration', value: '4 nights' },
+            { label: 'Confirmation', value: '<span class="badge badge-warn">TBC</span>' },
+          ]
+        }
+      ]
+    },
+    osaka: {
+      name: 'Lien de premier リアンドプルミエ',
+      sub: '2-7-12 四貫島, Osaka 554-0014',
+      badge: '<span class="badge badge-osaka">🦀 Osaka</span>',
+      sections: [
+        {
+          title: 'Dates',
+          rows: [
+            { label: 'Check-in', value: 'June 3 · 4:00 PM' },
+            { label: 'Check-out', value: 'June 5 · 10:00 AM' },
+            { label: 'Duration', value: '2 nights' },
+            { label: 'Confirmation', value: '<span class="conf-code">HMR98ZMTST</span>' },
+            { label: 'Booked under', value: 'Jacob' },
+          ]
+        }
+      ]
+    }
+  };
+
+  function openHotelDetail(id) {
+    const hotel = HOTEL_DETAILS[id];
+    if (!hotel) return;
+    document.getElementById('hotel-modal-name').textContent = hotel.name;
+    document.getElementById('hotel-modal-sub').textContent = hotel.sub;
+    document.getElementById('hotel-modal-badge').innerHTML = hotel.badge;
+    const noteEl = document.getElementById('hotel-modal-note');
+    if (hotel.note) {
+      noteEl.textContent = hotel.note;
+      noteEl.style.display = 'block';
+    } else {
+      noteEl.style.display = 'none';
+    }
+    document.getElementById('hotel-modal-sections').innerHTML = hotel.sections.map(sec => `
+      <div class="hotel-detail-section">
+        <div class="hotel-detail-section-title">${sec.title}</div>
+        ${sec.rows.map(row => `
+          <div class="hotel-detail-row">
+            <span class="hotel-detail-label">${row.label}</span>
+            <span class="hotel-detail-value">${row.value}</span>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+    document.getElementById('hotel-modal-overlay').classList.add('open');
+    document.getElementById('hotel-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeHotelDetail() {
+    document.getElementById('hotel-modal-overlay').classList.remove('open');
+    document.getElementById('hotel-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {
     const btns = document.querySelectorAll('.nav-btn');
@@ -2449,6 +2694,24 @@
     }
   });
 </script>
+<!-- Hotel Detail Modal -->
+<div id="hotel-modal-overlay" class="hotel-modal-overlay" onclick="closeHotelDetail()"></div>
+<div id="hotel-modal" class="hotel-modal">
+  <div class="hotel-modal-handle"></div>
+  <div class="hotel-modal-header">
+    <div style="flex:1;min-width:0">
+      <div class="hotel-modal-badge" id="hotel-modal-badge"></div>
+      <div class="hotel-modal-title" id="hotel-modal-name"></div>
+      <div class="hotel-modal-sub" id="hotel-modal-sub"></div>
+    </div>
+    <button class="hotel-modal-close" onclick="closeHotelDetail()">✕</button>
+  </div>
+  <div class="hotel-modal-body">
+    <div id="hotel-modal-note" class="hotel-note" style="display:none"></div>
+    <div id="hotel-modal-sections"></div>
+  </div>
+</div>
+
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js');
