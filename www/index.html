@@ -27,7 +27,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html {
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
   }
 
@@ -37,7 +37,7 @@
     color: var(--text);
     min-height: 100vh;
     line-height: 1.6;
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100%;
     touch-action: pan-y;
   }
@@ -1163,8 +1163,29 @@
   .filter-pill[data-date] { border-color: rgba(126,176,255,0.3); color: var(--text-muted); }
   .filter-pill[data-date].active, .filter-pill[data-date]:hover { border-color: rgba(126,176,255,0.6); color: #7EB0FF; background: rgba(126,176,255,0.08); }
   .filter-divider { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; }
-  .date-filters { display: flex; gap: 6px; align-items: center; }
+  .date-filters { display: flex; align-items: center; }
   .date-filters.hidden { display: none; }
+  .date-filter-select {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237EB0FF'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    border: 1.5px solid rgba(126,176,255,0.35);
+    border-radius: 8px;
+    color: #7EB0FF;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    padding: 4px 28px 4px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: border-color 0.2s;
+  }
+  .date-filter-select:focus { outline: none; border-color: rgba(126,176,255,0.65); }
+  .date-filter-select option { background: #1A1A22; color: #E8E8F0; font-weight: 500; }
 
   /* ── Edit mode controls ── */
   .edit-mode-toggle {
@@ -1367,21 +1388,23 @@
     <button class="filter-pill" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
     <div class="filter-divider"></div>
     <div class="date-filters hidden" id="date-filters">
-      <button class="filter-pill active" data-date="all" onclick="filterDate('all')">All</button>
-      <button class="filter-pill" data-date="today" onclick="filterDate('today')">Today</button>
-      <button class="filter-pill" data-date="upcoming" onclick="filterDate('upcoming')">Upcoming</button>
-      <button class="filter-pill" data-date="d0" onclick="filterDate('d0')">Day 1</button>
-      <button class="filter-pill" data-date="d1" onclick="filterDate('d1')">Day 2</button>
-      <button class="filter-pill" data-date="d2" onclick="filterDate('d2')">Day 3</button>
-      <button class="filter-pill" data-date="d3" onclick="filterDate('d3')">Day 4</button>
-      <button class="filter-pill" data-date="d4" onclick="filterDate('d4')">Day 5</button>
-      <button class="filter-pill" data-date="d5" onclick="filterDate('d5')">Day 6</button>
-      <button class="filter-pill" data-date="d6" onclick="filterDate('d6')">Day 7</button>
-      <button class="filter-pill" data-date="d7" onclick="filterDate('d7')">Day 8</button>
-      <button class="filter-pill" data-date="d8" onclick="filterDate('d8')">Day 9</button>
-      <button class="filter-pill" data-date="d9" onclick="filterDate('d9')">Day 10</button>
-      <button class="filter-pill" data-date="d10" onclick="filterDate('d10')">Day 11</button>
-      <button class="filter-pill" data-date="d11" onclick="filterDate('d11')">Day 12</button>
+      <select class="date-filter-select" id="date-filter-select" onchange="filterDate(this.value)">
+        <option value="all">All days</option>
+        <option value="today">Today</option>
+        <option value="upcoming">Upcoming</option>
+        <option value="d0">Day 1 · May 25</option>
+        <option value="d1">Day 2 · May 26</option>
+        <option value="d2">Day 3 · May 27</option>
+        <option value="d3">Day 4 · May 28</option>
+        <option value="d4">Day 5 · May 29</option>
+        <option value="d5">Day 6 · May 30</option>
+        <option value="d6">Day 7 · May 31</option>
+        <option value="d7">Day 8 · Jun 1</option>
+        <option value="d8">Day 9 · Jun 2</option>
+        <option value="d9">Day 10 · Jun 3</option>
+        <option value="d10">Day 11 · Jun 4</option>
+        <option value="d11">Day 12 · Jun 5</option>
+      </select>
     </div>
     <button class="edit-mode-toggle" id="edit-toggle" onclick="toggleEditMode()" style="display:none">✏️ Edit</button>
     <div class="sync-dot" id="sync-dot"></div>
@@ -3498,9 +3521,8 @@ function filterCity(city) {
 // ── Date filter ──
 function filterDate(date) {
   appState.dateFilter = date;
-  document.querySelectorAll('.filter-pill[data-date]').forEach(p => p.classList.remove('active'));
-  const pill = document.querySelector('.filter-pill[data-date="' + date + '"]');
-  if (pill) pill.classList.add('active');
+  const sel = document.getElementById('date-filter-select');
+  if (sel && sel.value !== date) sel.value = date;
   renderItinerary();
 }
 
