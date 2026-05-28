@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <title>Japan 2026 🗾</title>
 <style>
   :root {
@@ -1117,6 +1118,214 @@
     25% { transform: translateX(-8px); }
     75% { transform: translateX(8px); }
   }
+
+  /* ── Sticky header wrapper ── */
+  .sticky-header { position: sticky; top: 0; z-index: 100; }
+  .sticky-header .nav { position: static; }
+
+  /* ── Filter bar ── */
+  .filter-bar {
+    background: rgba(15,15,19,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 12px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-pill {
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1.5px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: none;
+    font-family: inherit;
+  }
+  .filter-pill[data-city="all"] { border-color: var(--text-muted); color: var(--text-muted); }
+  .filter-pill[data-city="all"].active, .filter-pill[data-city="all"]:hover { border-color: var(--text); color: var(--text); background: rgba(255,255,255,0.05); }
+  .filter-pill[data-city="tokyo"] { border-color: var(--tokyo); color: var(--tokyo); }
+  .filter-pill[data-city="tokyo"].active, .filter-pill[data-city="tokyo"]:hover { background: rgba(232,80,91,0.12); }
+  .filter-pill[data-city="hakone"] { border-color: var(--hakone); color: var(--hakone); }
+  .filter-pill[data-city="hakone"].active, .filter-pill[data-city="hakone"]:hover { background: rgba(76,175,130,0.12); }
+  .filter-pill[data-city="kyoto"] { border-color: var(--kyoto); color: var(--kyoto); }
+  .filter-pill[data-city="kyoto"].active, .filter-pill[data-city="kyoto"]:hover { background: rgba(232,150,60,0.12); }
+  .filter-pill[data-city="osaka"] { border-color: var(--osaka); color: var(--osaka); }
+  .filter-pill[data-city="osaka"].active, .filter-pill[data-city="osaka"]:hover { background: rgba(124,111,205,0.12); }
+  .filter-pill[data-date] { border-color: rgba(126,176,255,0.3); color: var(--text-muted); }
+  .filter-pill[data-date].active, .filter-pill[data-date]:hover { border-color: rgba(126,176,255,0.6); color: #7EB0FF; background: rgba(126,176,255,0.08); }
+  .filter-divider { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; }
+  .date-filters { display: flex; gap: 6px; align-items: center; }
+  .date-filters.hidden { display: none; }
+
+  /* ── Edit mode controls ── */
+  .edit-mode-toggle {
+    margin-left: auto;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 99px;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .edit-mode-toggle.active { border-color: rgba(126,176,255,0.5); color: #7EB0FF; background: rgba(126,176,255,0.08); }
+  .sync-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--hakone);
+    opacity: 0; transition: opacity 0.3s; margin-left: 2px; flex-shrink: 0;
+  }
+  .sync-dot.syncing { opacity: 1; animation: syncPulse 1s infinite; }
+  .sync-dot.error { opacity: 1; background: var(--tokyo); animation: none; }
+  @keyframes syncPulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  /* ── Event done state ── */
+  .event-done-cb { width: 17px; height: 17px; flex-shrink: 0; accent-color: var(--hakone); cursor: pointer; margin-top: 2px; }
+  .event.done .event-text { text-decoration: line-through; opacity: 0.5; }
+  .event.done .event-note { opacity: 0.4; }
+  .event-edit-btn {
+    margin-left: auto; flex-shrink: 0; background: none; border: none;
+    color: var(--text-muted); font-size: 18px; cursor: pointer; padding: 0 2px;
+    line-height: 1; display: none; align-self: flex-start;
+  }
+  #section-itinerary.editing-mode .event-edit-btn { display: block; }
+  #section-itinerary.editing-mode .add-event-btn { display: block; }
+  #section-itinerary.editing-mode .add-day-btn { display: block; }
+  #section-activities.editing-mode .activity-edit-btn { display: block; }
+  #section-activities.editing-mode .add-activity-btn { display: block; }
+  .add-event-btn {
+    width: 100%; padding: 7px 14px; background: none;
+    border: 1.5px dashed var(--border); border-radius: 8px;
+    color: var(--text-muted); font-size: 13px; font-family: inherit;
+    cursor: pointer; transition: all 0.2s; text-align: left; margin-top: 4px; display: none;
+  }
+  .add-event-btn:hover { border-color: rgba(126,176,255,0.4); color: #7EB0FF; }
+  .add-day-btn {
+    width: 100%; margin: 8px 0 24px; padding: 12px;
+    background: none; border: 1.5px dashed var(--border);
+    border-radius: var(--radius); color: var(--text-muted);
+    font-size: 13px; font-family: inherit; cursor: pointer;
+    transition: all 0.2s; display: none;
+  }
+  .add-day-btn:hover { border-color: rgba(126,176,255,0.4); color: #7EB0FF; }
+
+  /* ── Activity controls ── */
+  .activity-plan-btn {
+    flex-shrink: 0; padding: 4px 10px; font-size: 12px; font-weight: 600;
+    font-family: inherit; background: rgba(76,175,130,0.1);
+    border: 1.5px solid rgba(76,175,130,0.3); border-radius: 99px;
+    color: var(--hakone); cursor: pointer; white-space: nowrap;
+    transition: all 0.2s; align-self: flex-start; margin-top: 1px;
+  }
+  .activity-plan-btn:hover { background: rgba(76,175,130,0.2); border-color: rgba(76,175,130,0.5); }
+  .activity-plan-btn.planned { background: rgba(126,176,255,0.1); border-color: rgba(126,176,255,0.3); color: #7EB0FF; }
+  .activity-edit-btn {
+    flex-shrink: 0; background: none; border: none; color: var(--text-muted);
+    font-size: 18px; cursor: pointer; padding: 0 2px; line-height: 1;
+    display: none; align-self: flex-start; margin-top: 1px;
+  }
+  .add-activity-btn {
+    width: 100%; padding: 9px 14px; background: none;
+    border: 1.5px dashed var(--border); border-radius: 8px;
+    color: var(--text-muted); font-size: 13px; font-family: inherit;
+    cursor: pointer; transition: all 0.2s; text-align: left; margin-top: 6px; display: none;
+  }
+  .add-activity-btn:hover { border-color: rgba(126,176,255,0.4); color: #7EB0FF; }
+
+  /* ── Bottom sheet modals ── */
+  .bottom-sheet-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+  }
+  .bottom-sheet-overlay.open { opacity: 1; pointer-events: all; }
+  .bottom-sheet {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface); border-radius: 20px 20px 0 0;
+    border-top: 1px solid var(--border); z-index: 2001;
+    transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+    max-height: 88vh; overflow-y: auto;
+    padding-bottom: max(env(safe-area-inset-bottom,0px),16px);
+  }
+  .bottom-sheet.open { transform: translateY(0); }
+  .bottom-sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 4px; }
+  .bottom-sheet-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 20px; border-bottom: 1px solid var(--border);
+  }
+  .bottom-sheet-title { font-size: 17px; font-weight: 700; }
+  .bottom-sheet-close {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text-muted); width: 28px; height: 28px;
+    border-radius: 50%; font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .bottom-sheet-body { padding: 18px 20px; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 5px; }
+  .form-input, .form-select {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 15px;
+    font-family: inherit; padding: 10px 12px; outline: none; -webkit-appearance: none;
+  }
+  .form-input:focus, .form-select:focus { border-color: rgba(126,176,255,0.5); }
+  .form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237EB0FF'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    padding-right: 32px; cursor: pointer;
+  }
+  .form-select option { background: #1A1A22; }
+  .form-row { display: flex; gap: 8px; }
+  .form-row .form-group { flex: 1; }
+  .form-checkrow { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .form-checkrow input { accent-color: var(--hakone); width: 16px; height: 16px; }
+  .form-checkrow label { font-size: 14px; color: var(--text); cursor: pointer; }
+  .btn-primary {
+    width: 100%; padding: 13px; background: var(--tokyo); color: #fff;
+    border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
+    font-family: inherit; cursor: pointer; margin-top: 4px;
+  }
+  .btn-primary:active { opacity: 0.85; }
+  .btn-danger {
+    width: 100%; padding: 11px; background: none; color: var(--tokyo);
+    border: 1.5px solid rgba(232,80,91,0.3); border-radius: 10px;
+    font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; margin-top: 8px;
+  }
+  .btn-danger:hover { background: rgba(232,80,91,0.08); }
+  .btn-secondary {
+    width: 100%; padding: 11px; background: none; color: #7EB0FF;
+    border: 1.5px solid rgba(126,176,255,0.3); border-radius: 10px;
+    font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; margin-top: 8px;
+  }
+  .btn-secondary:hover { background: rgba(126,176,255,0.08); }
+  .day-picker-list { display: flex; flex-direction: column; gap: 6px; }
+  .day-picker-btn {
+    padding: 12px 16px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 14px; font-family: inherit;
+    cursor: pointer; text-align: left; transition: all 0.2s;
+  }
+  .day-picker-btn:hover { border-color: rgba(126,176,255,0.4); color: #7EB0FF; }
+  .day-picker-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .assign-none-btn {
+    padding: 10px 16px; background: none;
+    border: 1.5px dashed rgba(232,80,91,0.3); border-radius: 8px;
+    color: rgba(232,80,91,0.7); font-size: 13px; font-family: inherit;
+    cursor: pointer; text-align: center; margin-top: 8px; width: 100%;
+    transition: all 0.2s;
+  }
+  .assign-none-btn:hover { background: rgba(232,80,91,0.06); }
 </style>
 </head>
 <body>
@@ -1137,31 +1346,54 @@
     <span class="hero-flag">🗾</span>
     <h1>Japan 2026</h1>
     <p class="hero-sub">May 25 – June 5 &nbsp;·&nbsp; 5 travellers &nbsp;·&nbsp; 12 days</p>
-    <div class="city-pills">
-      <button class="pill active" data-city="all" onclick="filterCity('all')">All cities</button>
-      <button class="pill" data-city="tokyo" onclick="filterCity('tokyo')">🗼 Tokyo</button>
-      <button class="pill" data-city="hakone" onclick="filterCity('hakone')">🏔 Hakone</button>
-      <button class="pill" data-city="kyoto" onclick="filterCity('kyoto')">⛩ Kyoto</button>
-      <button class="pill" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
-    </div>
   </div>
 </div>
 
-<!-- Nav -->
-<nav class="nav">
-  <button class="nav-btn active" onclick="showSection('itinerary', this)">Itinerary</button>
-  <button class="nav-btn" onclick="showSection('hotels', this)">Hotels</button>
-  <button class="nav-btn" onclick="showSection('trains', this)">Trains</button>
-  <button class="nav-btn" onclick="showSection('activities', this)">Activities</button>
-  <button class="nav-btn" onclick="showSection('logistics', this)">Logistics</button>
-  <button class="nav-btn" onclick="showSection('language', this)">🗣️ Language</button>
-</nav>
+<!-- Sticky header: nav + filter bar -->
+<div class="sticky-header">
+  <nav class="nav" id="main-nav">
+    <button class="nav-btn active" onclick="showSection('itinerary', this)">Itinerary</button>
+    <button class="nav-btn" onclick="showSection('hotels', this)">Hotels</button>
+    <button class="nav-btn" onclick="showSection('trains', this)">Trains</button>
+    <button class="nav-btn" onclick="showSection('activities', this)">Activities</button>
+    <button class="nav-btn" onclick="showSection('logistics', this)">Logistics</button>
+    <button class="nav-btn" onclick="showSection('language', this)">🗣️ Language</button>
+  </nav>
+  <div class="filter-bar" id="filter-bar">
+    <button class="filter-pill active" data-city="all" onclick="filterCity('all')">All</button>
+    <button class="filter-pill" data-city="tokyo" onclick="filterCity('tokyo')">🗼 Tokyo</button>
+    <button class="filter-pill" data-city="hakone" onclick="filterCity('hakone')">🏔 Hakone</button>
+    <button class="filter-pill" data-city="kyoto" onclick="filterCity('kyoto')">⛩ Kyoto</button>
+    <button class="filter-pill" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
+    <div class="filter-divider"></div>
+    <div class="date-filters hidden" id="date-filters">
+      <button class="filter-pill active" data-date="all" onclick="filterDate('all')">All</button>
+      <button class="filter-pill" data-date="today" onclick="filterDate('today')">Today</button>
+      <button class="filter-pill" data-date="upcoming" onclick="filterDate('upcoming')">Upcoming</button>
+      <button class="filter-pill" data-date="d0" onclick="filterDate('d0')">Day 1</button>
+      <button class="filter-pill" data-date="d1" onclick="filterDate('d1')">Day 2</button>
+      <button class="filter-pill" data-date="d2" onclick="filterDate('d2')">Day 3</button>
+      <button class="filter-pill" data-date="d3" onclick="filterDate('d3')">Day 4</button>
+      <button class="filter-pill" data-date="d4" onclick="filterDate('d4')">Day 5</button>
+      <button class="filter-pill" data-date="d5" onclick="filterDate('d5')">Day 6</button>
+      <button class="filter-pill" data-date="d6" onclick="filterDate('d6')">Day 7</button>
+      <button class="filter-pill" data-date="d7" onclick="filterDate('d7')">Day 8</button>
+      <button class="filter-pill" data-date="d8" onclick="filterDate('d8')">Day 9</button>
+      <button class="filter-pill" data-date="d9" onclick="filterDate('d9')">Day 10</button>
+      <button class="filter-pill" data-date="d10" onclick="filterDate('d10')">Day 11</button>
+      <button class="filter-pill" data-date="d11" onclick="filterDate('d11')">Day 12</button>
+    </div>
+    <button class="edit-mode-toggle" id="edit-toggle" onclick="toggleEditMode()" style="display:none">✏️ Edit</button>
+    <div class="sync-dot" id="sync-dot"></div>
+  </div>
+</div>
 
 <div class="container">
 
   <!-- ─────────────── ITINERARY ─────────────── -->
   <div id="section-itinerary" class="section visible">
-    <div class="timeline">
+    <div id="itinerary-timeline" class="timeline"><!-- rendered by JS --></div>
+    <div class="timeline" style="display:none"><!-- static backup -->
 
       <!-- ── TOKYO ── -->
       <div class="city-divider tokyo">🗼 Tokyo &nbsp;·&nbsp; May 25–29</div>
@@ -1721,8 +1953,8 @@
 
   <!-- ─────────────── ACTIVITIES ─────────────── -->
   <div id="section-activities" class="section">
-    <div class="section-title">📍 Activities by City</div>
-
+    <div id="activities-container"><!-- rendered by JS --></div>
+    <div style="display:none"><!-- static backup -->
     <div class="activity-group">
       <div class="activity-city-header tokyo">🗼 Tokyo</div>
       <div class="activity-list">
@@ -1945,6 +2177,7 @@
         </div>
       </div>
     </div>
+    </div><!-- end static backup -->
   </div>
 
   <!-- ─────────────── LOGISTICS ─────────────── -->
@@ -2609,11 +2842,12 @@
     }
   }
 
-  // Inject Map buttons + Route Builder panels into each day card
-  document.addEventListener('DOMContentLoaded', function() {
-    var dayBlocks = document.querySelectorAll('.day-block');
-    dayBlocks.forEach(function(block, idx) {
-      if (!DAY_LOCATIONS[idx]) return;
+  // Inject Map buttons + Route Builder panels into each rendered day card
+  function injectMapButtons() {
+    var dayBlocks = document.querySelectorAll('#itinerary-timeline .day-block');
+    dayBlocks.forEach(function(block) {
+      var idx = parseInt(block.dataset.dayIdx);
+      if (isNaN(idx) || !DAY_LOCATIONS[idx]) return;
 
       // Add 📍 Map button to day-header (before the toggle chevron)
       var header = block.querySelector('.day-header');
@@ -2653,7 +2887,7 @@
       var dayEvents = block.querySelector('.day-events');
       dayEvents.parentNode.insertBefore(panel, dayEvents.nextSibling);
     });
-  });
+  }
 
   // ── Hotel detail modal ──
   const HOTEL_DETAILS = {
@@ -3011,6 +3245,748 @@
     }
   });
 </script>
+
+<script>
+// ── Supabase + persistence constants ──
+const SUPABASE_URL = 'https://ubtzeulovzfguazmdchp.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVidHpldWxvdnpmZ3Vhem1kY2hwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTI1MjgsImV4cCI6MjA5NTQ4ODUyOH0.7aWtRc53i8zspqWY3d6L5Ajd2y05wxvV4dWuYq1L0Dg';
+const LS_KEY = 'japan-trip-v1';
+const ROW_ID = 'japan-2026';
+
+// ── Default itinerary data ──
+const DEFAULT_DAYS = [
+  {id:'d0',city:'tokyo',date:'2026-05-25',dateLabel:'Mon · May 25',title:'Arrival Day',events:[
+    {id:'d0e0',type:'callout',icon:'😅',text:'Keep this night <strong>LOW KEY</strong> — jet lag will hit differently'},
+    {id:'d0e1',type:'period',text:'🛬 Arrival'},
+    {id:'d0e2',type:'event',time:'~3:00 PM',text:'✈️ Land at airport',note:'Transit + check into Shibuya hotel',highlight:true,booked:false,done:false},
+    {id:'d0e3',type:'period',text:'🌙 Evening'},
+    {id:'d0e4',type:'event',time:'Evening',text:'🚦 Shibuya Crossing',note:'Dinner nearby',highlight:false,booked:false,done:false},
+    {id:'d0e5',type:'event',time:'Later',text:'🏪 Don Quijote + convenience store snack run',note:null,highlight:false,booked:false,done:false},
+  ]},
+  {id:'d1',city:'tokyo',date:'2026-05-26',dateLabel:'Tue · May 26',title:'Shibuya / Harajuku Day',events:[
+    {id:'d1e0',type:'period',text:'☀️ Morning'},
+    {id:'d1e1',type:'event',time:'7:00 AM',text:'⛩ Meiji Shrine',note:'Go early — peaceful before crowds',highlight:false,booked:false,done:false},
+    {id:'d1e2',type:'event',time:'9:30 AM',text:'🛍 Harajuku + Takeshita Street',note:null,highlight:false,booked:false,done:false},
+    {id:'d1e3',type:'period',text:'🌤 Afternoon'},
+    {id:'d1e4',type:'event',time:'Afternoon',text:'Cat Street, shopping, arcades & gachapon',note:null,highlight:false,booked:false,done:false},
+    {id:'d1e5',type:'period',text:'🌙 Evening'},
+    {id:'d1e6',type:'event',time:'Evening',text:'🌃 Shibuya at night',note:'Optional: karaoke',highlight:false,booked:false,done:false},
+  ]},
+  {id:'d2',city:'tokyo',date:'2026-05-27',dateLabel:'Wed · May 27',title:'Asakusa + Akihabara',events:[
+    {id:'d2e0',type:'period',text:'☀️ Morning'},
+    {id:'d2e1',type:'event',time:'Morning',text:'⛩ Sensō-ji',note:'Nakamise shopping street',highlight:false,booked:false,done:false},
+    {id:'d2e2',type:'period',text:'🌤 Afternoon'},
+    {id:'d2e3',type:'event',time:'Afternoon',text:'🎮 Akihabara',note:'Anime stores, arcades, capsule toy hunting',highlight:false,booked:false,done:false},
+    {id:'d2e4',type:'period',text:'🌙 Evening'},
+    {id:'d2e5',type:'event',time:'Evening',text:'🍽 Relaxed dinner near hotel',note:null,highlight:false,booked:false,done:false},
+  ]},
+  {id:'d3',city:'tokyo',date:'2026-05-28',dateLabel:'Thu · May 28',title:'teamLab + Shibuya Sky ✨',events:[
+    {id:'d3e0',type:'period',text:'☀️ Morning'},
+    {id:'d3e1',type:'event',time:'Morning',text:'🎨 teamLab Planets TOKYO',note:'Immersive digital art — timed entry',highlight:true,booked:true,done:false},
+    {id:'d3e2',type:'period',text:'🌤 Afternoon'},
+    {id:'d3e3',type:'event',time:'Afternoon',text:'🏝 Odaiba OR free shopping time',note:null,highlight:false,booked:false,done:false},
+    {id:'d3e4',type:'period',text:'🌙 Evening'},
+    {id:'d3e5',type:'event',time:'Evening',text:'✨ Shibuya Sky',note:'Perfect "peak Tokyo" moment — amazing views before leaving',highlight:true,booked:true,done:false},
+    {id:'d3e6',type:'callout',icon:'💡',text:"You'll know Shibuya well by now — energy is better by day 3, perfect timing for the rooftop views"},
+  ]},
+  {id:'d4',city:'hakone',date:'2026-05-29',dateLabel:'Fri · May 29',title:'Tokyo → Hakone',events:[
+    {id:'d4e0',type:'period',text:'🌤 Travel'},
+    {id:'d4e1',type:'event',time:'Morning',text:'🚃 Romancecar → Odawara',note:'Then taxi to ryokan',highlight:true,booked:true,done:false},
+    {id:'d4e2',type:'period',text:'🌙 Evening'},
+    {id:'d4e3',type:'event',time:'Evening',text:'🍱 Ryokan dinner',note:null,highlight:false,booked:false,done:false},
+    {id:'d4e4',type:'event',time:'Night',text:'♨ Private onsen',note:'Early night — fully relaxing',highlight:false,booked:false,done:false},
+  ]},
+  {id:'d5',city:'kyoto',date:'2026-05-30',dateLabel:'Sat · May 30',title:'Hakone → Kyoto',events:[
+    {id:'d5e0',type:'period',text:'☀️ Morning'},
+    {id:'d5e1',type:'event',time:'Morning',text:'🍳 Slow breakfast at ryokan',note:null,highlight:false,booked:false,done:false},
+    {id:'d5e2',type:'period',text:'🌤 Travel'},
+    {id:'d5e3',type:'event',time:'Midday',text:'🚄 Shinkansen → Kyoto',note:'Odawara → Kyoto via SmartEX',highlight:true,booked:true,done:false},
+    {id:'d5e4',type:'period',text:'🌙 Evening'},
+    {id:'d5e5',type:'event',time:'Evening',text:'🏘 Explore neighborhood casually',note:'Settle in, low-key first night in Kyoto',highlight:false,booked:false,done:false},
+  ]},
+  {id:'d6',city:'kyoto',date:'2026-05-31',dateLabel:'Sun · May 31',title:'Fushimi Inari + Gion',events:[
+    {id:'d6e0',type:'period',text:'🌅 Early Morning'},
+    {id:'d6e1',type:'event',time:'Early AM',text:'⛩ Fushimi Inari-taisha',note:'Go early — before crowds arrive',highlight:true,booked:false,done:false},
+    {id:'d6e2',type:'period',text:'🌤 Afternoon'},
+    {id:'d6e3',type:'event',time:'Afternoon',text:'🛒 Nishiki Market — matcha treats & shopping',note:null,highlight:false,booked:false,done:false},
+    {id:'d6e4',type:'period',text:'🌙 Evening'},
+    {id:'d6e5',type:'event',time:'Sunset',text:'⛩ Gion at sunset',note:'Golden hour — best lighting for photos',highlight:false,booked:false,done:false},
+  ]},
+  {id:'d7',city:'kyoto',date:'2026-06-01',dateLabel:'Mon · Jun 1',title:'Arashiyama Day',events:[
+    {id:'d7e0',type:'period',text:'☀️ Morning'},
+    {id:'d7e1',type:'event',time:'Morning',text:'🎋 Bamboo Grove + river area',note:null,highlight:false,booked:false,done:false},
+    {id:'d7e2',type:'event',time:'Optional',text:'🐒 Monkey Park OR scenic train',note:null,highlight:false,booked:false,done:false},
+    {id:'d7e3',type:'period',text:'🌙 Evening'},
+    {id:'d7e4',type:'event',time:'Evening',text:'🍽 Relaxed Kyoto dinner',note:null,highlight:false,booked:false,done:false},
+  ]},
+  {id:'d8',city:'kyoto',date:'2026-06-02',dateLabel:'Tue · Jun 2',title:'Nara Park Day Trip ✨',events:[
+    {id:'d8e0',type:'callout',icon:'🦌',text:'Great <strong>"slower day"</strong> before the Osaka energy — highly recommended'},
+    {id:'d8e1',type:'period',text:'☀️ Morning'},
+    {id:'d8e2',type:'event',time:'Morning',text:'✨ Train from Kyoto → Nara (~45 min)',note:null,highlight:true,booked:false,done:false},
+    {id:'d8e3',type:'event',time:'Morning',text:'🦌 Bowing deer · Tōdai-ji · Giant Buddha',note:'Mochi pounding shops nearby',highlight:false,booked:false,done:false},
+    {id:'d8e4',type:'period',text:'🌤 Afternoon'},
+    {id:'d8e5',type:'event',time:'Afternoon',text:'Wander old Nara streets',note:'Return to Kyoto in the afternoon',highlight:false,booked:false,done:false},
+  ]},
+  {id:'d9',city:'osaka',date:'2026-06-03',dateLabel:'Wed · Jun 3',title:'Osaka + Pokémon Cafe ✨',events:[
+    {id:'d9e0',type:'period',text:'🌤 Travel + Afternoon'},
+    {id:'d9e1',type:'event',time:'Midday',text:'🚃 Kyoto → Osaka',note:'IC card — no booking needed',highlight:false,booked:false,done:false},
+    {id:'d9e2',type:'event',time:'Afternoon',text:'Check into Airbnb, explore Dotonbori',note:null,highlight:false,booked:false,done:false},
+    {id:'d9e3',type:'period',text:'🌙 Evening'},
+    {id:'d9e4',type:'event',time:'Evening',text:'✨ Pokémon Cafe Osaka',note:'Fun energy, great for teens, near shopping',highlight:true,booked:true,done:false},
+    {id:'d9e5',type:'event',time:'Night',text:'🌃 Dotonbori at night + street food',note:null,highlight:false,booked:false,done:false},
+  ]},
+  {id:'d10',city:'osaka',date:'2026-06-04',dateLabel:'Thu · Jun 4',title:'Osaka Aquarium',events:[
+    {id:'d10e0',type:'period',text:'🌤 Afternoon'},
+    {id:'d10e1',type:'event',time:'3:30 PM',text:'🐋 Osaka Aquarium Kaiyukan',note:"One of the world's largest aquariums",highlight:true,booked:true,done:false},
+  ]},
+  {id:'d11',city:'osaka',date:'2026-06-05',dateLabel:'Fri · Jun 5',title:'Departure Day ✈️',events:[
+    {id:'d11e0',type:'period',text:'☀️ Morning'},
+    {id:'d11e1',type:'event',time:'Morning',text:'☕ Slow morning',note:null,highlight:false,booked:false,done:false},
+    {id:'d11e2',type:'event',time:'Late AM',text:'🛍 Last-minute snacks & souvenirs',note:null,highlight:false,booked:false,done:false},
+    {id:'d11e3',type:'period',text:'✈️ Departure'},
+    {id:'d11e4',type:'event',time:'~1:00 PM',text:'🚄 Head to KIX airport',note:'HARUKA express — allow plenty of time',highlight:true,booked:false,done:false},
+  ]},
+];
+
+const DEFAULT_ACTIVITIES = [
+  {id:'a0',name:'Shibuya Crossing',note:'Iconic scramble intersection',type:'must',city:'tokyo',assignedDay:null},
+  {id:'a1',name:'Shinjuku neon district + Omoide Yokocho',note:null,type:'must',city:'tokyo',assignedDay:null},
+  {id:'a2',name:'Meiji Shrine',note:'Early morning is best',type:'must',city:'tokyo',assignedDay:null},
+  {id:'a3',name:'Harajuku Takeshita Street',note:null,type:'must',city:'tokyo',assignedDay:null},
+  {id:'a4',name:'teamLab Planets',note:'Book timed entry 2–3 weeks ahead',type:'optional',city:'tokyo',assignedDay:null},
+  {id:'a5',name:'Tokyo Skytree',note:null,type:'optional',city:'tokyo',assignedDay:null},
+  {id:'a6',name:'Tsukiji Outer Market',note:null,type:'optional',city:'tokyo',assignedDay:null},
+  {id:'a7',name:'Pokémon Center',note:'Walk-in',type:'shopping',city:'tokyo',assignedDay:null},
+  {id:'a8',name:'Pokémon Café Tokyo',note:'Closed during trip dates — Osaka backup on Jun 3',type:'optional',city:'tokyo',assignedDay:null},
+  {id:'a9',name:'Hakone Ropeway',note:'Over volcanic valley',type:'must',city:'hakone',assignedDay:null},
+  {id:'a10',name:'Owakudani Valley',note:'Volcanic area, Mt. Fuji views',type:'must',city:'hakone',assignedDay:null},
+  {id:'a11',name:'Lake Ashi Pirate Ship Cruise',note:null,type:'must',city:'hakone',assignedDay:null},
+  {id:'a12',name:'Onsen at villa',note:null,type:'included',city:'hakone',assignedDay:null},
+  {id:'a13',name:'Kaiseki dinner',note:'Traditional multi-course',type:'must',city:'hakone',assignedDay:null},
+  {id:'a14',name:'Fushimi Inari Shrine',note:'Red torii gates — go early',type:'must',city:'kyoto',assignedDay:null},
+  {id:'a15',name:'Arashiyama Bamboo Grove',note:'Morning is best',type:'must',city:'kyoto',assignedDay:null},
+  {id:'a16',name:'Kinkaku-ji (Golden Pavilion)',note:null,type:'must',city:'kyoto',assignedDay:null},
+  {id:'a17',name:'Gion District',note:'Geisha area — respectful photography',type:'must',city:'kyoto',assignedDay:null},
+  {id:'a18',name:'Nishiki Market',note:'Food market',type:'must',city:'kyoto',assignedDay:null},
+  {id:'a19',name:'Tea ceremony',note:'Book in advance',type:'cultural',city:'kyoto',assignedDay:null},
+  {id:'a20',name:'Kimono rental',note:'Book in advance',type:'cultural',city:'kyoto',assignedDay:null},
+  {id:'a21',name:"Philosopher's Path",note:null,type:'optional',city:'kyoto',assignedDay:null},
+  {id:'a22',name:'Nijo Castle',note:null,type:'optional',city:'kyoto',assignedDay:null},
+  {id:'a23',name:'Dotonbori',note:'Food + nightlife',type:'must',city:'osaka',assignedDay:null},
+  {id:'a24',name:'Osaka Castle',note:null,type:'must',city:'osaka',assignedDay:null},
+  {id:'a25',name:'Shinsekai district',note:null,type:'must',city:'osaka',assignedDay:null},
+  {id:'a26',name:'Takoyaki',note:'Classic Osaka street food',type:'food',city:'osaka',assignedDay:null},
+  {id:'a27',name:'Okonomiyaki',note:'Savory pancake',type:'food',city:'osaka',assignedDay:null},
+  {id:'a28',name:'Universal Studios Japan',note:'Get Express Pass',type:'optional',city:'osaka',assignedDay:null},
+  {id:'a29',name:'Pokémon Café Osaka',note:'Backup for Tokyo Café',type:'optional',city:'osaka',assignedDay:null},
+];
+
+// ── App state ──
+const appState = {
+  days: null,
+  activities: null,
+  cityFilter: 'all',
+  dateFilter: 'all',
+  editingMode: false,
+  _movingEvent: null,
+  _assigningActivity: null,
+};
+let _sb = null;
+let _syncTimer = null;
+
+// ── Supabase init ──
+async function initSupabase() {
+  try { _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) { _sb = null; }
+}
+
+// ── Persistence ──
+function getDefaultData() {
+  return {
+    days: JSON.parse(JSON.stringify(DEFAULT_DAYS)),
+    activities: JSON.parse(JSON.stringify(DEFAULT_ACTIVITIES)),
+  };
+}
+
+async function loadAppState() {
+  if (_sb) {
+    try {
+      const { data, error } = await _sb.from('trip_state').select('data').eq('id', ROW_ID).single();
+      if (!error && data && data.data) {
+        const d = data.data;
+        appState.days = d.days || getDefaultData().days;
+        appState.activities = d.activities || getDefaultData().activities;
+        try { localStorage.setItem(LS_KEY, JSON.stringify({days: appState.days, activities: appState.activities})); } catch(e) {}
+        return;
+      }
+    } catch(e) {}
+  }
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) {
+      const p = JSON.parse(saved);
+      appState.days = p.days || getDefaultData().days;
+      appState.activities = p.activities || getDefaultData().activities;
+      return;
+    }
+  } catch(e) {}
+  const def = getDefaultData();
+  appState.days = def.days;
+  appState.activities = def.activities;
+}
+
+function saveAppState() {
+  const data = { days: appState.days, activities: appState.activities };
+  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
+  if (_syncTimer) clearTimeout(_syncTimer);
+  setSyncDot('syncing');
+  _syncTimer = setTimeout(async () => {
+    if (!_sb) { setSyncDot(''); return; }
+    try {
+      await _sb.from('trip_state').upsert({ id: ROW_ID, data, updated_at: new Date().toISOString() });
+      setSyncDot('');
+    } catch(e) {
+      setSyncDot('error');
+      setTimeout(() => setSyncDot(''), 3000);
+    }
+  }, 1500);
+}
+
+function setSyncDot(s) {
+  const dot = document.getElementById('sync-dot');
+  if (dot) dot.className = 'sync-dot' + (s ? ' ' + s : '');
+}
+
+// ── Section switching (override) ──
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('visible');
+  btn.classList.add('active');
+  btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const dateFilters = document.getElementById('date-filters');
+  const editToggle = document.getElementById('edit-toggle');
+  if (id === 'itinerary') {
+    dateFilters.classList.remove('hidden');
+    editToggle.style.display = '';
+    if (appState.editingMode) document.getElementById('section-itinerary').classList.add('editing-mode');
+  } else if (id === 'activities') {
+    dateFilters.classList.add('hidden');
+    editToggle.style.display = '';
+    if (appState.editingMode) document.getElementById('section-activities').classList.add('editing-mode');
+  } else {
+    dateFilters.classList.add('hidden');
+    editToggle.style.display = 'none';
+    appState.editingMode = false;
+    editToggle.classList.remove('active');
+    editToggle.textContent = '✏️ Edit';
+    document.getElementById('section-itinerary').classList.remove('editing-mode');
+    document.getElementById('section-activities').classList.remove('editing-mode');
+  }
+}
+
+// ── City filter (override) ──
+function filterCity(city) {
+  appState.cityFilter = city;
+  document.querySelectorAll('.filter-pill[data-city]').forEach(p => p.classList.remove('active'));
+  const pill = document.querySelector('.filter-pill[data-city="' + city + '"]');
+  if (pill) pill.classList.add('active');
+  renderItinerary();
+  renderActivities();
+}
+
+// ── Date filter ──
+function filterDate(date) {
+  appState.dateFilter = date;
+  document.querySelectorAll('.filter-pill[data-date]').forEach(p => p.classList.remove('active'));
+  const pill = document.querySelector('.filter-pill[data-date="' + date + '"]');
+  if (pill) pill.classList.add('active');
+  renderItinerary();
+}
+
+// ── Edit mode ──
+function toggleEditMode() {
+  appState.editingMode = !appState.editingMode;
+  const btn = document.getElementById('edit-toggle');
+  const iSec = document.getElementById('section-itinerary');
+  const aSec = document.getElementById('section-activities');
+  if (appState.editingMode) {
+    btn.classList.add('active'); btn.textContent = '✓ Done';
+    iSec.classList.add('editing-mode'); aSec.classList.add('editing-mode');
+  } else {
+    btn.classList.remove('active'); btn.textContent = '✏️ Edit';
+    iSec.classList.remove('editing-mode'); aSec.classList.remove('editing-mode');
+  }
+}
+
+// ── Render itinerary ──
+function renderItinerary() {
+  const container = document.getElementById('itinerary-timeline');
+  if (!container || !appState.days) return;
+  const today = new Date().toISOString().slice(0, 10);
+  const { cityFilter, dateFilter } = appState;
+  const cityDivLabels = {
+    tokyo: '🗼 Tokyo &nbsp;·&nbsp; May 25–29',
+    hakone: '🏔 Hakone &nbsp;·&nbsp; May 29–30',
+    kyoto: '⛩ Kyoto &nbsp;·&nbsp; May 30–Jun 3',
+    osaka: '🦀 Osaka &nbsp;·&nbsp; Jun 3–5',
+  };
+  let html = '', lastCity = null;
+
+  appState.days.forEach(day => {
+    if (cityFilter !== 'all' && day.city !== cityFilter) return;
+    if (dateFilter === 'today' && day.date !== today) return;
+    if (dateFilter === 'upcoming' && day.date < today) return;
+    if (dateFilter !== 'all' && dateFilter !== 'today' && dateFilter !== 'upcoming' && day.id !== dateFilter) return;
+
+    if (day.city !== lastCity) {
+      lastCity = day.city;
+      html += '<div class="city-divider ' + day.city + '">' + cityDivLabels[day.city] + '</div>';
+    }
+    const cityName = day.city.charAt(0).toUpperCase() + day.city.slice(1);
+    const globalIdx = appState.days.findIndex(d => d.id === day.id);
+    html += '<div class="day-block" data-city="' + day.city + '" data-day-id="' + day.id + '" data-day-idx="' + globalIdx + '">'
+      + '<div class="day-dot ' + day.city + '"></div>'
+      + '<div class="day-header" onclick="toggleDay(this)">'
+        + '<span class="day-date">' + day.dateLabel + '</span>'
+        + '<span class="day-title">' + day.title + '</span>'
+        + '<span class="badge badge-' + day.city + '">' + cityName + '</span>'
+        + '<span class="day-toggle open">▼</span>'
+      + '</div>'
+      + '<div class="day-events">'
+        + day.events.map(ev => buildEventHTML(ev, day.id)).join('')
+        + '<button class="add-event-btn" onclick="openEventModal(\'' + day.id + '\',null)">＋ Add item</button>'
+      + '</div>'
+    + '</div>';
+  });
+
+  if (!html) html = '<p style="color:var(--text-muted);padding:24px 0">No days match the current filter.</p>';
+  container.innerHTML = html;
+  if (appState.editingMode) document.getElementById('section-itinerary').classList.add('editing-mode');
+  injectMapButtons();
+}
+
+function buildEventHTML(ev, dayId) {
+  if (ev.type === 'callout') {
+    return '<div class="callout"><span class="callout-icon">' + (ev.icon||'💡') + '</span><span>' + ev.text + '</span></div>';
+  }
+  if (ev.type === 'period') {
+    return '<div class="period-label">' + ev.text + '</div>';
+  }
+  var hc = ev.highlight ? ' event-highlight' : '';
+  var dc = ev.done ? ' done' : '';
+  var booked = ev.booked ? ' <span class="badge badge-success" style="font-size:11px;padding:2px 7px;">✓ Booked</span>' : '';
+  var note = ev.note ? '<div class="event-note">' + ev.note + '</div>' : '';
+  var chk = ev.done ? ' checked' : '';
+  return '<div class="event' + hc + dc + '" data-event-id="' + ev.id + '">'
+    + '<input type="checkbox" class="event-done-cb"' + chk + ' onclick="toggleEventDone(\'' + dayId + '\',\'' + ev.id + '\');event.stopPropagation()">'
+    + '<span class="event-time">' + (ev.time||'') + '</span>'
+    + '<div style="flex:1;min-width:0"><div class="event-text">' + ev.text + booked + '</div>' + note + '</div>'
+    + '<button class="event-edit-btn" onclick="openEventModal(\'' + dayId + '\',\'' + ev.id + '\');event.stopPropagation()">⋯</button>'
+    + '</div>';
+}
+
+// ── Render activities ──
+function renderActivities() {
+  const container = document.getElementById('activities-container');
+  if (!container || !appState.activities) return;
+  const { cityFilter } = appState;
+  const cities = ['tokyo','hakone','kyoto','osaka'];
+  const cityMeta = {
+    tokyo: {emoji:'🗼', label:'Tokyo'},
+    hakone: {emoji:'🏔', label:'Hakone'},
+    kyoto: {emoji:'⛩', label:'Kyoto'},
+    osaka: {emoji:'🦀', label:'Osaka'},
+  };
+  const typeLabels = {must:'Must-do',optional:'Optional',food:'Food',shopping:'Shopping',cultural:'Cultural',included:'Included'};
+  let html = '';
+
+  cities.forEach(city => {
+    if (cityFilter !== 'all' && cityFilter !== city) return;
+    const items = appState.activities.filter(a => a.city === city);
+    if (!items.length) return;
+    const m = cityMeta[city];
+    html += '<div class="activity-group">'
+      + '<div class="activity-city-header ' + city + '">' + m.emoji + ' ' + m.label + '</div>'
+      + '<div class="activity-list">'
+      + items.map(a => buildActivityHTML(a, typeLabels)).join('')
+      + '<button class="add-activity-btn" onclick="openActivityModal(null,\'' + city + '\')">＋ Add activity</button>'
+      + '</div></div>';
+  });
+
+  if (!html) html = '<p style="color:var(--text-muted);padding:24px 0">No activities found.</p>';
+  container.innerHTML = html;
+  if (appState.editingMode) document.getElementById('section-activities').classList.add('editing-mode');
+}
+
+function buildActivityHTML(a, typeLabels) {
+  var isPlanned = a.assignedDay !== null;
+  var planDay = isPlanned ? appState.days.find(d => d.id === a.assignedDay) : null;
+  var planLabel = planDay ? ('Day ' + getDayNum(a.assignedDay) + ': ' + planDay.dateLabel) : 'Plan it →';
+  var planClass = isPlanned ? 'activity-plan-btn planned' : 'activity-plan-btn';
+  var noteHtml = a.note ? '<div class="activity-note">' + a.note + '</div>' : '';
+  return '<div class="activity-item" data-activity-id="' + a.id + '">'
+    + '<span class="activity-type ' + a.type + '">' + (typeLabels[a.type]||a.type) + '</span>'
+    + '<div class="activity-main"><div class="activity-name">' + a.name + '</div>' + noteHtml + '</div>'
+    + '<button class="' + planClass + '" onclick="openAssignModal(\'' + a.id + '\')">' + planLabel + '</button>'
+    + '<button class="activity-edit-btn" onclick="openActivityModal(\'' + a.id + '\',null);event.stopPropagation()">⋯</button>'
+    + '</div>';
+}
+
+function getDayNum(dayId) {
+  var idx = appState.days.findIndex(d => d.id === dayId);
+  return idx >= 0 ? idx + 1 : '?';
+}
+
+// ── Event done toggle ──
+function toggleEventDone(dayId, eventId) {
+  var day = appState.days.find(d => d.id === dayId);
+  if (!day) return;
+  var ev = day.events.find(e => e.id === eventId);
+  if (!ev) return;
+  ev.done = !ev.done;
+  var el = document.querySelector('[data-event-id="' + eventId + '"]');
+  if (el) el.classList.toggle('done', ev.done);
+  saveAppState();
+}
+
+// ── Sheet helpers ──
+function openSheet(id) {
+  document.getElementById(id + '-overlay').classList.add('open');
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSheet(id) {
+  document.getElementById(id + '-overlay').classList.remove('open');
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── Event modal ──
+function openEventModal(dayId, eventId) {
+  document.getElementById('ev-day-id').value = dayId;
+  document.getElementById('ev-event-id').value = eventId || '';
+  var isEdit = !!eventId;
+  document.getElementById('event-sheet-title').textContent = isEdit ? 'Edit Item' : 'Add Item';
+  document.getElementById('ev-delete-btn').style.display = isEdit ? '' : 'none';
+  document.getElementById('ev-move-btn').style.display = isEdit ? '' : 'none';
+  if (isEdit) {
+    var day = appState.days.find(d => d.id === dayId);
+    var ev = day && day.events.find(e => e.id === eventId);
+    if (ev) {
+      document.getElementById('ev-type').value = ev.type || 'event';
+      document.getElementById('ev-time').value = ev.time || '';
+      document.getElementById('ev-text').value = ev.text || '';
+      document.getElementById('ev-note').value = ev.note || '';
+      document.getElementById('ev-highlight').checked = !!ev.highlight;
+      document.getElementById('ev-booked').checked = !!ev.booked;
+    }
+  } else {
+    document.getElementById('ev-type').value = 'event';
+    document.getElementById('ev-time').value = '';
+    document.getElementById('ev-text').value = '';
+    document.getElementById('ev-note').value = '';
+    document.getElementById('ev-highlight').checked = false;
+    document.getElementById('ev-booked').checked = false;
+  }
+  updateEventFormFields();
+  openSheet('event-sheet');
+}
+
+function updateEventFormFields() {
+  var type = document.getElementById('ev-type').value;
+  var isEvent = type === 'event';
+  document.getElementById('ev-time-group').style.display = isEvent ? '' : 'none';
+  document.getElementById('ev-note-group').style.display = isEvent ? '' : 'none';
+  document.getElementById('ev-flags-group').style.display = isEvent ? '' : 'none';
+}
+
+function saveEventForm() {
+  var dayId = document.getElementById('ev-day-id').value;
+  var eventId = document.getElementById('ev-event-id').value;
+  var type = document.getElementById('ev-type').value;
+  var text = document.getElementById('ev-text').value.trim();
+  if (!text) { alert('Please enter a description'); return; }
+  var day = appState.days.find(d => d.id === dayId);
+  if (!day) return;
+  if (eventId) {
+    var ev = day.events.find(e => e.id === eventId);
+    if (ev) {
+      ev.type = type; ev.text = text;
+      ev.time = (type === 'event' ? document.getElementById('ev-time').value.trim() : null) || null;
+      ev.note = (type === 'event' ? document.getElementById('ev-note').value.trim() : null) || null;
+      ev.highlight = type === 'event' && document.getElementById('ev-highlight').checked;
+      ev.booked = type === 'event' && document.getElementById('ev-booked').checked;
+    }
+  } else {
+    var newEv = { id: dayId + 'e' + Date.now(), type, text, done: false };
+    if (type === 'event') {
+      newEv.time = document.getElementById('ev-time').value.trim() || null;
+      newEv.note = document.getElementById('ev-note').value.trim() || null;
+      newEv.highlight = document.getElementById('ev-highlight').checked;
+      newEv.booked = document.getElementById('ev-booked').checked;
+    }
+    day.events.push(newEv);
+  }
+  saveAppState();
+  renderItinerary();
+  closeSheet('event-sheet');
+}
+
+function deleteEventConfirm() {
+  var dayId = document.getElementById('ev-day-id').value;
+  var eventId = document.getElementById('ev-event-id').value;
+  var day = appState.days.find(d => d.id === dayId);
+  if (day) day.events = day.events.filter(e => e.id !== eventId);
+  saveAppState();
+  renderItinerary();
+  closeSheet('event-sheet');
+}
+
+function openMoveDayModal() {
+  appState._movingEvent = {
+    dayId: document.getElementById('ev-day-id').value,
+    eventId: document.getElementById('ev-event-id').value,
+  };
+  document.getElementById('day-picker-list').innerHTML = appState.days.map(d =>
+    '<button class="day-picker-btn" onclick="moveEventToDay(\'' + d.id + '\')">'
+    + '<div>' + d.title + '</div>'
+    + '<div class="day-picker-sub">' + d.dateLabel + '</div>'
+    + '</button>'
+  ).join('');
+  closeSheet('event-sheet');
+  setTimeout(() => openSheet('day-picker'), 200);
+}
+
+function moveEventToDay(targetDayId) {
+  if (!appState._movingEvent) return;
+  var { dayId, eventId } = appState._movingEvent;
+  var src = appState.days.find(d => d.id === dayId);
+  var tgt = appState.days.find(d => d.id === targetDayId);
+  if (src && tgt && dayId !== targetDayId) {
+    var idx = src.events.findIndex(e => e.id === eventId);
+    if (idx !== -1) {
+      var ev = src.events.splice(idx, 1)[0];
+      ev.id = targetDayId + 'e' + Date.now();
+      tgt.events.push(ev);
+      saveAppState();
+      renderItinerary();
+    }
+  }
+  appState._movingEvent = null;
+  closeSheet('day-picker');
+}
+
+// ── Activity modal ──
+function openActivityModal(activityId, defaultCity) {
+  document.getElementById('act-id').value = activityId || '';
+  var isEdit = !!activityId;
+  document.getElementById('activity-sheet-title').textContent = isEdit ? 'Edit Activity' : 'Add Activity';
+  document.getElementById('act-delete-btn').style.display = isEdit ? '' : 'none';
+  if (isEdit) {
+    var a = appState.activities.find(x => x.id === activityId);
+    if (a) {
+      document.getElementById('act-name').value = a.name || '';
+      document.getElementById('act-note').value = a.note || '';
+      document.getElementById('act-type').value = a.type || 'optional';
+      document.getElementById('act-city').value = a.city || 'tokyo';
+    }
+  } else {
+    document.getElementById('act-name').value = '';
+    document.getElementById('act-note').value = '';
+    document.getElementById('act-type').value = 'optional';
+    document.getElementById('act-city').value = defaultCity || 'tokyo';
+  }
+  openSheet('activity-sheet');
+}
+
+function saveActivityForm() {
+  var activityId = document.getElementById('act-id').value;
+  var name = document.getElementById('act-name').value.trim();
+  if (!name) { alert('Please enter a name'); return; }
+  if (activityId) {
+    var a = appState.activities.find(x => x.id === activityId);
+    if (a) {
+      a.name = name;
+      a.note = document.getElementById('act-note').value.trim() || null;
+      a.type = document.getElementById('act-type').value;
+      a.city = document.getElementById('act-city').value;
+    }
+  } else {
+    appState.activities.push({
+      id: 'a' + Date.now(), name,
+      note: document.getElementById('act-note').value.trim() || null,
+      type: document.getElementById('act-type').value,
+      city: document.getElementById('act-city').value,
+      assignedDay: null,
+    });
+  }
+  saveAppState();
+  renderActivities();
+  closeSheet('activity-sheet');
+}
+
+function deleteActivityConfirm() {
+  var activityId = document.getElementById('act-id').value;
+  appState.activities = appState.activities.filter(a => a.id !== activityId);
+  saveAppState();
+  renderActivities();
+  closeSheet('activity-sheet');
+}
+
+// ── Assign activity to day ──
+function openAssignModal(activityId) {
+  appState._assigningActivity = activityId;
+  var a = appState.activities.find(x => x.id === activityId);
+  if (!a) return;
+  document.getElementById('assign-activity-name').textContent = a.name;
+  document.getElementById('assign-day-list').innerHTML = appState.days.map(d =>
+    '<button class="day-picker-btn" onclick="assignActivity(\'' + d.id + '\')">'
+    + '<div>' + d.title + '</div>'
+    + '<div class="day-picker-sub">' + d.dateLabel + '</div>'
+    + '</button>'
+  ).join('');
+  document.getElementById('assign-none-btn').style.display = a.assignedDay ? '' : 'none';
+  openSheet('assign-sheet');
+}
+
+function assignActivity(dayId) {
+  var a = appState.activities.find(x => x.id === appState._assigningActivity);
+  if (a) a.assignedDay = dayId;
+  appState._assigningActivity = null;
+  saveAppState();
+  renderActivities();
+  closeSheet('assign-sheet');
+}
+
+// ── App init ──
+document.addEventListener('DOMContentLoaded', async function() {
+  await initSupabase();
+  await loadAppState();
+  renderItinerary();
+  renderActivities();
+  // Show filter bar elements for default itinerary tab
+  document.getElementById('date-filters').classList.remove('hidden');
+  document.getElementById('edit-toggle').style.display = '';
+  // Show sync dot only if Supabase connected
+  if (_sb) document.getElementById('sync-dot').style.opacity = '0';
+});
+</script>
+
+<!-- Event Add/Edit Sheet -->
+<div id="event-sheet-overlay" class="bottom-sheet-overlay" onclick="closeSheet('event-sheet')"></div>
+<div id="event-sheet" class="bottom-sheet">
+  <div class="bottom-sheet-handle"></div>
+  <div class="bottom-sheet-header">
+    <div class="bottom-sheet-title" id="event-sheet-title">Add Item</div>
+    <button class="bottom-sheet-close" onclick="closeSheet('event-sheet')">✕</button>
+  </div>
+  <div class="bottom-sheet-body">
+    <input type="hidden" id="ev-day-id">
+    <input type="hidden" id="ev-event-id">
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select class="form-select" id="ev-type" onchange="updateEventFormFields()">
+        <option value="event">Event</option>
+        <option value="period">Period label</option>
+        <option value="callout">Callout / tip</option>
+      </select>
+    </div>
+    <div id="ev-time-group" class="form-group">
+      <label class="form-label">Time</label>
+      <input class="form-input" id="ev-time" placeholder="e.g. 9:00 AM or Morning">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Text</label>
+      <input class="form-input" id="ev-text" placeholder="Description">
+    </div>
+    <div id="ev-note-group" class="form-group">
+      <label class="form-label">Note (optional)</label>
+      <input class="form-input" id="ev-note" placeholder="Additional detail">
+    </div>
+    <div id="ev-flags-group">
+      <div class="form-checkrow"><input type="checkbox" id="ev-highlight"><label for="ev-highlight">Highlight (special event)</label></div>
+      <div class="form-checkrow"><input type="checkbox" id="ev-booked"><label for="ev-booked">Booked / confirmed</label></div>
+    </div>
+    <button class="btn-primary" onclick="saveEventForm()">Save</button>
+    <button class="btn-secondary" id="ev-move-btn" onclick="openMoveDayModal()" style="display:none">Move to another day →</button>
+    <button class="btn-danger" id="ev-delete-btn" onclick="deleteEventConfirm()" style="display:none">Delete item</button>
+  </div>
+</div>
+
+<!-- Day Picker Sheet (move event) -->
+<div id="day-picker-overlay" class="bottom-sheet-overlay" onclick="closeSheet('day-picker')"></div>
+<div id="day-picker" class="bottom-sheet">
+  <div class="bottom-sheet-handle"></div>
+  <div class="bottom-sheet-header">
+    <div class="bottom-sheet-title">Move to Day</div>
+    <button class="bottom-sheet-close" onclick="closeSheet('day-picker')">✕</button>
+  </div>
+  <div class="bottom-sheet-body">
+    <div class="day-picker-list" id="day-picker-list"></div>
+  </div>
+</div>
+
+<!-- Activity Add/Edit Sheet -->
+<div id="activity-sheet-overlay" class="bottom-sheet-overlay" onclick="closeSheet('activity-sheet')"></div>
+<div id="activity-sheet" class="bottom-sheet">
+  <div class="bottom-sheet-handle"></div>
+  <div class="bottom-sheet-header">
+    <div class="bottom-sheet-title" id="activity-sheet-title">Add Activity</div>
+    <button class="bottom-sheet-close" onclick="closeSheet('activity-sheet')">✕</button>
+  </div>
+  <div class="bottom-sheet-body">
+    <input type="hidden" id="act-id">
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input class="form-input" id="act-name" placeholder="Activity name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note (optional)</label>
+      <input class="form-input" id="act-note" placeholder="Tips, booking info...">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="act-type">
+          <option value="must">Must-do</option>
+          <option value="optional">Optional</option>
+          <option value="food">Food</option>
+          <option value="shopping">Shopping</option>
+          <option value="cultural">Cultural</option>
+          <option value="included">Included</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">City</label>
+        <select class="form-select" id="act-city">
+          <option value="tokyo">Tokyo</option>
+          <option value="hakone">Hakone</option>
+          <option value="kyoto">Kyoto</option>
+          <option value="osaka">Osaka</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveActivityForm()">Save</button>
+    <button class="btn-danger" id="act-delete-btn" onclick="deleteActivityConfirm()" style="display:none">Delete activity</button>
+  </div>
+</div>
+
+<!-- Assign Activity Sheet (plan a day) -->
+<div id="assign-sheet-overlay" class="bottom-sheet-overlay" onclick="closeSheet('assign-sheet')"></div>
+<div id="assign-sheet" class="bottom-sheet">
+  <div class="bottom-sheet-handle"></div>
+  <div class="bottom-sheet-header">
+    <div class="bottom-sheet-title">Plan Activity</div>
+    <button class="bottom-sheet-close" onclick="closeSheet('assign-sheet')">✕</button>
+  </div>
+  <div class="bottom-sheet-body">
+    <div id="assign-activity-name" style="font-size:14px;color:var(--text-muted);margin-bottom:14px"></div>
+    <div class="day-picker-list" id="assign-day-list"></div>
+    <button class="assign-none-btn" id="assign-none-btn" onclick="assignActivity(null)" style="display:none">Remove from plan</button>
+  </div>
+</div>
+
 <!-- Hotel Detail Modal -->
 <div id="hotel-modal-overlay" class="hotel-modal-overlay" onclick="closeHotelDetail()"></div>
 <div id="hotel-modal" class="hotel-modal">
