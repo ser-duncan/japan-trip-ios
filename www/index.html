@@ -1042,6 +1042,16 @@
     color: var(--text-muted);
     margin-bottom: 8px;
   }
+  .dir-intro { font-size: 13px; color: var(--text-muted); padding: 2px 0 12px; line-height: 1.55; }
+  .dir-steps { display: flex; flex-direction: column; gap: 10px; }
+  .dir-heading { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent); margin: 8px 0 2px; }
+  .dir-step { display: flex; gap: 10px; align-items: flex-start; }
+  .dir-num { min-width: 20px; height: 20px; background: var(--accent); color: #000; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .dir-text { font-size: 14px; line-height: 1.5; flex: 1; }
+  .dir-sub { margin: 5px 0 0; padding-left: 6px; list-style: none; }
+  .dir-sub li { font-size: 13px; color: var(--text-muted); margin-bottom: 3px; padding-left: 10px; position: relative; }
+  .dir-sub li::before { content: "·"; position: absolute; left: 0; color: var(--accent); }
+  .dir-tip { margin-top: 14px; background: rgba(126,176,255,0.08); border: 1px solid rgba(126,176,255,0.2); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
   .hotel-detail-row {
     display: flex;
     justify-content: space-between;
@@ -3095,6 +3105,44 @@
             { label: 'Paid', value: '¥5,750 (tax incl.)' },
             { label: 'Ticket', value: '<a href="https://www.emot.jp/ticket/list" target="_blank" rel="noopener" style="color:#7EB0FF">View ticket on emot.jp ↗</a>' },
           ]
+        },
+        {
+          type: 'directions',
+          title: 'KOALA BLDG → Shinjuku Odakyu Platform',
+          intro: 'Leave at 9:15 AM — the walk is only 10 min but Shinjuku Station is large, so give yourself buffer.',
+          steps: [
+            { heading: 'Outside your apartment' },
+            { text: 'Exit KOALA BLDG. onto the street and head toward Shinjuku Station.' },
+            { text: 'Your goal is <strong>not</strong> "JR" — look for signs pointing to:', sub: ['新宿駅 / Shinjuku Station', '南口 / South Exit', '小田急線 / Odakyu Line'] },
+            { heading: 'At the station complex' },
+            { text: 'Do <strong>not</strong> enter the JR ticket gates. Stay outside the paid JR area.' },
+            { text: 'Look for 小田急線 / Odakyu Line — it\'s on the west/southwest side, accessible from the South Gate area.' },
+            { text: 'Enter through the <strong>Odakyu South Gate (南口)</strong>.' },
+            { heading: 'At the Odakyu gates' },
+            { text: 'Tap your IC card (Suica/PASMO) — this covers the base fare. The Romancecar limited express surcharge is your separate EMot ticket.' },
+            { text: 'Check the departure boards for:', sub: ['10:00 — Hakone 3 (GSE) — Hakone-Yumoto', '10:00 箱根3号 / GSE / 箱根湯本'] },
+            { heading: 'To the platform' },
+            { text: 'Follow signs for <strong>特急ロマンスカー / Romancecar / Limited Express</strong>.' },
+            { text: 'Usually Platforms 2 or 3 — confirm on the departure board.' },
+            { text: 'Walk to the <strong>Car 2 / 2号車</strong> boarding marker on the platform.' },
+            { text: 'Board and find your seats:', sub: ['Seats 5C · 5D', 'Seats 6C · 6D', 'Seat 7D'] },
+          ],
+          tip: 'Quick: tell Maps "Odakyu Line Shinjuku Station South Exit". Once inside: Romancecar → Platform 2 or 3 → Car 2.'
+        },
+        {
+          type: 'directions',
+          title: 'Hakone-Yumoto → 箱根芦ノ湖ゴルフ Villa',
+          intro: 'You arrive at 11:27 AM. Check-in is 1:00 PM. The villa is ~25 min by taxi near Lake Ashi.',
+          steps: [
+            { heading: 'At Hakone-Yumoto Station' },
+            { text: 'Exit the train and follow signs to the station exit / 出口.' },
+            { text: 'Find the taxi rank outside. For 5 people you\'ll need 2 regular taxis, or ask for a <strong>large van / ジャンボタクシー</strong>.' },
+            { text: 'Tell the driver: <strong>"箱根ゴルフ Villa, 箱根249-3"</strong> — or show them the Maps link in the Hotels section.' },
+            { heading: 'The ride' },
+            { text: 'Journey ~25–35 min. Fare approximately ¥4,000–5,500 per taxi.' },
+            { text: 'If arriving before 1:00 PM, call ahead to store bags: <strong>+81 80-3544-1056</strong>.' },
+          ],
+          tip: 'Alt: Hakone Tozan Bus from outside the station toward 元箱根港 (Moto-Hakone Ko) ~50 min, ¥1,050/person — but taxi is much easier with luggage for 5.'
         }
       ]
     },
@@ -3133,6 +3181,41 @@
             { label: 'Klook ticket', value: '<a href="https://www.klook.com/en-US/user/booking/" target="_blank" rel="noopener" style="color:#7EB0FF">My Bookings ↗</a>' },
             { label: 'Manage seat', value: '<a href="https://shinkansen2.jr-central.co.jp/RSV_P/S_smart_en_index.htm" target="_blank" rel="noopener" style="color:#7EB0FF">SmartEX ↗</a>' },
           ]
+        },
+        {
+          type: 'directions',
+          title: 'Hakone Villa → Odawara Station',
+          intro: '⚠️ Train departs 12:07 PM and check-out is 12:00 PM — you must leave the villa by 11:00 AM. Arrange this with the host the night before.',
+          steps: [
+            { heading: 'The night before' },
+            { text: 'Call the host (+81 80-3544-1056) to arrange: early checkout by 10:30–11:00 AM, and 2 taxis (or 1 large van) ready for 11:00 AM sharp.' },
+            { heading: 'Getting to Odawara' },
+            { text: 'Take taxi directly to: <strong>"小田原駅 / Odawara eki"</strong>. Journey ~25–35 min, ~¥5,000–7,000 per taxi.' },
+            { heading: 'At Odawara Station' },
+            { text: 'Follow signs for <strong>JR / 新幹線 / Shinkansen</strong>.' },
+            { text: 'Pass through the regular JR gates with your IC card, then find the Shinkansen inner gates.' },
+            { text: 'At the Shinkansen gates: scan the <strong>QR code from your Klook booking</strong> (ref BHG063551).' },
+            { text: 'Head to <strong>Platform 13</strong> — always verify on the departure boards:', sub: ['Hikari 641 — Kyoto — 12:07', 'ひかり 641 / 京都 12:07'] },
+            { heading: 'On the train' },
+            { text: 'Board <strong>Car 6 / 6号車</strong>. Find your seats:', sub: ['Row 14: seats A, B, C', 'Row 15: seats A, B'] },
+            { text: 'Doors close at 12:07. Arrive Kyoto <strong>2:12 PM</strong>.' },
+          ],
+          tip: 'Quick: Odawara Station → 新幹線 signs → Shinkansen gates (scan QR) → Platform 13 → Car 6 → Rows 14–15.'
+        },
+        {
+          type: 'directions',
+          title: 'Kyoto Station → 515 Yamadachō',
+          intro: 'You arrive at 2:12 PM, check-in is 4:00 PM. Contact host Derrick (+81 80-1422-8964) for early bag storage.',
+          steps: [
+            { heading: 'Leaving Kyoto Station' },
+            { text: 'Exit Shinkansen platforms, follow signs for <strong>中央口 / Central Exit</strong>.' },
+            { text: 'Head to the <strong>taxi rank</strong> outside (Hachijō East or West). ~10–15 min, ~¥1,500–2,000.' },
+            { text: 'Tell the driver: <strong>"515 山田町, 中京区"</strong> — or show them the Maps link in the Hotels section.' },
+            { heading: 'Alternatively: subway (if no heavy luggage)' },
+            { text: 'Take Karasuma Subway Line (烏丸線) northbound, 2 stops to <strong>Karasuma-Oike (烏丸御池)</strong>.' },
+            { text: 'Walk ~12–15 min northwest to Yamadachō.' },
+          ],
+          tip: 'With 5 people + luggage: 2 taxis is the move. Just show the address — Kyoto taxi drivers are very reliable.'
         }
       ]
     },
@@ -3158,6 +3241,40 @@
             { label: 'Ticket', value: 'IC card tap-in / tap-out' },
             { label: 'Fare', value: '~¥560 per person' },
           ]
+        },
+        {
+          type: 'directions',
+          title: '515 Yamadachō → Kyoto Station',
+          intro: 'Check-out is 11:00 AM. Special Rapid trains to Osaka run every ~15 min — no rush once you\'re at the station.',
+          steps: [
+            { heading: 'Getting to Kyoto Station' },
+            { text: '<strong>Taxi recommended with luggage</strong>: ~10–12 min, ~¥1,200–1,600. Tell driver: "京都駅 / Kyoto eki".' },
+            { text: 'Or walk ~12–15 min to <strong>Karasuma-Oike Station (烏丸御池)</strong>, take Karasuma Subway Line (烏丸線) south 2 stops to Kyoto Station. Use IC card.' },
+            { heading: 'At Kyoto Station — JR platforms' },
+            { text: 'Follow signs for <strong>JR 在来線 / JR Lines</strong> (not Shinkansen).' },
+            { text: 'Look for <strong>新快速 Special Rapid toward 大阪 / Osaka</strong>. Tap IC card — no reservation needed.' },
+            { text: 'Trains run every 10–15 min. Platform varies — check the boards.' },
+            { heading: 'The ride' },
+            { text: 'JR Special Rapid (新快速) to <strong>JR Osaka Station</strong> takes ~75 min.' },
+            { text: 'Do not take the Shinkansen for this leg — unnecessary and expensive.' },
+          ],
+          tip: 'Confirm you\'re boarding 新快速 (Special Rapid) toward 大阪 or 神戸. Anything saying Osaka/Kobe works.'
+        },
+        {
+          type: 'directions',
+          title: 'JR Osaka Station → Lien de premier (四貫島)',
+          intro: 'Check-in is 4:00 PM. Host Taiga sends the lockbox PIN a couple days before.',
+          steps: [
+            { heading: 'From Osaka Station' },
+            { text: '<strong>Taxi recommended with luggage</strong>: from the south exit taxi rank, ~15–20 min, ~¥2,000–2,500.' },
+            { text: 'Tell the driver: <strong>"四貫島2-7-12, 此花区"</strong> — or show them the Maps link in the Hotels section.' },
+            { heading: 'By train (if no heavy luggage)' },
+            { text: 'Take JR Osaka Loop Line (環状線) outer loop / 外回り — 2 stops to <strong>Nishi-Kujo (西九条)</strong>, ~7 min.' },
+            { text: 'From Nishi-Kujo: ~15 min walk north/west to 四貫島. Use Maps — it\'s a quiet residential area, easy to navigate.' },
+            { heading: 'At the property' },
+            { text: 'Entry via lockbox. Use the PIN Taiga sends beforehand.' },
+          ],
+          tip: 'Simple: taxi from Osaka Station directly to 四貫島 2-7-12. No transfers.'
         }
       ]
     },
@@ -3183,10 +3300,57 @@
             { label: 'Seats needed', value: '5 together' },
             { label: 'Status', value: '<span class="badge badge-warn">Not yet confirmed</span>' },
           ]
+        },
+        {
+          type: 'directions',
+          title: 'Lien de premier → Tennoji → Kansai Airport',
+          intro: 'Check-out is 10:00 AM. Target departure is 1:03 PM from Tennoji. Leave the hotel by 11:30 AM to be comfortable.',
+          steps: [
+            { heading: 'Hotel to Tennoji Station' },
+            { text: '<strong>Taxi to Tennoji recommended</strong> with airport luggage: ~20–25 min, ~¥2,500–3,500. Tell driver: <strong>"天王寺駅 / Tennoji eki"</strong>.' },
+            { text: 'Or: walk ~15 min to JR Nishi-Kujo (西九条), take Osaka Loop Line outer loop (外回り) ~25 min to Tennoji. Use IC card.' },
+            { heading: 'At JR Tennoji Station' },
+            { text: 'Follow signs for <strong>特急はるか / HARUKA Limited Express</strong>.' },
+            { text: 'Scan your HARUKA ticket at the limited express gates. <em>(Not yet booked — use the JR West link in Ticket Info above to reserve 5 seats together.)</em>' },
+            { text: 'Check the departure boards for:', sub: ['HARUKA — 関西空港 / Kansai Airport — 13:03', 'はるか / 関西空港 13:03'] },
+            { heading: 'To the airport' },
+            { text: 'Journey is ~45 min from Tennoji to <strong>関西空港 / Kansai Kuko</strong> (last stop).' },
+            { text: 'The station connects directly to <strong>Terminal 1</strong> (international departures) via an indoor walkway — no outdoor transfer needed.' },
+          ],
+          tip: 'Quick: taxi to Tennoji → 特急はるか (HARUKA) → 13:03 → 関西空港 (direct, ~45 min) → Terminal 1 walkway.'
         }
       ]
     }
   };
+
+  function renderModalSections(sections) {
+    return sections.map(sec => {
+      if (sec.type === 'directions') {
+        let n = 0;
+        const body = sec.steps.map(s => {
+          if (s.heading) return `<div class="dir-heading">${s.heading}</div>`;
+          n++;
+          const sub = s.sub ? `<ul class="dir-sub">${s.sub.map(x => `<li>${x}</li>`).join('')}</ul>` : '';
+          return `<div class="dir-step"><span class="dir-num">${n}</span><div class="dir-text">${s.text}${sub}</div></div>`;
+        }).join('');
+        return `<div class="hotel-detail-section">
+          <div class="hotel-detail-section-title">${sec.title}</div>
+          ${sec.intro ? `<div class="dir-intro">${sec.intro}</div>` : ''}
+          <div class="dir-steps">${body}</div>
+          ${sec.tip ? `<div class="dir-tip">💡 ${sec.tip}</div>` : ''}
+        </div>`;
+      }
+      return `<div class="hotel-detail-section">
+        <div class="hotel-detail-section-title">${sec.title}</div>
+        ${(sec.rows||[]).map(row => `
+          <div class="hotel-detail-row">
+            <span class="hotel-detail-label">${row.label}</span>
+            <span class="hotel-detail-value">${row.value}</span>
+          </div>
+        `).join('')}
+      </div>`;
+    }).join('');
+  }
 
   function openTrainDetail(id) {
     const train = TRAIN_DETAILS[id];
@@ -3195,23 +3359,9 @@
     document.getElementById('hotel-modal-sub').textContent = train.sub;
     document.getElementById('hotel-modal-badge').innerHTML = train.badge;
     const noteEl = document.getElementById('hotel-modal-note');
-    if (train.note) {
-      noteEl.textContent = train.note;
-      noteEl.style.display = 'block';
-    } else {
-      noteEl.style.display = 'none';
-    }
-    document.getElementById('hotel-modal-sections').innerHTML = train.sections.map(sec => `
-      <div class="hotel-detail-section">
-        <div class="hotel-detail-section-title">${sec.title}</div>
-        ${sec.rows.map(row => `
-          <div class="hotel-detail-row">
-            <span class="hotel-detail-label">${row.label}</span>
-            <span class="hotel-detail-value">${row.value}</span>
-          </div>
-        `).join('')}
-      </div>
-    `).join('');
+    if (train.note) { noteEl.textContent = train.note; noteEl.style.display = 'block'; }
+    else { noteEl.style.display = 'none'; }
+    document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(train.sections);
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -3224,23 +3374,9 @@
     document.getElementById('hotel-modal-sub').textContent = hotel.sub;
     document.getElementById('hotel-modal-badge').innerHTML = hotel.badge;
     const noteEl = document.getElementById('hotel-modal-note');
-    if (hotel.note) {
-      noteEl.textContent = hotel.note;
-      noteEl.style.display = 'block';
-    } else {
-      noteEl.style.display = 'none';
-    }
-    document.getElementById('hotel-modal-sections').innerHTML = hotel.sections.map(sec => `
-      <div class="hotel-detail-section">
-        <div class="hotel-detail-section-title">${sec.title}</div>
-        ${sec.rows.map(row => `
-          <div class="hotel-detail-row">
-            <span class="hotel-detail-label">${row.label}</span>
-            <span class="hotel-detail-value">${row.value}</span>
-          </div>
-        `).join('')}
-      </div>
-    `).join('');
+    if (hotel.note) { noteEl.textContent = hotel.note; noteEl.style.display = 'block'; }
+    else { noteEl.style.display = 'none'; }
+    document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(hotel.sections);
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
