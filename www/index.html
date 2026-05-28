@@ -399,6 +399,194 @@
   .logistics-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
   .logistics-body { font-size: 14px; color: var(--text-muted); }
 
+  /* ── Today Card ── */
+  .today-card {
+    background: linear-gradient(135deg, var(--surface) 0%, rgba(126,176,255,0.06) 100%);
+    border: 1px solid rgba(126,176,255,0.22);
+    border-radius: 16px;
+    padding: 18px 20px 16px;
+    margin-bottom: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .today-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), #a78bfa);
+  }
+  .today-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .today-card-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .today-card-title { font-size: 18px; font-weight: 700; line-height: 1.2; }
+  .today-card-city { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+  .today-weather-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+  .today-events-list { display: flex; flex-direction: column; gap: 8px; }
+  .today-event-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .today-event-time { font-size: 12px; color: var(--text-muted); min-width: 64px; padding-top: 1px; flex-shrink: 0; }
+  .today-event-text.highlighted { font-weight: 600; }
+
+  /* ── Weather Bar ── */
+  .weather-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 2px 0 12px;
+    scrollbar-width: none;
+  }
+  .weather-bar::-webkit-scrollbar { display: none; }
+  .weather-pill {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 9px 12px;
+    min-width: 60px;
+  }
+  .weather-pill.today { border-color: var(--accent); background: rgba(126,176,255,0.08); }
+  .weather-pill-day { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  .weather-pill-icon { font-size: 18px; line-height: 1.1; }
+  .weather-pill-hi { font-size: 13px; font-weight: 700; }
+  .weather-pill-lo { font-size: 11px; color: var(--text-muted); }
+
+  /* ── Reservations ── */
+  .reservation-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .reservation-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .reservation-icon { font-size: 24px; flex-shrink: 0; }
+  .reservation-info { flex: 1; min-width: 0; }
+  .reservation-name { font-size: 15px; font-weight: 600; }
+  .reservation-date { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+  .reservation-code {
+    font-family: 'SF Mono', 'Courier New', monospace;
+    font-size: 13px;
+    background: var(--surface2);
+    padding: 5px 9px;
+    border-radius: 7px;
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Emergency ── */
+  .emergency-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .emergency-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .emergency-card.urgent { border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.05); }
+  .emergency-card .e-icon { font-size: 22px; }
+  .emergency-card .e-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+  .emergency-card .e-number { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; line-height: 1.2; }
+  .emergency-call-btn {
+    display: block;
+    text-align: center;
+    margin-top: 6px;
+    background: rgba(126,176,255,0.1);
+    border: 1px solid rgba(126,176,255,0.22);
+    border-radius: 8px;
+    padding: 7px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* ── Spend Tracker ── */
+  .spend-summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .spend-stat-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+  .spend-stat-value { font-size: 22px; font-weight: 800; line-height: 1.1; }
+  .spend-stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .expense-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .expense-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .expense-item:active { background: var(--surface2); }
+  .expense-cat-icon { font-size: 18px; flex-shrink: 0; }
+  .expense-info { flex: 1; min-width: 0; }
+  .expense-note-text { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .expense-meta { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .expense-yen { font-size: 15px; font-weight: 700; flex-shrink: 0; }
+  .expense-empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 18px 0; }
+  .expense-add-btn {
+    width: 100%;
+    margin-top: 12px;
+    background: rgba(126,176,255,0.08);
+    border: 1px dashed rgba(126,176,255,0.28);
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+  }
+
   .phrases-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1414,6 +1602,8 @@
 
   <!-- ─────────────── ITINERARY ─────────────── -->
   <div id="section-itinerary" class="section visible">
+    <div id="today-card-container"></div>
+    <div id="weather-bar" class="weather-bar"></div>
     <div id="itinerary-timeline" class="timeline"><!-- rendered by JS --></div>
     <div class="timeline" style="display:none"><!-- static backup -->
 
@@ -2236,6 +2426,75 @@
         </div>
       </div>
     </div>
+
+    <!-- ── Reservations ── -->
+    <div class="section-title" style="margin-top:32px; font-size:18px;">🍽 Reservations</div>
+    <div class="reservation-list">
+      <div class="reservation-item">
+        <span class="reservation-icon">🎨</span>
+        <div class="reservation-info">
+          <div class="reservation-name">teamLab Planets TOKYO</div>
+          <div class="reservation-date">Thu · May 28 · Toyosu · 5 persons</div>
+        </div>
+        <span class="reservation-code">ABT743615</span>
+      </div>
+      <div class="reservation-item">
+        <span class="reservation-icon">🌆</span>
+        <div class="reservation-info">
+          <div class="reservation-name">Shibuya Sky</div>
+          <div class="reservation-date">Thu · May 28 · 19:40 · 7 adults</div>
+        </div>
+        <span class="reservation-code">RBA473737</span>
+      </div>
+    </div>
+
+    <!-- ── Emergency Info ── -->
+    <div class="section-title" style="margin-top:32px; font-size:18px;">🆘 Emergency Info</div>
+    <div class="emergency-grid">
+      <div class="emergency-card urgent">
+        <span class="e-icon">🚓</span>
+        <div class="e-label">Police</div>
+        <div class="e-number">110</div>
+        <a class="emergency-call-btn" href="tel:110">Call 110</a>
+      </div>
+      <div class="emergency-card urgent">
+        <span class="e-icon">🚑</span>
+        <div class="e-label">Ambulance / Fire</div>
+        <div class="e-number">119</div>
+        <a class="emergency-call-btn" href="tel:119">Call 119</a>
+      </div>
+      <div class="emergency-card">
+        <span class="e-icon">🇺🇸</span>
+        <div class="e-label">US Embassy Tokyo</div>
+        <div class="e-number" style="font-size:16px">+81-3-3224-5000</div>
+        <a class="emergency-call-btn" href="tel:+81332245000">Call Embassy</a>
+      </div>
+      <div class="emergency-card">
+        <span class="e-icon">🇺🇸</span>
+        <div class="e-label">US Consulate Osaka</div>
+        <div class="e-number" style="font-size:16px">+81-6-6315-5900</div>
+        <a class="emergency-call-btn" href="tel:+81663155900">Call Consulate</a>
+      </div>
+    </div>
+
+    <!-- ── Spend Tracker ── -->
+    <div class="section-title" style="margin-top:32px; font-size:18px;">💴 Spend Tracker</div>
+    <div class="spend-summary">
+      <div>
+        <div class="spend-stat-label">Total spent</div>
+        <div class="spend-stat-value" id="spend-total">¥0</div>
+        <div class="spend-stat-sub" id="spend-usd">~$0 USD</div>
+      </div>
+      <div>
+        <div class="spend-stat-label">Per person (÷5)</div>
+        <div class="spend-stat-value" id="spend-per">¥0</div>
+        <div class="spend-stat-sub" id="spend-per-usd">~$0 USD</div>
+      </div>
+    </div>
+    <div class="expense-list" id="expense-list">
+      <div class="expense-empty">No expenses logged yet.</div>
+    </div>
+    <button class="expense-add-btn" onclick="openExpenseSheet()">＋ Log Expense</button>
 
     <div class="section-title" style="margin-top:36px; font-size:18px;">🗣 Key Phrases</div>
     <div class="phrases-grid">
@@ -3487,11 +3746,11 @@ const DEFAULT_DAYS = [
   ]},
   {id:'d3',city:'tokyo',date:'2026-05-28',dateLabel:'Thu · May 28',title:'teamLab + Shibuya Sky ✨',events:[
     {id:'d3e0',type:'period',text:'☀️ Morning'},
-    {id:'d3e1',type:'event',time:'Morning',text:'🎨 teamLab Planets TOKYO',note:'Immersive digital art — timed entry',highlight:true,booked:true,done:false},
+    {id:'d3e1',type:'event',time:'Morning',text:'🎨 teamLab Planets TOKYO',note:'Ref: ABT743615 (Klook) · 5 persons · Toyosu',highlight:true,booked:true,done:false},
     {id:'d3e2',type:'period',text:'🌤 Afternoon'},
     {id:'d3e3',type:'event',time:'Afternoon',text:'🏝 Odaiba OR free shopping time',note:null,highlight:false,booked:false,done:false},
     {id:'d3e4',type:'period',text:'🌙 Evening'},
-    {id:'d3e5',type:'event',time:'Evening',text:'✨ Shibuya Sky',note:'Perfect "peak Tokyo" moment — amazing views before leaving',highlight:true,booked:true,done:false},
+    {id:'d3e5',type:'event',time:'7:40 PM',text:'✨ Shibuya Sky',note:'Ref: RBA473737 (Klook) · 19:40 · 7 adults',highlight:true,booked:true,done:false},
     {id:'d3e6',type:'callout',icon:'💡',text:"You'll know Shibuya well by now — energy is better by day 3, perfect timing for the rooftop views"},
   ]},
   {id:'d4',city:'hakone',date:'2026-05-29',dateLabel:'Fri · May 29',title:'Tokyo → Hakone',events:[
@@ -3549,7 +3808,7 @@ const DEFAULT_DAYS = [
     {id:'d11e1',type:'event',time:'Morning',text:'☕ Slow morning',note:null,highlight:false,booked:false,done:false},
     {id:'d11e2',type:'event',time:'Late AM',text:'🛍 Last-minute snacks & souvenirs',note:null,highlight:false,booked:false,done:false},
     {id:'d11e3',type:'period',text:'✈️ Departure'},
-    {id:'d11e4',type:'event',time:'~1:00 PM',text:'🚄 Head to KIX airport',note:'HARUKA express — allow plenty of time',highlight:true,booked:false,done:false},
+    {id:'d11e4',type:'event',time:'~1:00 PM',text:'🚄 HARUKA Express → KIX',note:'⚠️ NOT BOOKED — 5 seats needed · Book now at jr-odekake.net',highlight:true,booked:false,done:false},
   ]},
 ];
 
@@ -3590,6 +3849,7 @@ const DEFAULT_ACTIVITIES = [
 const appState = {
   days: null,
   activities: null,
+  expenses: [],
   cityFilter: 'all',
   dateFilter: 'all',
   editingMode: false,
@@ -3620,7 +3880,8 @@ async function loadAppState() {
         const d = data.data;
         appState.days = d.days || getDefaultData().days;
         appState.activities = d.activities || getDefaultData().activities;
-        try { localStorage.setItem(LS_KEY, JSON.stringify({days: appState.days, activities: appState.activities})); } catch(e) {}
+        appState.expenses = d.expenses || [];
+        try { localStorage.setItem(LS_KEY, JSON.stringify({days: appState.days, activities: appState.activities, expenses: appState.expenses})); } catch(e) {}
         return;
       }
     } catch(e) {}
@@ -3631,16 +3892,18 @@ async function loadAppState() {
       const p = JSON.parse(saved);
       appState.days = p.days || getDefaultData().days;
       appState.activities = p.activities || getDefaultData().activities;
+      appState.expenses = p.expenses || [];
       return;
     }
   } catch(e) {}
   const def = getDefaultData();
   appState.days = def.days;
   appState.activities = def.activities;
+  appState.expenses = [];
 }
 
 function saveAppState() {
-  const data = { days: appState.days, activities: appState.activities };
+  const data = { days: appState.days, activities: appState.activities, expenses: appState.expenses };
   try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
   if (_syncTimer) clearTimeout(_syncTimer);
   setSyncDot('syncing');
@@ -4062,12 +4325,186 @@ function assignActivity(dayId) {
   closeSheet('assign-sheet');
 }
 
+// ── Weather ──
+const CITY_COORDS = {
+  tokyo:  {lat:35.6762,lon:139.6503},
+  hakone: {lat:35.1869,lon:139.0263},
+  kyoto:  {lat:35.0116,lon:135.7681},
+  osaka:  {lat:34.6937,lon:135.5023},
+};
+const WX_ICONS = {
+  0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',
+  51:'🌦',53:'🌦',55:'🌦',61:'🌧',63:'🌧',65:'🌧',
+  71:'🌨',73:'🌨',75:'🌨',80:'🌦',81:'🌧',82:'⛈',
+  95:'⛈',99:'⛈',
+};
+
+async function initWeather() {
+  const today = new Date().toISOString().slice(0,10);
+  const todayDay = appState.days && appState.days.find(d => d.date === today);
+  const city = (todayDay && todayDay.city) || 'tokyo';
+  const c = CITY_COORDS[city];
+  if (!c) return;
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + c.lat + '&longitude=' + c.lon
+      + '&current=temperature_2m,weathercode&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=Asia%2FTokyo&forecast_days=7';
+    const r = await fetch(url);
+    const json = await r.json();
+    renderWeatherBar(json, today);
+    updateTodayWeather(json, today);
+  } catch(e) {}
+}
+
+function renderWeatherBar(data, today) {
+  const bar = document.getElementById('weather-bar');
+  if (!bar || !data || !data.daily) return;
+  const { daily } = data;
+  let html = '';
+  for (let i = 0; i < Math.min(7, daily.time.length); i++) {
+    const date = daily.time[i];
+    const isToday = date === today;
+    const icon = WX_ICONS[daily.weathercode[i]] || '🌡';
+    const hi = Math.round(daily.temperature_2m_max[i]);
+    const lo = Math.round(daily.temperature_2m_min[i]);
+    const dow = new Date(date + 'T12:00:00').toLocaleDateString('en-US', {weekday:'short'});
+    html += '<div class="weather-pill' + (isToday ? ' today' : '') + '">'
+      + '<span class="weather-pill-day">' + (isToday ? 'Today' : dow) + '</span>'
+      + '<span class="weather-pill-icon">' + icon + '</span>'
+      + '<span class="weather-pill-hi">' + hi + '°</span>'
+      + '<span class="weather-pill-lo">' + lo + '°</span>'
+      + '</div>';
+  }
+  bar.innerHTML = html;
+}
+
+function updateTodayWeather(data, today) {
+  const el = document.getElementById('today-weather-badge');
+  if (!el || !data || !data.current) return;
+  const temp = Math.round(data.current.temperature_2m);
+  const icon = WX_ICONS[data.current.weathercode] || '🌡';
+  el.innerHTML = icon + ' ' + temp + '°C';
+}
+
+// ── Today Card ──
+function renderTodayCard() {
+  const container = document.getElementById('today-card-container');
+  if (!container || !appState.days) return;
+  const today = new Date().toISOString().slice(0,10);
+  const todayDay = appState.days.find(d => d.date === today);
+  if (!todayDay) { container.innerHTML = ''; return; }
+  const cityLabel = {tokyo:'🗼 Tokyo', hakone:'🏔 Hakone', kyoto:'⛩ Kyoto', osaka:'🦀 Osaka'};
+  const events = todayDay.events.filter(e => e.type === 'event').slice(0, 5);
+  const evRows = events.map(ev =>
+    '<div class="today-event-row">'
+    + '<span class="today-event-time">' + (ev.time || '') + '</span>'
+    + '<span class="today-event-text' + (ev.highlight ? ' highlighted' : '') + '">' + ev.text + '</span>'
+    + '</div>'
+  ).join('');
+  container.innerHTML = '<div class="today-card">'
+    + '<div class="today-card-header">'
+    + '<div>'
+    + '<div class="today-card-label">Today · ' + todayDay.dateLabel + '</div>'
+    + '<div class="today-card-title">' + todayDay.title + '</div>'
+    + '<div class="today-card-city">' + (cityLabel[todayDay.city] || todayDay.city) + '</div>'
+    + '</div>'
+    + '<div class="today-weather-badge" id="today-weather-badge">—</div>'
+    + '</div>'
+    + '<div class="today-events-list">'
+    + (evRows || '<div style="color:var(--text-muted);font-size:14px">Nothing scheduled</div>')
+    + '</div>'
+    + '</div>';
+}
+
+// ── Expenses ──
+const EXP_ICONS = {food:'🍜',transport:'🚃',activities:'🎯',shopping:'🛍',accommodation:'🏨',other:'📦'};
+const EXP_LABELS = {food:'Food & Drinks',transport:'Transport',activities:'Activities',shopping:'Shopping',accommodation:'Accommodation',other:'Other'};
+const USD_PER_YEN = 0.0065;
+
+function openExpenseSheet(expId) {
+  document.getElementById('expense-sheet-title').textContent = expId ? 'Edit Expense' : 'Log Expense';
+  document.getElementById('exp-id').value = expId || '';
+  document.getElementById('exp-delete-btn').style.display = expId ? '' : 'none';
+  if (expId) {
+    const exp = (appState.expenses || []).find(e => e.id === expId);
+    if (exp) {
+      document.getElementById('exp-cat').value = exp.cat;
+      document.getElementById('exp-amount').value = exp.amount;
+      document.getElementById('exp-note').value = exp.note || '';
+    }
+  } else {
+    document.getElementById('exp-cat').value = 'food';
+    document.getElementById('exp-amount').value = '';
+    document.getElementById('exp-note').value = '';
+  }
+  openSheet('expense-sheet');
+}
+
+function saveExpenseForm() {
+  const cat = document.getElementById('exp-cat').value;
+  const amount = parseInt(document.getElementById('exp-amount').value, 10);
+  const note = document.getElementById('exp-note').value.trim();
+  if (!amount || amount <= 0) { alert('Enter a valid amount'); return; }
+  if (!appState.expenses) appState.expenses = [];
+  const expId = document.getElementById('exp-id').value;
+  if (expId) {
+    const idx = appState.expenses.findIndex(e => e.id === expId);
+    if (idx >= 0) appState.expenses[idx] = { id: expId, cat, amount, note, date: appState.expenses[idx].date };
+  } else {
+    appState.expenses.push({ id: 'exp' + Date.now(), cat, amount, note, date: new Date().toISOString().slice(0,10) });
+  }
+  saveAppState();
+  renderExpenses();
+  closeSheet('expense-sheet');
+}
+
+function deleteExpenseConfirm() {
+  const expId = document.getElementById('exp-id').value;
+  if (!expId || !confirm('Delete this expense?')) return;
+  appState.expenses = (appState.expenses || []).filter(e => e.id !== expId);
+  saveAppState();
+  renderExpenses();
+  closeSheet('expense-sheet');
+}
+
+function renderExpenses() {
+  const list = document.getElementById('expense-list');
+  if (!list) return;
+  const exps = appState.expenses || [];
+  const total = exps.reduce((s, e) => s + (e.amount || 0), 0);
+  const per5 = Math.round(total / 5);
+  const totalEl = document.getElementById('spend-total');
+  const usdEl = document.getElementById('spend-usd');
+  const perEl = document.getElementById('spend-per');
+  const perUsdEl = document.getElementById('spend-per-usd');
+  if (totalEl) totalEl.textContent = '¥' + total.toLocaleString();
+  if (usdEl) usdEl.textContent = '~$' + Math.round(total * USD_PER_YEN) + ' USD';
+  if (perEl) perEl.textContent = '¥' + per5.toLocaleString();
+  if (perUsdEl) perUsdEl.textContent = '~$' + Math.round(per5 * USD_PER_YEN) + ' USD';
+  if (!exps.length) {
+    list.innerHTML = '<div class="expense-empty">No expenses logged yet.</div>';
+    return;
+  }
+  list.innerHTML = exps.map(e =>
+    '<div class="expense-item" onclick="openExpenseSheet(\'' + e.id + '\')">'
+    + '<span class="expense-cat-icon">' + (EXP_ICONS[e.cat] || '📦') + '</span>'
+    + '<div class="expense-info">'
+    + '<div class="expense-note-text">' + (e.note || EXP_LABELS[e.cat] || 'Expense') + '</div>'
+    + '<div class="expense-meta">' + (EXP_LABELS[e.cat] || '') + ' · ' + (e.date || '') + '</div>'
+    + '</div>'
+    + '<span class="expense-yen">¥' + (e.amount || 0).toLocaleString() + '</span>'
+    + '</div>'
+  ).join('');
+}
+
 // ── App init ──
 document.addEventListener('DOMContentLoaded', async function() {
   await initSupabase();
   await loadAppState();
+  renderTodayCard();
   renderItinerary();
   renderActivities();
+  renderExpenses();
+  initWeather();
   // Show filter bar elements for default itinerary tab
   document.getElementById('date-filters').classList.remove('hidden');
   document.getElementById('edit-toggle').style.display = '';
@@ -4187,6 +4624,40 @@ document.addEventListener('DOMContentLoaded', async function() {
     <div id="assign-activity-name" style="font-size:14px;color:var(--text-muted);margin-bottom:14px"></div>
     <div class="day-picker-list" id="assign-day-list"></div>
     <button class="assign-none-btn" id="assign-none-btn" onclick="assignActivity(null)" style="display:none">Remove from plan</button>
+  </div>
+</div>
+
+<!-- Expense Sheet -->
+<div id="expense-sheet-overlay" class="bottom-sheet-overlay" onclick="closeSheet('expense-sheet')"></div>
+<div id="expense-sheet" class="bottom-sheet">
+  <div class="bottom-sheet-handle"></div>
+  <div class="bottom-sheet-header">
+    <div class="bottom-sheet-title" id="expense-sheet-title">Log Expense</div>
+    <button class="bottom-sheet-close" onclick="closeSheet('expense-sheet')">✕</button>
+  </div>
+  <div class="bottom-sheet-body">
+    <input type="hidden" id="exp-id">
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select class="form-select" id="exp-cat">
+        <option value="food">🍜 Food &amp; Drinks</option>
+        <option value="transport">🚃 Transport</option>
+        <option value="activities">🎯 Activities</option>
+        <option value="shopping">🛍 Shopping</option>
+        <option value="accommodation">🏨 Accommodation</option>
+        <option value="other">📦 Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Amount (¥)</label>
+      <input class="form-input" id="exp-amount" type="number" inputmode="numeric" placeholder="e.g. 3500">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note</label>
+      <input class="form-input" id="exp-note" placeholder="What was it?">
+    </div>
+    <button class="btn-primary" onclick="saveExpenseForm()">Add Expense</button>
+    <button class="btn-danger" id="exp-delete-btn" onclick="deleteExpenseConfirm()" style="display:none">Delete</button>
   </div>
 </div>
 
