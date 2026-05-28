@@ -1865,6 +1865,22 @@
     font-family: inherit;
   }
   .food-staff-btn:active { background: rgba(126,176,255,0.1); }
+  .food-item-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .food-detail-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(126,176,255,0.1);
+    border: 1px solid rgba(126,176,255,0.25);
+    border-radius: 6px;
+    padding: 3px 8px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .food-detail-btn:active { background: rgba(126,176,255,0.2); }
 </style>
 </head>
 <body>
@@ -1898,28 +1914,28 @@
   </div>
 </div>
 
+<div id="haruka-banner" class="haruka-banner" style="display:none">
+  <span style="font-size:18px;flex-shrink:0">🚄</span>
+  <div class="haruka-banner-text">
+    <div class="haruka-banner-title">⚠️ HARUKA not booked — 5 seats needed</div>
+    <div class="haruka-banner-sub">June 5 · Tennoji → KIX · Book before seats fill up</div>
+  </div>
+  <div class="haruka-banner-btns">
+    <a class="haruka-book-btn" href="https://global.westjr.co.jp/en/howto/ticket/haruka/" target="_blank" rel="noopener">Book ↗</a>
+    <button class="haruka-done-btn" onclick="markHarukaBooked()">✓ Done</button>
+  </div>
+</div>
+
 <!-- Sticky header: nav + filter bar -->
 <div class="sticky-header">
   <nav class="nav" id="main-nav">
     <button class="nav-btn active" onclick="showSection('itinerary', this)">Itinerary</button>
     <button class="nav-btn" onclick="showSection('hotels', this)">Hotels</button>
     <button class="nav-btn" onclick="showSection('trains', this)">Trains</button>
-    <button class="nav-btn" onclick="showSection('activities', this)">Activities</button>
+    <button class="nav-btn" onclick="showSection('activities', this)">🍴 Eat + Do</button>
     <button class="nav-btn" onclick="showSection('logistics', this)">Logistics</button>
     <button class="nav-btn" onclick="showSection('language', this)">🗣️ Language</button>
-    <button class="nav-btn" onclick="showSection('food', this)">🍜 Food</button>
   </nav>
-  <div id="haruka-banner" class="haruka-banner" style="display:none">
-    <span style="font-size:18px;flex-shrink:0">🚄</span>
-    <div class="haruka-banner-text">
-      <div class="haruka-banner-title">⚠️ HARUKA not booked — 5 seats needed</div>
-      <div class="haruka-banner-sub">June 5 · Tennoji → KIX · Book before seats fill up</div>
-    </div>
-    <div class="haruka-banner-btns">
-      <a class="haruka-book-btn" href="https://global.westjr.co.jp/en/howto/ticket/haruka/" target="_blank" rel="noopener">Book ↗</a>
-      <button class="haruka-done-btn" onclick="markHarukaBooked()">✓ Done</button>
-    </div>
-  </div>
   <div class="filter-bar" id="filter-bar">
     <select class="date-filter-select" id="city-filter-select" onchange="filterCity(this.value)">
       <option value="all">All cities</option>
@@ -2518,8 +2534,11 @@
     </div>
   </div>
 
-  <!-- ─────────────── ACTIVITIES ─────────────── -->
+  <!-- ─────────────── ACTIVITIES + FOOD ─────────────── -->
   <div id="section-activities" class="section">
+    <div class="section-title" style="margin-top:0">🍜 Food Guide</div>
+    <div id="food-guide-container"><!-- rendered by JS --></div>
+    <div class="section-title" style="margin-top:28px">🎯 Activities</div>
     <div id="activities-container"><!-- rendered by JS --></div>
     <div style="display:none"><!-- static backup -->
     <div class="activity-group">
@@ -2751,6 +2770,23 @@
   <div id="section-logistics" class="section">
     <div class="section-title">📋 Logistics</div>
 
+    <!-- ── Yen Converter ── -->
+    <div class="section-title" style="margin-top:0; font-size:18px;">💱 Quick Converter</div>
+    <div class="converter-card">
+      <div class="converter-row">
+        <span class="converter-symbol">¥</span>
+        <input class="converter-input" id="conv-yen" type="number" inputmode="decimal" placeholder="0" oninput="convertFromYen()">
+        <span class="converter-result" id="conv-yen-result">= $0</span>
+      </div>
+      <div class="converter-divider">↕</div>
+      <div class="converter-row">
+        <span class="converter-symbol">$</span>
+        <input class="converter-input" id="conv-usd" type="number" inputmode="decimal" placeholder="0" oninput="convertFromUSD()">
+        <span class="converter-result" id="conv-usd-result">= ¥0</span>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:28px; font-size:18px;">🗒 Essentials</div>
     <div class="logistics-grid">
       <div class="logistics-item">
         <span class="logistics-icon">💳</span>
@@ -2851,35 +2887,6 @@
     </div>
     <button class="expense-add-btn" onclick="openExpenseSheet()">＋ Log Expense</button>
 
-    <!-- ── Yen Converter ── -->
-    <div class="section-title" style="margin-top:32px; font-size:18px;">💱 Quick Converter</div>
-    <div class="converter-card">
-      <div class="converter-row">
-        <span class="converter-symbol">¥</span>
-        <input class="converter-input" id="conv-yen" type="number" inputmode="decimal" placeholder="0" oninput="convertFromYen()">
-        <span class="converter-result" id="conv-yen-result">= $0</span>
-      </div>
-      <div class="converter-divider">↕</div>
-      <div class="converter-row">
-        <span class="converter-symbol">$</span>
-        <input class="converter-input" id="conv-usd" type="number" inputmode="decimal" placeholder="0" oninput="convertFromUSD()">
-        <span class="converter-result" id="conv-usd-result">= ¥0</span>
-      </div>
-    </div>
-
-    <div class="section-title" style="margin-top:36px; font-size:18px;">🗣 Key Phrases</div>
-    <div class="phrases-grid">
-      <div class="phrase-card">
-        <div class="phrase-en">Thank you</div>
-        <div class="phrase-romanji">Arigatou gozaimasu</div>
-        <div class="phrase-jp">ありがとうございます</div>
-      </div>
-      <div class="phrase-card">
-        <div class="phrase-en">Excuse me</div>
-        <div class="phrase-romanji">Sumimasen</div>
-        <div class="phrase-jp">すみません</div>
-      </div>
-    </div>
   </div>
 
 
@@ -3235,11 +3242,6 @@
 
   </div>
 
-  <!-- ─────────────── FOOD GUIDE ─────────────── -->
-  <div id="section-food" class="section">
-    <div class="section-title">🍜 Food Guide</div>
-    <div id="food-guide-container"><!-- rendered by JS --></div>
-  </div>
 
 </div>
 
@@ -4327,9 +4329,6 @@ function showSection(id, btn) {
     dateFilters.classList.remove('hidden');
     editToggle.style.display = '';
     if (appState.editingMode) document.getElementById('section-itinerary').classList.add('editing-mode');
-  } else if (id === 'food') {
-    dateFilters.classList.add('hidden');
-    editToggle.style.display = 'none';
   } else if (id === 'activities') {
     dateFilters.classList.add('hidden');
     editToggle.style.display = '';
@@ -4352,6 +4351,7 @@ function filterCity(city) {
   if (sel && sel.value !== city) sel.value = city;
   renderItinerary();
   renderActivities();
+  renderFoodGuide();
 }
 
 // ── Date filter ──
@@ -5141,65 +5141,274 @@ const FOOD_GUIDE = {
       { icon: '🍡', name: 'Nakamise Street (Asakusa)', dish: 'Street snacks', note: 'Ningyo-yaki (fish-shaped cakes), melonpan, fresh yakitori. Perfect for Day 2 walkthrough.', tags: ['quick','budget'] },
       { icon: '🍱', name: 'Konbini meal', dish: '7-Eleven / Lawson onigiri', note: 'This is not a downgrade — Japanese convenience stores are legendary. Egg salad sandos, hot snacks, incredible.', tags: ['budget','quick'] },
       { icon: '🎌', name: 'Izakaya night', dish: 'Japanese pub food', note: 'Find any izakaya near Shibuya — gyoza, karaage, edamame, draft beer. Great energy, cheap. Look for red lanterns outside.', tags: ['must'] },
-      { icon: '🐣', name: 'Shibuya Scramble area', dish: 'Any restaurant, floors 3-8', note: 'Restaurant floors above street level are often cheaper and better than ground floor. Look up!', tags: ['quick'], staff: null },
+      { key:'scramble', icon: '🐣', name: 'Shibuya Scramble area', dish: 'Any restaurant, floors 3-8', note: 'Restaurant floors above street level are often cheaper and better than ground floor. Look up!', tags: ['quick'] },
     ]
   },
   hakone: {
     emoji: '🏔', label: 'Hakone',
     items: [
-      { icon: '🍱', name: 'Ryokan kaiseki', dish: 'Multi-course Japanese dinner', note: 'Your villa dinner is included both nights — a proper kaiseki spread. Save your appetite.', tags: ['must','splurge'], staff: null },
-      { icon: '🥚', name: 'Owakudani Black Eggs', dish: 'Kuro-tamago', note: 'Hard-boiled eggs cooked in sulfuric hot springs, shells turn black. ¥500 for 5. Legend says each egg adds 7 years to your life.', tags: ['must','quick'], jp: 'くろたまご', en: 'Black eggs please' },
-      { icon: '🍜', name: 'Hakone Soba', dish: 'Handmade buckwheat noodles', note: 'Mountain soba is special here — cold (zaru) or hot. Near Hakone-Yumoto station.', tags: ['must','budget'] },
+      { key:'kaiseki', icon: '🍱', name: 'Ryokan kaiseki', dish: 'Multi-course Japanese dinner', note: 'Your villa dinner is included both nights — a proper kaiseki spread. Save your appetite.', tags: ['must','splurge'] },
+      { key:'blackeggs', icon: '🥚', name: 'Owakudani Black Eggs', dish: 'Kuro-tamago', note: 'Hard-boiled eggs cooked in sulfuric hot springs, shells turn black. ¥500 for 5. Legend says each egg adds 7 years to your life.', tags: ['must','quick'], jp: 'くろたまご', en: 'Black eggs please' },
+      { key:'hakone-soba', icon: '🍜', name: 'Hakone Soba', dish: 'Handmade buckwheat noodles', note: 'Mountain soba is special here — cold (zaru) or hot. Near Hakone-Yumoto station.', tags: ['must','budget'] },
     ]
   },
   kyoto: {
     emoji: '⛩', label: 'Kyoto',
     items: [
-      { icon: '🛒', name: 'Nishiki Market', dish: 'Food market crawl', note: 'The "kitchen of Kyoto." Try: fresh yudofu (tofu), yakitori, matcha soft-serve, pickles. Go hungry.', tags: ['must','budget'] },
-      { icon: '🍵', name: 'Matcha sweets everywhere', dish: 'Matcha parfait / soft serve', note: 'Best in the Gion area — Gion Tsujiri or Nakamura Tokichi. Worth the line.', tags: ['must'] },
-      { icon: '🍜', name: 'Kyoto Ramen', dish: 'Tori paitan (chicken) ramen', note: 'Different from Tokyo — lighter chicken broth, unique to Kyoto. Musoshin near Kyoto Station is excellent.', tags: ['must','budget'] },
-      { icon: '🍱', name: 'Obanzai lunch set', dish: 'Traditional Kyoto small dishes', note: 'Vegetable-forward, beautifully presented. Many lunch spots in Gion offer ¥1,200–2,000 sets. Worth experiencing once.', tags: ['splurge'] },
-      { icon: '🦌', name: 'Nara snacks (Day 8)', dish: 'Mochi pounding street food', note: 'On your Nara day trip — look for shops pounding fresh mochi by hand. Also: deer crackers (shika senbei) to feed the bowing deer.', tags: ['must','quick'] },
+      { key:'nishiki', icon: '🛒', name: 'Nishiki Market', dish: 'Food market crawl', note: 'The "kitchen of Kyoto." Try: fresh yudofu (tofu), yakitori, matcha soft-serve, pickles. Go hungry.', tags: ['must','budget'] },
+      { key:'matcha', icon: '🍵', name: 'Gion Tsujiri', dish: 'Matcha parfait / soft serve', note: 'Best matcha sweets in Gion. The parfait is incredible — multiple textures of matcha in one glass. Worth the line.', tags: ['must'] },
+      { key:'kyoto-ramen', icon: '🍜', name: 'Musoshin Ramen', dish: 'Tori paitan (chicken) ramen', note: 'Different from Tokyo — lighter chicken broth, unique to Kyoto. Near Kyoto Station, excellent value.', tags: ['must','budget'] },
+      { key:'obanzai', icon: '🍱', name: 'Obanzai lunch set', dish: 'Traditional Kyoto small dishes', note: 'Vegetable-forward, beautifully presented. Many lunch spots in Gion offer ¥1,200–2,000 sets. Worth experiencing once.', tags: ['splurge'] },
+      { key:'nara-mochi', icon: '🦌', name: 'Nara snacks (Day 8)', dish: 'Mochi pounding street food', note: 'On your Nara day trip — look for shops pounding fresh mochi by hand. Also: deer crackers (shika senbei) to feed the bowing deer.', tags: ['must','quick'] },
     ]
   },
   osaka: {
     emoji: '🦀', label: 'Osaka',
     items: [
-      { icon: '🐙', name: 'Takoyaki — Wanaka or Aizuya', dish: 'Octopus balls (8 for ¥600)', note: 'Crispy outside, molten inside. These are THE Osaka snack. Dotonbori area has multiple spots, Wanaka is classic.', tags: ['must','quick','budget'], jp: 'たこ焼き8個ください', en: '8 takoyaki please' },
-      { icon: '🥞', name: 'Okonomiyaki — Mizuno', dish: 'Savory Japanese pancake', note: 'Mizuno in Dotonbori has been there since 1945. Get the mixed (mix-yaki). Expect a line but it moves fast.', tags: ['must'], jp: 'ミックス焼き一枚ください', en: 'One mixed okonomiyaki please' },
-      { icon: '🦀', name: 'Kani Doraku', dish: 'Crab cuisine', note: 'The famous giant moving crab sign on Dotonbori. Expensive but the set menus are a proper Osaka splurge dinner.', tags: ['splurge'] },
-      { icon: '🍖', name: 'Kuromon Ichiba Market', dish: 'Fresh market food stalls', note: '"Osaka\'s Kitchen" — walk through and eat fresh: wagyu skewers, oysters, fugu (puffer fish). Near Namba.', tags: ['must'] },
-      { icon: '🍜', name: 'Kinryu Ramen', dish: '24hr Dotonbori ramen', note: 'Open 24 hours, the giant dragon outside is iconic. Good late-night bowl after walking Dotonbori.', tags: ['budget','quick'] },
+      { key:'takoyaki', icon: '🐙', name: 'Takoyaki — Wanaka', dish: 'Octopus balls (8 for ¥600)', note: 'Crispy outside, molten inside. These are THE Osaka snack. Wanaka in Dotonbori is the classic.', tags: ['must','quick','budget'], jp: 'たこ焼き8個ください', en: '8 takoyaki please' },
+      { key:'okonomiyaki', icon: '🥞', name: 'Okonomiyaki — Mizuno', dish: 'Savory Japanese pancake', note: 'Mizuno in Dotonbori has been there since 1945. Get the mixed (mix-yaki). Expect a line but it moves fast.', tags: ['must'], jp: 'ミックス焼き一枚ください', en: 'One mixed okonomiyaki please' },
+      { key:'kani-doraku', icon: '🦀', name: 'Kani Doraku', dish: 'Crab cuisine', note: 'The famous giant moving crab sign on Dotonbori. Expensive but the set menus are a proper Osaka splurge dinner.', tags: ['splurge'] },
+      { key:'kuromon', icon: '🍖', name: 'Kuromon Ichiba Market', dish: 'Fresh market food stalls', note: '"Osaka\'s Kitchen" — walk through and eat fresh: wagyu skewers, oysters, fugu (puffer fish). Near Namba.', tags: ['must'] },
+      { key:'kinryu', icon: '🍜', name: 'Kinryu Ramen', dish: '24hr Dotonbori ramen', note: 'Open 24 hours, the giant dragon outside is iconic. Good late-night bowl after walking Dotonbori.', tags: ['budget','quick'] },
     ]
   }
 };
 
+const FOOD_DETAILS = {
+  ichiran: { name:'Ichiran Ramen', city:'tokyo', badge:'🗼 Tokyo', price:'¥1,200–1,800', sections:[
+    { title:'Details', rows:[
+      { label:'Address', value:'Multiple Shibuya locations; nearest 1-22-7 Jinnan, Shibuya-ku' },
+      { label:'Hours', value:'Open 24 hours' },
+      { label:'Price', value:'¥1,200–1,800 per person' },
+      { label:'Rating', value:'⭐ 4.1 / 5 · 8,000+ Google reviews' },
+      { label:'Website', value:'<a href="https://en.ichiran.com" target="_blank" rel="noopener" style="color:#7EB0FF">en.ichiran.com ↗</a>' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Ichiran+Ramen+Shibuya+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Maps ↗</a>' },
+    ]},
+    { title:'The Experience', rows:[
+      { label:'Format', value:'Private solo booths divided by bamboo curtains — just you and your bowl' },
+      { label:'Order', value:'Paper form in English: broth richness, spice (0–10), garlic, green onion, noodle firmness' },
+      { label:'Broth', value:'Rich tonkotsu (pork bone) — deep, savory, slightly fatty' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🕐 Timing', value:'Visit 3–5 PM to skip lines; also great late-night (it\'s 24hr)' },
+      { label:'🍜 Hack', value:'Order kaedama (extra noodles, ¥130) before your bowl empties — you can reorder broth' },
+      { label:'📍 Getting there', value:'5-min walk from Shibuya Crossing toward Jinnan area' },
+    ]},
+  ]},
+  gyukatsu: { name:'Gyukatsu Motomura', city:'tokyo', badge:'🗼 Tokyo', price:'¥1,500–2,200', sections:[
+    { title:'Details', rows:[
+      { label:'Address', value:'Multiple locations; Shibuya: 1-22-11 Jinnan, Shibuya-ku' },
+      { label:'Hours', value:'11:00–23:00 daily' },
+      { label:'Price', value:'¥1,500–2,200 per person' },
+      { label:'Rating', value:'⭐ 4.2 / 5 · 5,000+ Google reviews' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Gyukatsu+Motomura+Shibuya+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Maps ↗</a>' },
+    ]},
+    { title:'The Experience', rows:[
+      { label:'Concept', value:'Beef cutlet (gyukatsu) served rare with a small hot stone to finish cooking at your table' },
+      { label:'Set includes', value:'Beef cutlet + barley rice + miso soup + condiments. Barley rice refills are free.' },
+      { label:'Vs tonkatsu', value:'Much lighter than pork katsu — tender, beefy, less heavy' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Lines', value:'Arrive right at opening (11 AM) or after 2 PM to skip the lunch rush' },
+      { label:'🍚 Must-do', value:'Get a barley rice refill — it\'s excellent and completes the meal' },
+      { label:'🥩 Cook it', value:'The stone arrives very hot — cook to your preference, medium is the sweet spot' },
+    ]},
+  ]},
+  sushi: { name:'Conveyor Belt Sushi', city:'tokyo', badge:'🗼 Tokyo', price:'¥1,000–2,000', sections:[
+    { title:'Details', rows:[
+      { label:'Chains', value:'Kurazushi, Genki Sushi, Sushiro — all excellent, all near Shibuya' },
+      { label:'Price', value:'¥165–330 per plate (2 pieces)' },
+      { label:'Rating', value:'⭐ 4.0 / 5 (Kurazushi Shibuya)' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Kurazushi+Shibuya+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Kurazushi in Maps ↗</a>' },
+    ]},
+    { title:'How it works', rows:[
+      { label:'Order', value:'Touchscreen at each table in English — order and it arrives directly on a dedicated lane' },
+      { label:'Conveyor', value:'Plates also pass by on the belt — grab anything that looks good' },
+      { label:'Payment', value:'Stack your plates and a camera counts them automatically at checkout' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🍣 Best items', value:'Salmon, tuna, uni (sea urchin), tamago (egg), shrimp' },
+      { label:'🎯 For kids', value:'Tamago (sweet egg), ebi (shrimp), and fried items are always crowd-pleasers' },
+      { label:'💰 Budget', value:'Great value — ¥1,500–2,000 gets a full satisfying meal per person' },
+    ]},
+  ]},
+  izakaya: { name:'Izakaya Night', city:'tokyo', badge:'🗼 Tokyo', price:'¥2,000–3,500', sections:[
+    { title:'Details', rows:[
+      { label:'What it is', value:'Japanese pub — small plates of food + drinks, casual and social' },
+      { label:'Price', value:'¥2,000–3,500 per person with drinks' },
+      { label:'Find one', value:'Look for red paper lanterns (chochin) outside — they mark izakayas' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=izakaya+Shibuya+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Izakayas near Shibuya ↗</a>' },
+    ]},
+    { title:'What to order', rows:[
+      { label:'🥟 Gyoza', value:'Pan-fried dumplings — crispy bottom, juicy inside' },
+      { label:'🍗 Karaage', value:'Japanese fried chicken — lighter than Western, incredibly good' },
+      { label:'🍢 Yakitori', value:'Grilled chicken skewers — order tare (sauce) or shio (salt)' },
+      { label:'🍺 Drinks', value:'Draft beer (nama biru), highball, or chuhai (fruit soda + shochu)' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🗣️ Ordering', value:'Point at the menu and say "Kore onegaishimasu" — works every time' },
+      { label:'🪣 First drink', value:'Order toriaezu biru (beer for now) as your first round — standard practice' },
+      { label:'🕘 Best time', value:'7–10 PM is peak izakaya energy — loud, fun, full of locals' },
+    ]},
+  ]},
+  blackeggs: { name:'Owakudani Black Eggs', city:'hakone', badge:'🏔 Hakone', price:'¥500 for 5 eggs', sections:[
+    { title:'Details', rows:[
+      { label:'Location', value:'Owakudani station / volcanic valley — on the Hakone Ropeway route' },
+      { label:'Price', value:'¥500 for a bag of 5 kuro-tamago' },
+      { label:'Rating', value:'⭐ 4.0 / 5 · Iconic Hakone experience' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Owakudani+Hakone+Japan" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Maps ↗</a>' },
+    ]},
+    { title:'The Story', rows:[
+      { label:'How made', value:'Regular eggs boiled in the natural sulfuric hot springs — the sulfur turns the shells black' },
+      { label:'Taste', value:'Same as a hard-boiled egg inside — the legend is purely about the experience' },
+      { label:'Legend', value:'Eating one black egg supposedly adds 7 years to your life. A bag of 5 = 35 years.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⚠️ Note', value:'Owakudani can close if volcanic activity is elevated — check on arrival day' },
+      { label:'📸 View', value:'The sulfur vents and volcanic valley are stunning — allow 30+ min to explore' },
+      { label:'👃 Smell', value:'Strong sulfur smell throughout the area — totally normal, not dangerous' },
+    ]},
+  ]},
+  nishiki: { name:'Nishiki Market', city:'kyoto', badge:'⛩ Kyoto', price:'¥200–800 per snack', sections:[
+    { title:'Details', rows:[
+      { label:'Location', value:'Nishiki-kōji, Nakagyo Ward — central Kyoto, parallel to Shijo St' },
+      { label:'Hours', value:'Most stalls 9:00–18:00; some close Monday' },
+      { label:'Length', value:'~400m covered arcade with 100+ vendors' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Nishiki+Market+Kyoto" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Maps ↗</a>' },
+    ]},
+    { title:'Must-Try', rows:[
+      { label:'🍡 Skewers', value:'Fresh tofu on a stick, pickled vegetables, fish cakes — all for ¥200–400' },
+      { label:'🍵 Matcha', value:'Fresh matcha soft serve — look for the bright green cones everywhere' },
+      { label:'🥒 Tsukemono', value:'Japanese pickles — try the fresh samples before buying' },
+      { label:'🍘 Tamago yaki', value:'Sweet rolled egg — a Kyoto specialty, different from Tokyo-style' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Timing', value:'Go for a late morning snack — vendors are fresh and less crowded than noon' },
+      { label:'💰 Budget', value:'Plan ¥1,500–2,000 per person for a full walk-through snack session' },
+      { label:'📍 After', value:'Connects to Gion area — great pre-dinner walk through Teramachi arcade' },
+    ]},
+  ]},
+  matcha: { name:'Gion Tsujiri', city:'kyoto', badge:'⛩ Kyoto', price:'¥800–1,500', sections:[
+    { title:'Details', rows:[
+      { label:'Location', value:'Gion area, Kyoto — multiple locations, main branch near Shijo/Gion-Shijo' },
+      { label:'Founded', value:'1860 — one of Kyoto\'s most historic matcha shops' },
+      { label:'Rating', value:'⭐ 4.3 / 5 · Consistently outstanding' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Gion+Tsujiri+Kyoto" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Maps ↗</a>' },
+    ]},
+    { title:'What to Get', rows:[
+      { label:'🍵 Parfait', value:'The matcha parfait is the star — layers of matcha ice cream, jelly, red bean, and mochi' },
+      { label:'🍦 Soft serve', value:'Simple matcha cone — intense, clean flavor, not too sweet' },
+      { label:'🫖 Hot matcha', value:'Proper ceremonial-grade whisked matcha if you want the traditional experience' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Lines', value:'Lines form quickly, especially afternoons. Go right after Nishiki Market morning visit.' },
+      { label:'📸 Gion walk', value:'Perfect stop on the Gion sunset walk — grab a soft serve and wander' },
+      { label:'🛍 Souvenirs', value:'Pick up matcha powder or matcha KitKats — high quality and good gifts' },
+    ]},
+  ]},
+  takoyaki: { name:'Takoyaki — Wanaka', city:'osaka', badge:'🦀 Osaka', price:'¥600–900', sections:[
+    { title:'Details', rows:[
+      { label:'Location', value:'Dotonbori area, Osaka — Wanaka has multiple Dotonbori stalls' },
+      { label:'Price', value:'8 pieces for ¥600–700' },
+      { label:'Rating', value:'⭐ 4.2 / 5 · Osaka institution' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Wanaka+Takoyaki+Dotonbori+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Maps ↗</a>' },
+    ]},
+    { title:'What it is', rows:[
+      { label:'Description', value:'Golf-ball-sized pancake balls with octopus inside, cooked in a special iron mold' },
+      { label:'Toppings', value:'Bonito flakes (that wave!), okonomiyaki sauce, mayo, green onion, aonori' },
+      { label:'Warning', value:'Freshly made ones are VERY hot inside — wait 2 minutes before biting' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🐙 Order', value:'Say "takoyaki hachi ko kudasai" or just hold up 8 fingers and point' },
+      { label:'🏃 Eat standing', value:'Eat at the stall immediately — they\'re best within 3 minutes of cooking' },
+      { label:'🗺 Explore', value:'There are 5+ takoyaki stalls on Dotonbori — try a few and compare' },
+    ]},
+  ]},
+  okonomiyaki: { name:'Okonomiyaki — Mizuno', city:'osaka', badge:'🦀 Osaka', price:'¥1,000–1,800', sections:[
+    { title:'Details', rows:[
+      { label:'Location', value:'1-4-15 Dotonbori, Chuo Ward, Osaka' },
+      { label:'Founded', value:'1945 — one of Osaka\'s most storied okonomiyaki spots' },
+      { label:'Hours', value:'11:00–22:00 (closed some Wednesdays)' },
+      { label:'Rating', value:'⭐ 4.1 / 5 · Osaka classic' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Mizuno+Okonomiyaki+Dotonbori+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Maps ↗</a>' },
+    ]},
+    { title:'What to Order', rows:[
+      { label:'Mixed (mix-yaki)', value:'Pork + squid + shrimp — the signature, most popular' },
+      { label:'Pork (buta)', value:'Classic pork belly okonomiyaki — the benchmark' },
+      { label:'Modanyaki', value:'With yakisoba noodles inside — filling, unique to Osaka' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Lines', value:'Expect a 20–40 min wait at peak times — worth it. Line moves steadily.' },
+      { label:'🥢 Table cooking', value:'At Mizuno they cook it for you tableside — just watch and enjoy' },
+      { label:'🍺 Pair with', value:'Cold Sapporo or Asahi on tap completes the experience perfectly' },
+    ]},
+  ]},
+  kuromon: { name:'Kuromon Ichiba Market', city:'osaka', badge:'🦀 Osaka', price:'¥500–3,000 per item', sections:[
+    { title:'Details', rows:[
+      { label:'Location', value:'2-4-1 Nipponbashi, Chuo Ward, Osaka (near Namba)' },
+      { label:'Hours', value:'Most stalls 9:00–18:00; some open earlier' },
+      { label:'History', value:'200+ years old, known as "Osaka\'s Kitchen"' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Kuromon+Ichiba+Market+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Maps ↗</a>' },
+    ]},
+    { title:'Must-Try', rows:[
+      { label:'🥩 Wagyu skewers', value:'A5 wagyu beef on a skewer — ¥1,500–2,500 but extraordinary. One is enough to taste.' },
+      { label:'🦪 Oysters', value:'Fresh raw oysters shucked on the spot — ¥300–500 each, incredible quality' },
+      { label:'🐡 Fugu', value:'Puffer fish (legally served here) — usually sashimi or karaage style, ~¥800–1,500' },
+      { label:'🦞 Seafood', value:'Live crab, lobster, clams — can be cooked on the spot at many stalls' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Morning', value:'Go before 11 AM for freshest seafood and fewer tourists' },
+      { label:'💰 Budget', value:'Easy to spend ¥3,000–5,000 per person — set a per-person limit upfront' },
+      { label:'📍 Location', value:'A short walk from Dotonbori and Namba — combine with a day in that area' },
+    ]},
+  ]},
+};
+
+function openFoodDetail(key) {
+  const d = FOOD_DETAILS[key];
+  if (!d) return;
+  document.getElementById('hotel-modal-name').textContent = d.name;
+  document.getElementById('hotel-modal-sub').textContent = d.price || '';
+  document.getElementById('hotel-modal-badge').innerHTML = '<span class="badge">' + d.badge + '</span>';
+  const noteEl = document.getElementById('hotel-modal-note');
+  noteEl.style.display = 'none';
+  document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
+  document.getElementById('hotel-modal-overlay').classList.add('open');
+  document.getElementById('hotel-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
 function renderFoodGuide() {
   const container = document.getElementById('food-guide-container');
   if (!container) return;
+  const cityFilter = appState.cityFilter || 'all';
   const cities = ['tokyo','hakone','kyoto','osaka'];
   let html = '';
   cities.forEach(city => {
+    if (cityFilter !== 'all' && cityFilter !== city) return;
     const c = FOOD_GUIDE[city];
     html += '<div class="food-city-section">'
       + '<div class="food-city-title">' + c.emoji + ' ' + c.label + '</div>'
       + '<div class="food-items-list">'
       + c.items.map(item => {
           const tags = (item.tags || []).map(t => '<span class="food-tag ' + t + '">' + t + '</span>').join('');
-          const staffBtn = item.jp ? '<br><button class="food-staff-btn" onclick="openStaffCard(\'' + item.jp.replace(/'/g,"\\'") + '\',\'' + (item.en||'').replace(/'/g,"\\'") + '\')">📱 Show to staff</button>' : '';
+          const staffBtn = item.jp ? '<button class="food-staff-btn" onclick="openStaffCard(\'' + item.jp.replace(/'/g,"\\'") + '\',\'' + (item.en||'').replace(/'/g,"\\'") + '\');event.stopPropagation()">📱 Show to staff</button>' : '';
+          const detailBtn = item.key && FOOD_DETAILS[item.key] ? '<button class="food-detail-btn" onclick="openFoodDetail(\'' + item.key + '\');event.stopPropagation()">Details + map →</button>' : '';
           return '<div class="food-item">'
             + '<span class="food-item-icon">' + item.icon + '</span>'
             + '<div class="food-item-body">'
             + '<div class="food-item-name">' + item.name + '</div>'
             + '<div class="food-item-dish">' + item.dish + '</div>'
-            + '<div class="food-item-note">' + item.note + staffBtn + '</div>'
+            + '<div class="food-item-note">' + item.note + '</div>'
             + '<div class="food-tags">' + tags + '</div>'
+            + '<div class="food-item-actions">' + staffBtn + detailBtn + '</div>'
             + '</div>'
             + '</div>';
         }).join('')
       + '</div>'
       + '</div>';
   });
+  if (!html) html = '<p style="color:var(--text-muted);padding:16px 0">No food suggestions for this city filter.</p>';
   container.innerHTML = html;
 }
 
