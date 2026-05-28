@@ -453,6 +453,36 @@
   .today-event-time { font-size: 12px; color: var(--text-muted); min-width: 64px; padding-top: 1px; flex-shrink: 0; }
   .today-event-text.highlighted { font-weight: 600; }
 
+  /* ── Hourly strip (today card only) ── */
+  .today-hourly {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 12px 0 4px;
+    margin-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    scrollbar-width: none;
+  }
+  .today-hourly::-webkit-scrollbar { display: none; }
+  .today-hour-pill {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-width: 46px;
+    padding: 7px 6px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+  }
+  .today-hour-pill.now {
+    background: rgba(126,176,255,0.12);
+    border-color: rgba(126,176,255,0.28);
+  }
+  .today-hour-time { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  .today-hour-icon { font-size: 16px; line-height: 1.1; }
+  .today-hour-temp { font-size: 13px; font-weight: 700; }
+
   /* ── Weather Bar ── */
   .weather-bar {
     display: flex;
@@ -4347,7 +4377,11 @@ async function initWeather() {
   if (!c) return;
   try {
     const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + c.lat + '&longitude=' + c.lon
-      + '&current=temperature_2m,weathercode&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=Asia%2FTokyo&forecast_days=7';
+      + '&current=temperature_2m,weathercode'
+      + '&daily=temperature_2m_max,temperature_2m_min,weathercode'
+      + '&hourly=temperature_2m,weathercode'
+      + '&temperature_unit=fahrenheit'
+      + '&timezone=Asia%2FTokyo&forecast_days=7';
     const r = await fetch(url);
     const json = await r.json();
     renderWeatherBar(json, today);
@@ -4379,10 +4413,36 @@ function renderWeatherBar(data, today) {
 
 function updateTodayWeather(data, today) {
   const el = document.getElementById('today-weather-badge');
-  if (!el || !data || !data.current) return;
-  const temp = Math.round(data.current.temperature_2m);
-  const icon = WX_ICONS[data.current.weathercode] || '🌡';
-  el.innerHTML = icon + ' ' + temp + '°C';
+  if (el && data && data.current) {
+    const temp = Math.round(data.current.temperature_2m);
+    const icon = WX_ICONS[data.current.weathercode] || '🌡';
+    el.innerHTML = icon + ' ' + temp + '°F';
+  }
+  const strip = document.getElementById('today-hourly-strip');
+  if (!strip || !data || !data.hourly) return;
+  const { hourly } = data;
+  const nowJST = new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Tokyo'}));
+  const currentHour = nowJST.getHours();
+  let html = '';
+  let count = 0;
+  for (let i = 0; i < hourly.time.length && count < 18; i++) {
+    const t = hourly.time[i];
+    if (!t.startsWith(today)) continue;
+    const hour = parseInt(t.slice(11, 13), 10);
+    if (hour < currentHour - 1) continue;
+    const isNow = hour === currentHour;
+    const icon = WX_ICONS[hourly.weathercode[i]] || '🌡';
+    const temp = Math.round(hourly.temperature_2m[i]);
+    const label = hour === 0 ? '12am' : hour < 12 ? hour + 'am' : hour === 12 ? '12pm' : (hour - 12) + 'pm';
+    html += '<div class="today-hour-pill' + (isNow ? ' now' : '') + '">'
+      + '<span class="today-hour-time">' + label + '</span>'
+      + '<span class="today-hour-icon">' + icon + '</span>'
+      + '<span class="today-hour-temp">' + temp + '°</span>'
+      + '</div>';
+    count++;
+  }
+  strip.innerHTML = html;
+  strip.style.display = html ? '' : 'none';
 }
 
 // ── Today Card ──
@@ -4409,7 +4469,8 @@ function renderTodayCard() {
     + '</div>'
     + '<div class="today-weather-badge" id="today-weather-badge">—</div>'
     + '</div>'
-    + '<div class="today-events-list">'
+    + '<div class="today-hourly" id="today-hourly-strip" style="display:none"></div>'
+    + '<div class="today-events-list" style="margin-top:14px">'
     + (evRows || '<div style="color:var(--text-muted);font-size:14px">Nothing scheduled</div>')
     + '</div>'
     + '</div>';
