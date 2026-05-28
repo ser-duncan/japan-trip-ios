@@ -1150,18 +1150,6 @@
     background: none;
     font-family: inherit;
   }
-  .filter-pill[data-city="all"] { border-color: var(--text-muted); color: var(--text-muted); }
-  .filter-pill[data-city="all"].active, .filter-pill[data-city="all"]:hover { border-color: var(--text); color: var(--text); background: rgba(255,255,255,0.05); }
-  .filter-pill[data-city="tokyo"] { border-color: var(--tokyo); color: var(--tokyo); }
-  .filter-pill[data-city="tokyo"].active, .filter-pill[data-city="tokyo"]:hover { background: rgba(232,80,91,0.12); }
-  .filter-pill[data-city="hakone"] { border-color: var(--hakone); color: var(--hakone); }
-  .filter-pill[data-city="hakone"].active, .filter-pill[data-city="hakone"]:hover { background: rgba(76,175,130,0.12); }
-  .filter-pill[data-city="kyoto"] { border-color: var(--kyoto); color: var(--kyoto); }
-  .filter-pill[data-city="kyoto"].active, .filter-pill[data-city="kyoto"]:hover { background: rgba(232,150,60,0.12); }
-  .filter-pill[data-city="osaka"] { border-color: var(--osaka); color: var(--osaka); }
-  .filter-pill[data-city="osaka"].active, .filter-pill[data-city="osaka"]:hover { background: rgba(124,111,205,0.12); }
-  .filter-pill[data-date] { border-color: rgba(126,176,255,0.3); color: var(--text-muted); }
-  .filter-pill[data-date].active, .filter-pill[data-date]:hover { border-color: rgba(126,176,255,0.6); color: #7EB0FF; background: rgba(126,176,255,0.08); }
   .filter-divider { width: 1px; height: 18px; background: var(--border); flex-shrink: 0; }
   .date-filters { display: flex; align-items: center; }
   .date-filters.hidden { display: none; }
@@ -1381,11 +1369,13 @@
     <button class="nav-btn" onclick="showSection('language', this)">🗣️ Language</button>
   </nav>
   <div class="filter-bar" id="filter-bar">
-    <button class="filter-pill active" data-city="all" onclick="filterCity('all')">All</button>
-    <button class="filter-pill" data-city="tokyo" onclick="filterCity('tokyo')">🗼 Tokyo</button>
-    <button class="filter-pill" data-city="hakone" onclick="filterCity('hakone')">🏔 Hakone</button>
-    <button class="filter-pill" data-city="kyoto" onclick="filterCity('kyoto')">⛩ Kyoto</button>
-    <button class="filter-pill" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
+    <select class="date-filter-select" id="city-filter-select" onchange="filterCity(this.value)">
+      <option value="all">All cities</option>
+      <option value="tokyo">🗼 Tokyo</option>
+      <option value="hakone">🏔 Hakone</option>
+      <option value="kyoto">⛩ Kyoto</option>
+      <option value="osaka">🦀 Osaka</option>
+    </select>
     <div class="filter-divider"></div>
     <div class="date-filters hidden" id="date-filters">
       <select class="date-filter-select" id="date-filter-select" onchange="filterDate(this.value)">
@@ -3511,9 +3501,8 @@ function showSection(id, btn) {
 // ── City filter (override) ──
 function filterCity(city) {
   appState.cityFilter = city;
-  document.querySelectorAll('.filter-pill[data-city]').forEach(p => p.classList.remove('active'));
-  const pill = document.querySelector('.filter-pill[data-city="' + city + '"]');
-  if (pill) pill.classList.add('active');
+  const sel = document.getElementById('city-filter-select');
+  if (sel && sel.value !== city) sel.value = city;
   renderItinerary();
   renderActivities();
 }
