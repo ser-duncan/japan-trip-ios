@@ -3252,7 +3252,7 @@
     document.body.style.overflow = '';
   }
 
-  (function() {
+  document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('hotel-modal');
     const overlay = document.getElementById('hotel-modal-overlay');
     let startY = 0, startScroll = 0, isDragging = false;
@@ -3304,7 +3304,7 @@
         }, 300);
       }
     }, { passive: true });
-  })();
+  });
 
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {
