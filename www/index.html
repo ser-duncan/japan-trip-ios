@@ -22,6 +22,7 @@
     --text: #E8E8F0;
     --text-muted: #8888A8;
     --radius: 12px;
+    --accent: #7EB0FF;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1562,6 +1563,308 @@
     transition: all 0.2s;
   }
   .assign-none-btn:hover { background: rgba(232,80,91,0.06); }
+
+  /* ── HARUKA Banner ── */
+  .haruka-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(251,146,60,0.08));
+    border-bottom: 1px solid rgba(239,68,68,0.25);
+    font-size: 13px;
+  }
+  .haruka-banner-text { flex: 1; min-width: 0; }
+  .haruka-banner-title { font-weight: 700; color: #f87171; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .haruka-banner-sub { color: var(--text-muted); font-size: 11px; margin-top: 1px; }
+  .haruka-banner-btns { display: flex; gap: 6px; flex-shrink: 0; }
+  .haruka-book-btn {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 7px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #f87171;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .haruka-done-btn {
+    background: rgba(74,222,128,0.08);
+    border: 1px solid rgba(74,222,128,0.25);
+    border-radius: 7px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #4ade80;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  /* ── Trip Progress Bar ── */
+  .trip-progress-wrap {
+    padding: 10px 20px 8px;
+    background: rgba(15,15,19,0.7);
+    border-bottom: 1px solid var(--border);
+  }
+  .trip-progress-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 5px;
+  }
+  .trip-progress-label { font-size: 12px; font-weight: 700; color: var(--accent); }
+  .trip-progress-remaining { font-size: 12px; color: var(--text-muted); }
+  .trip-progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .trip-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #a78bfa);
+    border-radius: 99px;
+    transition: width 0.8s ease;
+  }
+
+  /* ── Staff Card Overlay ── */
+  .staff-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 28px 80px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .staff-overlay-hint {
+    position: absolute;
+    top: env(safe-area-inset-top, 20px);
+    left: 0; right: 0;
+    text-align: center;
+    padding-top: 18px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .staff-overlay-jp {
+    font-size: clamp(52px, 14vw, 88px);
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    line-height: 1.25;
+  }
+  .staff-overlay-en {
+    font-size: 17px;
+    color: rgba(255,255,255,0.45);
+    text-align: center;
+    margin-top: 28px;
+    line-height: 1.55;
+    max-width: 320px;
+  }
+
+  /* ── Yen Converter ── */
+  .converter-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-top: 14px;
+  }
+  .converter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .converter-symbol {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-muted);
+    width: 18px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+  .converter-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    font-family: inherit;
+    min-width: 0;
+  }
+  .converter-input:focus { outline: none; border-color: rgba(126,176,255,0.45); }
+  .converter-result {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 70px;
+    text-align: right;
+  }
+  .converter-divider {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 18px;
+    padding: 8px 0;
+  }
+
+  /* ── Day Notes ── */
+  .day-note-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    margin: 4px 0 6px 32px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: none;
+    border: 1px dashed rgba(255,255,255,0.09);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    width: calc(100% - 44px);
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .day-note-btn.has-note {
+    color: var(--accent);
+    border-color: rgba(126,176,255,0.22);
+    background: rgba(126,176,255,0.04);
+  }
+  .day-note-preview {
+    margin: 0 12px 10px 32px;
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: pre-wrap;
+    line-height: 1.45;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    border-left: 2px solid rgba(126,176,255,0.2);
+  }
+
+  /* ── Transition Checklist ── */
+  .transition-checklist {
+    margin: 4px 12px 10px 32px;
+    background: rgba(126,176,255,0.04);
+    border: 1px solid rgba(126,176,255,0.14);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .tcl-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--accent);
+    margin-bottom: 9px;
+  }
+  .tcl-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+  }
+  .tcl-item input[type=checkbox] { margin-top: 2px; flex-shrink: 0; accent-color: var(--accent); cursor: pointer; }
+  .tcl-item label { cursor: pointer; flex: 1; }
+  .tcl-item.done label { text-decoration: line-through; color: var(--text-muted); }
+
+  /* ── Map Reminder ── */
+  .map-reminder {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    margin: 4px 12px 10px 32px;
+    background: rgba(74,222,128,0.05);
+    border: 1px solid rgba(74,222,128,0.15);
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .map-reminder-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .map-reminder-text { flex: 1; color: var(--text-muted); }
+  .map-reminder-text strong { color: var(--text); }
+  .map-dismiss-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  /* ── Food Guide ── */
+  .food-city-section { margin-bottom: 28px; }
+  .food-city-title {
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .food-items-list { display: flex; flex-direction: column; gap: 10px; }
+  .food-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .food-item-icon { font-size: 26px; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+  .food-item-body { flex: 1; min-width: 0; }
+  .food-item-name { font-size: 15px; font-weight: 600; }
+  .food-item-dish { font-size: 13px; color: var(--accent); margin-top: 2px; font-weight: 500; }
+  .food-item-note { font-size: 13px; color: var(--text-muted); margin-top: 5px; line-height: 1.45; }
+  .food-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
+  .food-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 99px;
+    border: 1px solid;
+  }
+  .food-tag.must { color: var(--accent); border-color: rgba(126,176,255,0.3); background: rgba(126,176,255,0.08); }
+  .food-tag.budget { color: #4ade80; border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.07); }
+  .food-tag.splurge { color: #a78bfa; border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.07); }
+  .food-tag.quick { color: #fb923c; border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.07); }
+  .food-staff-btn {
+    margin-top: 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .food-staff-btn:active { background: rgba(126,176,255,0.1); }
 </style>
 </head>
 <body>
@@ -1585,6 +1888,16 @@
   </div>
 </div>
 
+<div id="trip-progress-bar" class="trip-progress-wrap">
+  <div class="trip-progress-row">
+    <span class="trip-progress-label" id="trip-day-label">Day — of 12</span>
+    <span class="trip-progress-remaining" id="trip-days-left">— days left</span>
+  </div>
+  <div class="trip-progress-track">
+    <div class="trip-progress-fill" id="trip-fill" style="width:0%"></div>
+  </div>
+</div>
+
 <!-- Sticky header: nav + filter bar -->
 <div class="sticky-header">
   <nav class="nav" id="main-nav">
@@ -1594,7 +1907,19 @@
     <button class="nav-btn" onclick="showSection('activities', this)">Activities</button>
     <button class="nav-btn" onclick="showSection('logistics', this)">Logistics</button>
     <button class="nav-btn" onclick="showSection('language', this)">🗣️ Language</button>
+    <button class="nav-btn" onclick="showSection('food', this)">🍜 Food</button>
   </nav>
+  <div id="haruka-banner" class="haruka-banner" style="display:none">
+    <span style="font-size:18px;flex-shrink:0">🚄</span>
+    <div class="haruka-banner-text">
+      <div class="haruka-banner-title">⚠️ HARUKA not booked — 5 seats needed</div>
+      <div class="haruka-banner-sub">June 5 · Tennoji → KIX · Book before seats fill up</div>
+    </div>
+    <div class="haruka-banner-btns">
+      <a class="haruka-book-btn" href="https://global.westjr.co.jp/en/howto/ticket/haruka/" target="_blank" rel="noopener">Book ↗</a>
+      <button class="haruka-done-btn" onclick="markHarukaBooked()">✓ Done</button>
+    </div>
+  </div>
   <div class="filter-bar" id="filter-bar">
     <select class="date-filter-select" id="city-filter-select" onchange="filterCity(this.value)">
       <option value="all">All cities</option>
@@ -2526,6 +2851,22 @@
     </div>
     <button class="expense-add-btn" onclick="openExpenseSheet()">＋ Log Expense</button>
 
+    <!-- ── Yen Converter ── -->
+    <div class="section-title" style="margin-top:32px; font-size:18px;">💱 Quick Converter</div>
+    <div class="converter-card">
+      <div class="converter-row">
+        <span class="converter-symbol">¥</span>
+        <input class="converter-input" id="conv-yen" type="number" inputmode="decimal" placeholder="0" oninput="convertFromYen()">
+        <span class="converter-result" id="conv-yen-result">= $0</span>
+      </div>
+      <div class="converter-divider">↕</div>
+      <div class="converter-row">
+        <span class="converter-symbol">$</span>
+        <input class="converter-input" id="conv-usd" type="number" inputmode="decimal" placeholder="0" oninput="convertFromUSD()">
+        <span class="converter-result" id="conv-usd-result">= ¥0</span>
+      </div>
+    </div>
+
     <div class="section-title" style="margin-top:36px; font-size:18px;">🗣 Key Phrases</div>
     <div class="phrases-grid">
       <div class="phrase-card">
@@ -2892,6 +3233,12 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- ─────────────── FOOD GUIDE ─────────────── -->
+  <div id="section-food" class="section">
+    <div class="section-title">🍜 Food Guide</div>
+    <div id="food-guide-container"><!-- rendered by JS --></div>
   </div>
 
 </div>
@@ -3880,6 +4227,9 @@ const appState = {
   days: null,
   activities: null,
   expenses: [],
+  harukaBooked: false,
+  checklists: {},
+  dismissedMapReminders: [],
   cityFilter: 'all',
   dateFilter: 'all',
   editingMode: false,
@@ -3911,7 +4261,10 @@ async function loadAppState() {
         appState.days = d.days || getDefaultData().days;
         appState.activities = d.activities || getDefaultData().activities;
         appState.expenses = d.expenses || [];
-        try { localStorage.setItem(LS_KEY, JSON.stringify({days: appState.days, activities: appState.activities, expenses: appState.expenses})); } catch(e) {}
+        appState.harukaBooked = d.harukaBooked || false;
+        appState.checklists = d.checklists || {};
+        appState.dismissedMapReminders = d.dismissedMapReminders || [];
+        try { localStorage.setItem(LS_KEY, JSON.stringify({days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders})); } catch(e) {}
         return;
       }
     } catch(e) {}
@@ -3923,6 +4276,9 @@ async function loadAppState() {
       appState.days = p.days || getDefaultData().days;
       appState.activities = p.activities || getDefaultData().activities;
       appState.expenses = p.expenses || [];
+      appState.harukaBooked = p.harukaBooked || false;
+      appState.checklists = p.checklists || {};
+      appState.dismissedMapReminders = p.dismissedMapReminders || [];
       return;
     }
   } catch(e) {}
@@ -3930,10 +4286,13 @@ async function loadAppState() {
   appState.days = def.days;
   appState.activities = def.activities;
   appState.expenses = [];
+  appState.harukaBooked = false;
+  appState.checklists = {};
+  appState.dismissedMapReminders = [];
 }
 
 function saveAppState() {
-  const data = { days: appState.days, activities: appState.activities, expenses: appState.expenses };
+  const data = { days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders };
   try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
   if (_syncTimer) clearTimeout(_syncTimer);
   setSyncDot('syncing');
@@ -3968,6 +4327,9 @@ function showSection(id, btn) {
     dateFilters.classList.remove('hidden');
     editToggle.style.display = '';
     if (appState.editingMode) document.getElementById('section-itinerary').classList.add('editing-mode');
+  } else if (id === 'food') {
+    dateFilters.classList.add('hidden');
+    editToggle.style.display = 'none';
   } else if (id === 'activities') {
     dateFilters.classList.add('hidden');
     editToggle.style.display = '';
@@ -4051,6 +4413,7 @@ function renderItinerary() {
       + '</div>'
       + '<div class="day-events">'
         + day.events.map(ev => buildEventHTML(ev, day.id)).join('')
+        + buildDayExtras(day.id)
         + '<button class="add-event-btn" onclick="openEventModal(\'' + day.id + '\',null)">＋ Add item</button>'
       + '</div>'
     + '</div>';
@@ -4080,6 +4443,21 @@ function buildEventHTML(ev, dayId) {
     + '<div style="flex:1;min-width:0"><div class="event-text">' + ev.text + booked + '</div>' + note + '</div>'
     + '<button class="event-edit-btn" onclick="openEventModal(\'' + dayId + '\',\'' + ev.id + '\');event.stopPropagation()">⋯</button>'
     + '</div>';
+}
+
+function buildDayExtras(dayId) {
+  let html = '';
+  html += buildTransitionChecklist(dayId);
+  html += buildMapReminder(dayId);
+  const day = appState.days && appState.days.find(d => d.id === dayId);
+  const hasNote = day && day.notes && day.notes.trim();
+  html += '<button class="day-note-btn' + (hasNote ? ' has-note' : '') + '" onclick="openDayNotes(\'' + dayId + '\');event.stopPropagation()">'
+    + (hasNote ? '📝 ' : '＋ ') + (hasNote ? 'View note' : 'Add day note')
+    + '</button>';
+  if (hasNote) {
+    html += '<div class="day-note-preview">' + day.notes.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+  }
+  return html;
 }
 
 // ── Render activities ──
@@ -4565,14 +4943,277 @@ function renderExpenses() {
   ).join('');
 }
 
+// ── Trip Progress ──
+function renderTripProgress() {
+  const start = new Date('2026-05-25T00:00:00+09:00');
+  const end   = new Date('2026-06-05T23:59:59+09:00');
+  const now   = new Date();
+  const total = end - start;
+  const elapsed = Math.max(0, Math.min(total, now - start));
+  const pct = Math.round((elapsed / total) * 100);
+  const dayNum = Math.min(12, Math.max(1, Math.floor(elapsed / 86400000) + 1));
+  const daysLeft = Math.max(0, Math.ceil((end - now) / 86400000));
+  const label = document.getElementById('trip-day-label');
+  const left  = document.getElementById('trip-days-left');
+  const fill  = document.getElementById('trip-fill');
+  if (label) label.textContent = 'Day ' + dayNum + ' of 12';
+  if (left)  left.textContent  = daysLeft + ' day' + (daysLeft !== 1 ? 's' : '') + ' left';
+  if (fill)  fill.style.width  = pct + '%';
+}
+
+// ── HARUKA Banner ──
+function checkHarukaBanner() {
+  const banner = document.getElementById('haruka-banner');
+  if (!banner) return;
+  banner.style.display = appState.harukaBooked ? 'none' : 'flex';
+}
+function markHarukaBooked() {
+  appState.harukaBooked = true;
+  saveAppState();
+  checkHarukaBanner();
+  // Also mark the d11 event as booked
+  const d11 = appState.days && appState.days.find(d => d.id === 'd11');
+  if (d11) {
+    const ev = d11.events.find(e => e.id === 'd11e4');
+    if (ev) { ev.booked = true; ev.note = 'HARUKA Express · 5 seats · 1:03 PM Tennoji → KIX'; }
+  }
+  saveAppState();
+  renderItinerary();
+}
+
+// ── Staff Card ──
+function openStaffCard(jp, en) {
+  const overlay = document.getElementById('staff-overlay');
+  if (!overlay) return;
+  document.getElementById('staff-overlay-jp').innerHTML = jp;
+  document.getElementById('staff-overlay-en').innerHTML = en || '';
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  // Keep screen awake hint
+  overlay.style.opacity = '1';
+}
+function closeStaffCard() {
+  const overlay = document.getElementById('staff-overlay');
+  if (overlay) overlay.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// ── Language section: tap-to-staff ──
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('section-language').addEventListener('click', function(e) {
+    const row = e.target.closest('.phrase-row');
+    if (!row) return;
+    const jp = row.querySelector('.phrase-kanji');
+    const en = row.querySelector('.phrase-romanji-big, .phrase-romanji');
+    const meaning = row.querySelector('.phrase-meaning');
+    if (!jp || jp.textContent.trim() === '—') return;
+    openStaffCard(jp.innerHTML, (en ? en.textContent : '') + (meaning ? '<br><span style="color:rgba(255,255,255,0.3)">' + meaning.textContent + '</span>' : ''));
+  });
+});
+
+// ── Yen Converter ──
+const YEN_RATE = 0.0065;
+function convertFromYen() {
+  const yen = parseFloat(document.getElementById('conv-yen').value) || 0;
+  document.getElementById('conv-yen-result').textContent = '= $' + (yen * YEN_RATE).toFixed(2);
+  document.getElementById('conv-usd').value = '';
+  document.getElementById('conv-usd-result').textContent = '= ¥0';
+}
+function convertFromUSD() {
+  const usd = parseFloat(document.getElementById('conv-usd').value) || 0;
+  document.getElementById('conv-usd-result').textContent = '= ¥' + Math.round(usd / YEN_RATE).toLocaleString();
+  document.getElementById('conv-yen').value = '';
+  document.getElementById('conv-yen-result').textContent = '= $0';
+}
+
+// ── Day Notes ──
+function openDayNotes(dayId) {
+  const day = appState.days && appState.days.find(d => d.id === dayId);
+  document.getElementById('notes-day-id').value = dayId;
+  document.getElementById('notes-sheet-title').textContent = day ? day.dateLabel + ' Notes' : 'Day Notes';
+  document.getElementById('notes-textarea').value = (day && day.notes) || '';
+  openSheet('notes-sheet');
+}
+function saveDayNotes() {
+  const dayId = document.getElementById('notes-day-id').value;
+  const text = document.getElementById('notes-textarea').value;
+  const day = appState.days && appState.days.find(d => d.id === dayId);
+  if (day) { day.notes = text; }
+  saveAppState();
+  renderItinerary();
+  closeSheet('notes-sheet');
+}
+
+// ── Transition Checklists ──
+const TRANSITION_CHECKLISTS = {
+  'd4': { title: '🧳 Tokyo → Hakone Checklist', items: [
+    {id:'t1',text:'Confirm check-out from KOALA BLDG (11 AM)'},
+    {id:'t2',text:'Book 2 taxis or van to Shinjuku Station (9:15 AM)'},
+    {id:'t3',text:'Have EMot QR + IC card ready for Romancecar gate'},
+    {id:'t4',text:'Download Hakone offline maps'},
+    {id:'t5',text:'Call villa if arriving before 1 PM: +81 80-3544-1056'},
+    {id:'t6',text:'Charge all devices overnight'},
+  ]},
+  'd5': { title: '🧳 Hakone → Kyoto Checklist', items: [
+    {id:'t1',text:'Arrange early check-out with host (by 11 AM)'},
+    {id:'t2',text:'Book 2 taxis to Odawara Station by 11 AM'},
+    {id:'t3',text:'Have Klook QR code ready for Shinkansen gate'},
+    {id:'t4',text:'Download Kyoto offline maps'},
+    {id:'t5',text:'Contact Derrick for bag storage if early: +81 80-1422-8964'},
+    {id:'t6',text:'Charge all devices overnight'},
+  ]},
+  'd9': { title: '🧳 Kyoto → Osaka Checklist', items: [
+    {id:'t1',text:'Check out of 515 Yamadachō (11 AM)'},
+    {id:'t2',text:'Taxi or subway to Kyoto Station'},
+    {id:'t3',text:'Tap IC card for Special Rapid to Osaka (~75 min)'},
+    {id:'t4',text:'Download Osaka offline maps'},
+    {id:'t5',text:'Get lockbox PIN from Taiga before arrival'},
+    {id:'t6',text:'Charge all devices overnight'},
+  ]},
+  'd11': { title: '✈️ Departure Day Checklist', items: [
+    {id:'t1',text:'Check out of Osaka Airbnb (10 AM)'},
+    {id:'t2',text:'Taxi to Tennoji Station by 11:30 AM'},
+    {id:'t3',text:'Have HARUKA tickets ready at gate'},
+    {id:'t4',text:'Allow 3 hrs before flight for check-in + immigration'},
+    {id:'t5',text:'Return any rented pocket WiFi at KIX'},
+    {id:'t6',text:'Keep liquids + snacks for flight in carry-on'},
+  ]},
+};
+function toggleChecklistItem(dayId, itemId) {
+  if (!appState.checklists) appState.checklists = {};
+  if (!appState.checklists[dayId]) appState.checklists[dayId] = {};
+  appState.checklists[dayId][itemId] = !appState.checklists[dayId][itemId];
+  saveAppState();
+  // Re-render just that checklist
+  const el = document.getElementById('tcl-' + dayId);
+  if (el) el.outerHTML = buildTransitionChecklist(dayId);
+}
+function buildTransitionChecklist(dayId) {
+  const def = TRANSITION_CHECKLISTS[dayId];
+  if (!def) return '';
+  const checks = (appState.checklists && appState.checklists[dayId]) || {};
+  const items = def.items.map(item => {
+    const done = !!checks[item.id];
+    return '<div class="tcl-item' + (done ? ' done' : '') + '">'
+      + '<input type="checkbox"' + (done ? ' checked' : '') + ' onchange="toggleChecklistItem(\'' + dayId + '\',\'' + item.id + '\')">'
+      + '<label onclick="toggleChecklistItem(\'' + dayId + '\',\'' + item.id + '\')">' + item.text + '</label>'
+      + '</div>';
+  }).join('');
+  return '<div class="transition-checklist" id="tcl-' + dayId + '">'
+    + '<div class="tcl-title">' + def.title + '</div>'
+    + items
+    + '</div>';
+}
+
+// ── Map Reminders ──
+const MAP_REMINDERS = {
+  'd3': { city: 'Hakone', msg: 'Moving to <strong>Hakone</strong> tomorrow — download offline maps tonight.' },
+  'd4': { city: 'Kyoto',  msg: 'Download <strong>Kyoto</strong> offline maps before the Shinkansen.' },
+  'd8': { city: 'Osaka',  msg: 'Moving to <strong>Osaka</strong> in a few days — grab offline maps now.' },
+  'd9': { city: 'KIX',    msg: 'Download <strong>Osaka & KIX</strong> offline maps while on WiFi.' },
+};
+function dismissMapReminder(dayId) {
+  if (!appState.dismissedMapReminders) appState.dismissedMapReminders = [];
+  if (!appState.dismissedMapReminders.includes(dayId)) appState.dismissedMapReminders.push(dayId);
+  saveAppState();
+  renderItinerary();
+}
+function buildMapReminder(dayId) {
+  const def = MAP_REMINDERS[dayId];
+  if (!def) return '';
+  const dismissed = appState.dismissedMapReminders && appState.dismissedMapReminders.includes(dayId);
+  if (dismissed) return '';
+  return '<div class="map-reminder">'
+    + '<span class="map-reminder-icon">🗺</span>'
+    + '<div class="map-reminder-text">' + def.msg + '</div>'
+    + '<button class="map-dismiss-btn" onclick="dismissMapReminder(\'' + dayId + '\');event.stopPropagation()">✕</button>'
+    + '</div>';
+}
+
+// ── Food Guide ──
+const FOOD_GUIDE = {
+  tokyo: {
+    emoji: '🗼', label: 'Tokyo',
+    items: [
+      { icon: '🍜', name: 'Ichiran Ramen', dish: 'Solo-booth tonkotsu ramen', note: 'Private booths — order on a form, zero Japanese needed. Shibuya branch is closest.', tags: ['must','budget'] },
+      { icon: '🥩', name: 'Gyukatsu Motomura', dish: 'Beef cutlet set', note: 'Cook your own beef cutlet on a hot stone. Excellent value, big portions, consistently amazing.', tags: ['must'] },
+      { icon: '🍣', name: 'Conveyor Belt Sushi', dish: 'Kaiten-zushi', note: 'Kurazushi or Genki Sushi — order via touchscreen. ¥165–330/plate. Great for picky eaters.', tags: ['budget','quick'] },
+      { icon: '🍡', name: 'Nakamise Street (Asakusa)', dish: 'Street snacks', note: 'Ningyo-yaki (fish-shaped cakes), melonpan, fresh yakitori. Perfect for Day 2 walkthrough.', tags: ['quick','budget'] },
+      { icon: '🍱', name: 'Konbini meal', dish: '7-Eleven / Lawson onigiri', note: 'This is not a downgrade — Japanese convenience stores are legendary. Egg salad sandos, hot snacks, incredible.', tags: ['budget','quick'] },
+      { icon: '🎌', name: 'Izakaya night', dish: 'Japanese pub food', note: 'Find any izakaya near Shibuya — gyoza, karaage, edamame, draft beer. Great energy, cheap. Look for red lanterns outside.', tags: ['must'] },
+      { icon: '🐣', name: 'Shibuya Scramble area', dish: 'Any restaurant, floors 3-8', note: 'Restaurant floors above street level are often cheaper and better than ground floor. Look up!', tags: ['quick'], staff: null },
+    ]
+  },
+  hakone: {
+    emoji: '🏔', label: 'Hakone',
+    items: [
+      { icon: '🍱', name: 'Ryokan kaiseki', dish: 'Multi-course Japanese dinner', note: 'Your villa dinner is included both nights — a proper kaiseki spread. Save your appetite.', tags: ['must','splurge'], staff: null },
+      { icon: '🥚', name: 'Owakudani Black Eggs', dish: 'Kuro-tamago', note: 'Hard-boiled eggs cooked in sulfuric hot springs, shells turn black. ¥500 for 5. Legend says each egg adds 7 years to your life.', tags: ['must','quick'], jp: 'くろたまご', en: 'Black eggs please' },
+      { icon: '🍜', name: 'Hakone Soba', dish: 'Handmade buckwheat noodles', note: 'Mountain soba is special here — cold (zaru) or hot. Near Hakone-Yumoto station.', tags: ['must','budget'] },
+    ]
+  },
+  kyoto: {
+    emoji: '⛩', label: 'Kyoto',
+    items: [
+      { icon: '🛒', name: 'Nishiki Market', dish: 'Food market crawl', note: 'The "kitchen of Kyoto." Try: fresh yudofu (tofu), yakitori, matcha soft-serve, pickles. Go hungry.', tags: ['must','budget'] },
+      { icon: '🍵', name: 'Matcha sweets everywhere', dish: 'Matcha parfait / soft serve', note: 'Best in the Gion area — Gion Tsujiri or Nakamura Tokichi. Worth the line.', tags: ['must'] },
+      { icon: '🍜', name: 'Kyoto Ramen', dish: 'Tori paitan (chicken) ramen', note: 'Different from Tokyo — lighter chicken broth, unique to Kyoto. Musoshin near Kyoto Station is excellent.', tags: ['must','budget'] },
+      { icon: '🍱', name: 'Obanzai lunch set', dish: 'Traditional Kyoto small dishes', note: 'Vegetable-forward, beautifully presented. Many lunch spots in Gion offer ¥1,200–2,000 sets. Worth experiencing once.', tags: ['splurge'] },
+      { icon: '🦌', name: 'Nara snacks (Day 8)', dish: 'Mochi pounding street food', note: 'On your Nara day trip — look for shops pounding fresh mochi by hand. Also: deer crackers (shika senbei) to feed the bowing deer.', tags: ['must','quick'] },
+    ]
+  },
+  osaka: {
+    emoji: '🦀', label: 'Osaka',
+    items: [
+      { icon: '🐙', name: 'Takoyaki — Wanaka or Aizuya', dish: 'Octopus balls (8 for ¥600)', note: 'Crispy outside, molten inside. These are THE Osaka snack. Dotonbori area has multiple spots, Wanaka is classic.', tags: ['must','quick','budget'], jp: 'たこ焼き8個ください', en: '8 takoyaki please' },
+      { icon: '🥞', name: 'Okonomiyaki — Mizuno', dish: 'Savory Japanese pancake', note: 'Mizuno in Dotonbori has been there since 1945. Get the mixed (mix-yaki). Expect a line but it moves fast.', tags: ['must'], jp: 'ミックス焼き一枚ください', en: 'One mixed okonomiyaki please' },
+      { icon: '🦀', name: 'Kani Doraku', dish: 'Crab cuisine', note: 'The famous giant moving crab sign on Dotonbori. Expensive but the set menus are a proper Osaka splurge dinner.', tags: ['splurge'] },
+      { icon: '🍖', name: 'Kuromon Ichiba Market', dish: 'Fresh market food stalls', note: '"Osaka\'s Kitchen" — walk through and eat fresh: wagyu skewers, oysters, fugu (puffer fish). Near Namba.', tags: ['must'] },
+      { icon: '🍜', name: 'Kinryu Ramen', dish: '24hr Dotonbori ramen', note: 'Open 24 hours, the giant dragon outside is iconic. Good late-night bowl after walking Dotonbori.', tags: ['budget','quick'] },
+    ]
+  }
+};
+
+function renderFoodGuide() {
+  const container = document.getElementById('food-guide-container');
+  if (!container) return;
+  const cities = ['tokyo','hakone','kyoto','osaka'];
+  let html = '';
+  cities.forEach(city => {
+    const c = FOOD_GUIDE[city];
+    html += '<div class="food-city-section">'
+      + '<div class="food-city-title">' + c.emoji + ' ' + c.label + '</div>'
+      + '<div class="food-items-list">'
+      + c.items.map(item => {
+          const tags = (item.tags || []).map(t => '<span class="food-tag ' + t + '">' + t + '</span>').join('');
+          const staffBtn = item.jp ? '<br><button class="food-staff-btn" onclick="openStaffCard(\'' + item.jp.replace(/'/g,"\\'") + '\',\'' + (item.en||'').replace(/'/g,"\\'") + '\')">📱 Show to staff</button>' : '';
+          return '<div class="food-item">'
+            + '<span class="food-item-icon">' + item.icon + '</span>'
+            + '<div class="food-item-body">'
+            + '<div class="food-item-name">' + item.name + '</div>'
+            + '<div class="food-item-dish">' + item.dish + '</div>'
+            + '<div class="food-item-note">' + item.note + staffBtn + '</div>'
+            + '<div class="food-tags">' + tags + '</div>'
+            + '</div>'
+            + '</div>';
+        }).join('')
+      + '</div>'
+      + '</div>';
+  });
+  container.innerHTML = html;
+}
+
 // ── App init ──
 document.addEventListener('DOMContentLoaded', async function() {
   await initSupabase();
   await loadAppState();
+  renderTripProgress();
+  checkHarukaBanner();
   renderTodayCard();
   renderItinerary();
   renderActivities();
   renderExpenses();
+  renderFoodGuide();
   initWeather();
   // Show filter bar elements for default itinerary tab
   document.getElementById('date-filters').classList.remove('hidden');
@@ -4696,6 +5337,21 @@ document.addEventListener('DOMContentLoaded', async function() {
   </div>
 </div>
 
+<!-- Day Notes Sheet -->
+<div id="notes-sheet-overlay" class="bottom-sheet-overlay" onclick="closeSheet('notes-sheet')"></div>
+<div id="notes-sheet" class="bottom-sheet">
+  <div class="bottom-sheet-handle"></div>
+  <div class="bottom-sheet-header">
+    <div class="bottom-sheet-title" id="notes-sheet-title">Day Notes</div>
+    <button class="bottom-sheet-close" onclick="closeSheet('notes-sheet')">✕</button>
+  </div>
+  <div class="bottom-sheet-body">
+    <input type="hidden" id="notes-day-id">
+    <textarea class="form-input" id="notes-textarea" rows="6" placeholder="Jot down memories, tips, receipts..." style="resize:none;height:140px;line-height:1.5"></textarea>
+    <button class="btn-primary" onclick="saveDayNotes()">Save</button>
+  </div>
+</div>
+
 <!-- Expense Sheet -->
 <div id="expense-sheet-overlay" class="bottom-sheet-overlay" onclick="closeSheet('expense-sheet')"></div>
 <div id="expense-sheet" class="bottom-sheet">
@@ -4746,6 +5402,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     <div id="hotel-modal-note" class="hotel-note" style="display:none"></div>
     <div id="hotel-modal-sections"></div>
   </div>
+</div>
+
+<!-- Show-to-Staff Overlay -->
+<div id="staff-overlay" class="staff-overlay" style="display:none" onclick="closeStaffCard()">
+  <div class="staff-overlay-hint">Tap anywhere to close</div>
+  <div class="staff-overlay-jp" id="staff-overlay-jp"></div>
+  <div class="staff-overlay-en" id="staff-overlay-en"></div>
 </div>
 
 <script>
