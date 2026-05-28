@@ -4019,7 +4019,7 @@ function toggleEditMode() {
 function renderItinerary() {
   const container = document.getElementById('itinerary-timeline');
   if (!container || !appState.days) return;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = jstDateStr();
   const { cityFilter, dateFilter } = appState;
   const cityDivLabels = {
     tokyo: '🗼 Tokyo &nbsp;·&nbsp; May 25–29',
@@ -4369,8 +4369,17 @@ const WX_ICONS = {
   95:'⛈',99:'⛈',
 };
 
+function jstDateStr() {
+  return new Date().toLocaleDateString('en-CA', {timeZone: 'Asia/Tokyo'});
+}
+function jstHour() {
+  const s = new Date().toLocaleString('en-US', {timeZone: 'Asia/Tokyo', hour: '2-digit', hour12: false});
+  const h = parseInt(s, 10);
+  return isNaN(h) ? new Date().getHours() : h;
+}
+
 async function initWeather() {
-  const today = new Date().toISOString().slice(0,10);
+  const today = jstDateStr();
   const todayDay = appState.days && appState.days.find(d => d.date === today);
   const city = (todayDay && todayDay.city) || 'tokyo';
   const c = CITY_COORDS[city];
@@ -4421,12 +4430,11 @@ function updateTodayWeather(data, today) {
   const strip = document.getElementById('today-hourly-strip');
   if (!strip || !data || !data.hourly) return;
   const { hourly } = data;
-  const nowJST = new Date(new Date().toLocaleString('en-US', {timeZone: 'Asia/Tokyo'}));
-  const currentHour = nowJST.getHours();
+  const currentHour = jstHour();
   let html = '';
   let count = 0;
   for (let i = 0; i < hourly.time.length && count < 18; i++) {
-    const t = hourly.time[i];
+    const t = hourly.time[i]; // "2026-05-28T14:00"
     if (!t.startsWith(today)) continue;
     const hour = parseInt(t.slice(11, 13), 10);
     if (hour < currentHour - 1) continue;
@@ -4449,7 +4457,7 @@ function updateTodayWeather(data, today) {
 function renderTodayCard() {
   const container = document.getElementById('today-card-container');
   if (!container || !appState.days) return;
-  const today = new Date().toISOString().slice(0,10);
+  const today = jstDateStr();
   const todayDay = appState.days.find(d => d.date === today);
   if (!todayDay) { container.innerHTML = ''; return; }
   const cityLabel = {tokyo:'🗼 Tokyo', hakone:'🏔 Hakone', kyoto:'⛩ Kyoto', osaka:'🦀 Osaka'};
