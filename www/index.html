@@ -1885,7 +1885,10 @@
   .eatdo-subnav-btn {
     flex: 1; padding: 10px 12px; font-size: 13px; font-weight: 600;
     color: var(--text-muted); background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 10px; cursor: pointer; font-family: inherit;
+    border-radius: 10px; cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .eatdo-subnav-btn.active {
+    color: var(--text); background: rgba(126,176,255,0.12); border-color: rgba(126,176,255,0.4);
   }
   .eatdo-subnav-btn:active { background: var(--surface3); }
   .lang-search-wrap { position: relative; margin-bottom: 20px; }
@@ -1954,11 +1957,11 @@
 <!-- Sticky header: nav + filter bar -->
 <div class="sticky-header">
   <nav class="nav" id="main-nav">
-    <button class="nav-btn active" onclick="showSection('itinerary', this)">Itinerary</button>
-    <button class="nav-btn" onclick="showSection('hotels', this)">Hotels</button>
-    <button class="nav-btn" onclick="showSection('trains', this)">Trains</button>
+    <button class="nav-btn active" onclick="showSection('itinerary', this)">📅 Itinerary</button>
+    <button class="nav-btn" onclick="showSection('hotels', this)">🏨 Hotels</button>
+    <button class="nav-btn" onclick="showSection('trains', this)">🚄 Trains</button>
     <button class="nav-btn" onclick="showSection('activities', this)">🍴 Eat + Do</button>
-    <button class="nav-btn" onclick="showSection('logistics', this)">Logistics</button>
+    <button class="nav-btn" onclick="showSection('logistics', this)">🗒️ Logistics</button>
     <button class="nav-btn" onclick="showSection('language', this)">🗣️ Language</button>
   </nav>
   <div class="filter-bar" id="filter-bar">
@@ -2562,13 +2565,18 @@
   <!-- ─────────────── ACTIVITIES + FOOD ─────────────── -->
   <div id="section-activities" class="section">
     <div class="eatdo-subnav">
-      <button class="eatdo-subnav-btn" onclick="scrollToEatDo('food-guide-anchor')">🍜 Food Guide</button>
-      <button class="eatdo-subnav-btn" onclick="scrollToEatDo('activities-anchor')">🎯 Activities</button>
+      <button class="eatdo-subnav-btn active" id="eatdo-btn-all" onclick="filterEatDo('all', this)">All</button>
+      <button class="eatdo-subnav-btn" id="eatdo-btn-food" onclick="filterEatDo('food', this)">🍜 Food</button>
+      <button class="eatdo-subnav-btn" id="eatdo-btn-activities" onclick="filterEatDo('activities', this)">🎯 Activities</button>
     </div>
-    <div class="section-title" style="margin-top:0" id="food-guide-anchor">🍜 Food Guide</div>
-    <div id="food-guide-container"><!-- rendered by JS --></div>
-    <div class="section-title" style="margin-top:28px" id="activities-anchor">🎯 Activities</div>
-    <div id="activities-container"><!-- rendered by JS --></div>
+    <div id="food-guide-section">
+      <div class="section-title" style="margin-top:0">🍜 Food Guide</div>
+      <div id="food-guide-container"><!-- rendered by JS --></div>
+    </div>
+    <div id="activities-section">
+      <div class="section-title" style="margin-top:28px">🎯 Activities</div>
+      <div id="activities-container"><!-- rendered by JS --></div>
+    </div>
     <div style="display:none"><!-- static backup -->
     <div class="activity-group">
       <div class="activity-city-header tokyo">🗼 Tokyo</div>
@@ -4369,6 +4377,9 @@ function showSection(id, btn) {
     dateFilters.classList.add('hidden');
     editToggle.style.display = '';
     if (appState.editingMode) document.getElementById('section-activities').classList.add('editing-mode');
+    // Reset eat+do filter to "All" on tab switch
+    const allBtn = document.getElementById('eatdo-btn-all');
+    if (allBtn) filterEatDo('all', allBtn);
   } else {
     dateFilters.classList.add('hidden');
     editToggle.style.display = 'none';
@@ -5068,11 +5079,14 @@ function scrollToToday() {
   }, 60);
 }
 
-function scrollToEatDo(anchorId) {
-  const el = document.getElementById(anchorId);
-  if (!el) return;
-  const stickyH = document.querySelector('.sticky-header')?.offsetHeight || 60;
-  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - stickyH - 8, behavior: 'smooth' });
+function filterEatDo(view, btn) {
+  document.querySelectorAll('.eatdo-subnav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const foodSec = document.getElementById('food-guide-section');
+  const actSec = document.getElementById('activities-section');
+  if (foodSec) foodSec.style.display = (view === 'activities') ? 'none' : '';
+  if (actSec) actSec.style.display = (view === 'food') ? 'none' : '';
+  window.scrollTo({ top: document.querySelector('.sticky-header')?.offsetHeight || 0, behavior: 'smooth' });
 }
 
 function filterPhrases(query) {
