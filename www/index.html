@@ -1881,6 +1881,31 @@
     font-family: inherit;
   }
   .food-detail-btn:active { background: rgba(126,176,255,0.2); }
+  .eatdo-subnav { display: flex; gap: 8px; margin-bottom: 20px; }
+  .eatdo-subnav-btn {
+    flex: 1; padding: 10px 12px; font-size: 13px; font-weight: 600;
+    color: var(--text-muted); background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; cursor: pointer; font-family: inherit;
+  }
+  .eatdo-subnav-btn:active { background: var(--surface3); }
+  .lang-search-wrap { position: relative; margin-bottom: 20px; }
+  .lang-search-input {
+    width: 100%; padding: 11px 14px 11px 38px; font-size: 14px; color: var(--text);
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    font-family: inherit; box-sizing: border-box; outline: none;
+  }
+  .lang-search-input::placeholder { color: var(--text-muted); }
+  .lang-search-input:focus { border-color: rgba(126,176,255,0.4); }
+  .lang-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
+  .lang-no-results { color: var(--text-muted); padding: 16px 0; font-size: 14px; }
+  .today-fab {
+    position: fixed; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); right: 20px;
+    z-index: 200; display: none; align-items: center; gap: 6px; padding: 10px 16px;
+    font-size: 13px; font-weight: 700; color: #fff; background: var(--accent);
+    border: none; border-radius: 24px; cursor: pointer; font-family: inherit;
+    box-shadow: 0 4px 16px rgba(126,176,255,0.35);
+  }
+  .today-fab.visible { display: flex; }
 </style>
 </head>
 <body>
@@ -2536,9 +2561,13 @@
 
   <!-- ─────────────── ACTIVITIES + FOOD ─────────────── -->
   <div id="section-activities" class="section">
-    <div class="section-title" style="margin-top:0">🍜 Food Guide</div>
+    <div class="eatdo-subnav">
+      <button class="eatdo-subnav-btn" onclick="scrollToEatDo('food-guide-anchor')">🍜 Food Guide</button>
+      <button class="eatdo-subnav-btn" onclick="scrollToEatDo('activities-anchor')">🎯 Activities</button>
+    </div>
+    <div class="section-title" style="margin-top:0" id="food-guide-anchor">🍜 Food Guide</div>
     <div id="food-guide-container"><!-- rendered by JS --></div>
-    <div class="section-title" style="margin-top:28px">🎯 Activities</div>
+    <div class="section-title" style="margin-top:28px" id="activities-anchor">🎯 Activities</div>
     <div id="activities-container"><!-- rendered by JS --></div>
     <div style="display:none"><!-- static backup -->
     <div class="activity-group">
@@ -2893,6 +2922,11 @@
   <!-- ─────────────── LANGUAGE ─────────────── -->
   <div id="section-language" class="section">
     <div class="section-title">🗣️ Japanese Language Guide</div>
+    <div class="lang-search-wrap">
+      <span class="lang-search-icon">🔍</span>
+      <input class="lang-search-input" type="search" placeholder="Search phrases…" oninput="filterPhrases(this.value)" id="lang-search">
+    </div>
+    <div id="lang-no-results" class="lang-no-results" style="display:none">No phrases match that search.</div>
 
     <!-- BASIC LIFE SAVERS -->
     <div class="lang-section-header">🆘 Basic life savers</div>
@@ -4322,6 +4356,8 @@ function showSection(id, btn) {
   document.getElementById('section-' + id).classList.add('visible');
   btn.classList.add('active');
   btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  const fab = document.getElementById('today-fab');
+  if (fab) fab.classList.toggle('visible', id === 'itinerary');
 
   const dateFilters = document.getElementById('date-filters');
   const editToggle = document.getElementById('edit-toggle');
@@ -4403,7 +4439,8 @@ function renderItinerary() {
     }
     const cityName = day.city.charAt(0).toUpperCase() + day.city.slice(1);
     const globalIdx = appState.days.findIndex(d => d.id === day.id);
-    html += '<div class="day-block" data-city="' + day.city + '" data-day-id="' + day.id + '" data-day-idx="' + globalIdx + '">'
+    const isTodayClass = day.date === today ? ' is-today' : '';
+    html += '<div class="day-block' + isTodayClass + '" data-city="' + day.city + '" data-day-id="' + day.id + '" data-day-idx="' + globalIdx + '">'
       + '<div class="day-dot ' + day.city + '"></div>'
       + '<div class="day-header" onclick="toggleDay(this)">'
         + '<span class="day-date">' + day.dateLabel + '</span>'
@@ -5013,6 +5050,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── Yen Converter ──
 const YEN_RATE = 0.0065;
+function scrollToToday() {
+  const itinBtn = document.querySelector('.nav-btn[onclick*="itinerary"]');
+  if (itinBtn) showSection('itinerary', itinBtn);
+  appState.dateFilter = 'all';
+  appState.cityFilter = 'all';
+  const sel = document.getElementById('city-filter-select');
+  if (sel) sel.value = 'all';
+  const dateEl = document.getElementById('date-filter-select');
+  if (dateEl) dateEl.value = 'all';
+  renderItinerary();
+  setTimeout(() => {
+    const el = document.querySelector('.day-block.is-today');
+    if (!el) return;
+    const stickyH = document.querySelector('.sticky-header')?.offsetHeight || 60;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - stickyH - 8, behavior: 'smooth' });
+  }, 60);
+}
+
+function scrollToEatDo(anchorId) {
+  const el = document.getElementById(anchorId);
+  if (!el) return;
+  const stickyH = document.querySelector('.sticky-header')?.offsetHeight || 60;
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - stickyH - 8, behavior: 'smooth' });
+}
+
+function filterPhrases(query) {
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('#section-language .phrase-row').forEach(row => {
+    row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
+  });
+  document.querySelectorAll('#section-language .lang-section-header').forEach(header => {
+    let sib = header.nextElementSibling, hasVisible = false;
+    while (sib && !sib.classList.contains('lang-section-header')) {
+      if (sib.classList.contains('phrase-row') && sib.style.display !== 'none') { hasVisible = true; break; }
+      sib = sib.nextElementSibling;
+    }
+    header.style.display = (hasVisible || !q) ? '' : 'none';
+  });
+  const noRes = document.getElementById('lang-no-results');
+  if (noRes) noRes.style.display = (q && !document.querySelector('#section-language .phrase-row:not([style*="none"])')) ? '' : 'none';
+}
+
 function convertFromYen() {
   const yen = parseFloat(document.getElementById('conv-yen').value) || 0;
   document.getElementById('conv-yen-result').textContent = '= $' + (yen * YEN_RATE).toFixed(2);
@@ -5607,6 +5686,8 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Show filter bar elements for default itinerary tab
   document.getElementById('date-filters').classList.remove('hidden');
   document.getElementById('edit-toggle').style.display = '';
+  const fab = document.getElementById('today-fab');
+  if (fab) fab.classList.add('visible');
   // Show sync dot only if Supabase connected
   if (_sb) document.getElementById('sync-dot').style.opacity = '0';
 });
@@ -5799,6 +5880,8 @@ document.addEventListener('DOMContentLoaded', async function() {
   <div class="staff-overlay-jp" id="staff-overlay-jp"></div>
   <div class="staff-overlay-en" id="staff-overlay-en"></div>
 </div>
+
+<button class="today-fab" id="today-fab" onclick="scrollToToday()">⬇ Today</button>
 
 <script>
   if ('serviceWorker' in navigator) {
