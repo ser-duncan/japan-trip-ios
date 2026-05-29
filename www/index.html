@@ -6322,6 +6322,61 @@ function buildItemDetails(category, d) {
   return JSON.stringify(d, null, 2);
 }
 
+// Swipe-to-close for inbox sheet
+document.addEventListener('DOMContentLoaded', () => {
+  const sheet = document.getElementById('inbox-sheet');
+  const sheetBody = document.getElementById('inbox-sheet-body');
+  const overlay = document.getElementById('inbox-overlay');
+  const EASING = 'cubic-bezier(0.32, 0.72, 0, 1)';
+  let startY = 0, isDragging = false;
+
+  sheet.addEventListener('touchstart', function(e) {
+    startY = e.touches[0].clientY;
+    isDragging = false;
+  }, { passive: true });
+
+  sheet.addEventListener('touchmove', function(e) {
+    const dy = e.touches[0].clientY - startY;
+    if (sheetBody.scrollTop <= 0 && dy > 0) {
+      isDragging = true;
+      sheet.style.transition = 'none';
+      sheet.style.transform = 'translateY(' + dy + 'px)';
+      overlay.style.opacity = String(Math.max(0, 1 - dy / 350));
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  sheet.addEventListener('touchend', function(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (dy > 120) {
+      sheet.style.transition = 'transform 0.28s ' + EASING;
+      sheet.style.transform = 'translateY(100%)';
+      overlay.style.transition = 'opacity 0.28s';
+      overlay.style.opacity = '0';
+      setTimeout(function() {
+        closeInbox();
+        sheet.style.transform = '';
+        sheet.style.transition = '';
+        overlay.style.opacity = '';
+        overlay.style.transition = '';
+      }, 280);
+    } else {
+      sheet.style.transition = 'transform 0.3s ' + EASING;
+      sheet.style.transform = 'translateY(0)';
+      overlay.style.transition = 'opacity 0.3s';
+      overlay.style.opacity = '1';
+      setTimeout(function() {
+        sheet.style.transform = '';
+        sheet.style.transition = '';
+        overlay.style.opacity = '';
+        overlay.style.transition = '';
+      }, 300);
+    }
+  }, { passive: true });
+});
+
 // Load once the gate is dismissed (either already unlocked or after unlock)
 document.addEventListener('DOMContentLoaded', () => {
   const gate = document.getElementById('passcode-gate');
