@@ -676,7 +676,7 @@
 
   .phrase-row {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
     align-items: center;
     gap: 12px;
     background: var(--surface);
@@ -702,6 +702,8 @@
     font-size: 20px;
     color: rgba(232,150,60,0.85);
     text-align: right;
+    justify-self: end;
+    align-self: center;
   }
   .phrase-tag {
     font-size: 11px;
@@ -711,6 +713,9 @@
     padding: 2px 8px;
     border-radius: 99px;
     white-space: nowrap;
+    justify-self: start;
+    align-self: center;
+    width: max-content;
   }
   .phrase-tag.lifesaver { background: rgba(232,80,91,0.15); color: var(--tokyo); }
   .phrase-tag.food { background: rgba(232,150,60,0.15); color: var(--kyoto); }
@@ -727,7 +732,7 @@
   }
   .phrase-row-top {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
     align-items: center;
     gap: 12px;
   }
