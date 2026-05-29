@@ -1881,16 +1881,16 @@
     font-family: inherit;
   }
   .food-detail-btn:active { background: rgba(126,176,255,0.2); }
-  .eatdo-subnav { display: flex; gap: 8px; margin-bottom: 20px; }
-  .eatdo-subnav-btn {
+  .eatdo-subnav, .transit-subnav { display: flex; gap: 8px; margin-bottom: 20px; }
+  .eatdo-subnav-btn, .transit-subnav-btn {
     flex: 1; padding: 10px 12px; font-size: 13px; font-weight: 600;
     color: var(--text-muted); background: var(--surface2); border: 1px solid var(--border);
     border-radius: 10px; cursor: pointer; font-family: inherit; transition: all 0.15s;
   }
-  .eatdo-subnav-btn.active {
+  .eatdo-subnav-btn.active, .transit-subnav-btn.active {
     color: var(--text); background: rgba(126,176,255,0.12); border-color: rgba(126,176,255,0.4);
   }
-  .eatdo-subnav-btn:active { background: var(--surface3); }
+  .eatdo-subnav-btn:active, .transit-subnav-btn:active { background: var(--surface3); }
   .lang-search-wrap { position: relative; margin-bottom: 20px; }
   .lang-search-input {
     width: 100%; padding: 11px 14px 11px 38px; font-size: 14px; color: var(--text);
@@ -1959,7 +1959,7 @@
   <nav class="nav" id="main-nav">
     <button class="nav-btn active" onclick="showSection('itinerary', this)">📅 Itinerary</button>
     <button class="nav-btn" onclick="showSection('hotels', this)">🏨 Hotels</button>
-    <button class="nav-btn" onclick="showSection('trains', this)">🚄 Trains</button>
+    <button class="nav-btn" onclick="showSection('trains', this)">✈️ Transit</button>
     <button class="nav-btn" onclick="showSection('activities', this)">🍴 Eat + Do</button>
     <button class="nav-btn" onclick="showSection('logistics', this)">🗒️ Logistics</button>
     <button class="nav-btn" onclick="showSection('language', this)">🗣️ Language</button>
@@ -2458,9 +2458,17 @@
     </div>
   </div>
 
-  <!-- ─────────────── TRAINS ─────────────── -->
+  <!-- ─────────────── TRANSIT ─────────────── -->
   <div id="section-trains" class="section">
-    <div class="section-title">🚄 Train Bookings</div>
+    <div class="transit-subnav">
+      <button class="transit-subnav-btn active" id="transit-btn-all" onclick="filterTransit('all',this)">All</button>
+      <button class="transit-subnav-btn" id="transit-btn-trains" onclick="filterTransit('trains',this)">🚄 Trains</button>
+      <button class="transit-subnav-btn" id="transit-btn-flights" onclick="filterTransit('flights',this)">✈️ Flights</button>
+    </div>
+
+    <!-- ── Trains ── -->
+    <div id="transit-trains-section">
+    <div class="section-title" style="margin-top:0">🚄 Train Bookings</div>
 
     <div class="train-card hotel-card" onclick="openTrainDetail('romancecar')">
       <div class="train-header">
@@ -2520,18 +2528,18 @@
       <div class="train-header">
         <span class="train-icon">🚄</span>
         <div>
-          <div class="train-name">HARUKA</div>
-          <div class="train-route">Osaka → Kansai Airport (KIX)</div>
+          <div class="train-name">HARUKA 25</div>
+          <div class="train-route">Tennoji → Kansai Airport (KIX)</div>
         </div>
-        <span class="badge badge-warn">Needs booking</span>
+        <span class="badge badge-success">✓ Booked</span>
       </div>
       <div class="train-body">
         <div class="train-cell"><div class="info-label">Date</div><div class="info-value">June 5</div></div>
-        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">1:03 PM</div></div>
-        <div class="train-cell"><div class="info-label">Seats</div><div class="info-value">5 together</div></div>
-        <div class="train-cell"><div class="info-label">Book via</div><div class="info-value">JR West</div></div>
+        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">12:47 PM</div></div>
+        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">1:20 PM</div></div>
+        <div class="train-cell"><div class="info-label">Ref</div><div class="info-value">YMB549238</div></div>
       </div>
-      <div class="hotel-card-footer">Booking info ›</div>
+      <div class="hotel-card-footer">Journey details ›</div>
     </div>
 
     <div class="section-title" style="margin-top:36px; font-size:18px;">📅 Booking Reminders</div>
@@ -2553,14 +2561,95 @@
             <td><strong>~May 1–3</strong></td>
             <td>Book teamLab Planets timed entry (May 27) if wanted</td>
           </tr>
-          <tr>
-            <td><strong>May 4</strong></td>
-            <td>Book HARUKA Osaka → KIX (Jun 5, 1:03 PM) via JR West — 5 seats</td>
+          <tr class="reminder-past">
+            <td><strong>May 29</strong></td>
+            <td>✓ HARUKA Tennoji → KIX (Jun 5, 12:47 PM) booked via Klook — ref YMB549238</td>
           </tr>
         </tbody>
       </table>
     </div>
-  </div>
+    </div><!-- end transit-trains-section -->
+
+    <!-- ── Flights ── -->
+    <div id="transit-flights-section">
+    <div class="section-title" style="margin-top:0">✈️ Outbound — To Japan</div>
+
+    <div class="train-card hotel-card" onclick="openFlightDetail('ua5408')">
+      <div class="train-header">
+        <span class="train-icon">✈️</span>
+        <div>
+          <div class="train-name">UA5408 · United Express</div>
+          <div class="train-route">Salt Lake City → Los Angeles</div>
+        </div>
+        <span class="badge badge-success">✓ Booked</span>
+      </div>
+      <div class="train-body">
+        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">May 24</div></div>
+        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">8:00 AM SLC</div></div>
+        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">9:27 AM LAX</div></div>
+        <div class="train-cell"><div class="info-label">Conf.</div><div class="info-value">AYCCBN</div></div>
+      </div>
+      <div class="hotel-card-footer">Seats + details ›</div>
+    </div>
+
+    <div class="train-card hotel-card" onclick="openFlightDetail('ua39')">
+      <div class="train-header">
+        <span class="train-icon">✈️</span>
+        <div>
+          <div class="train-name">UA39 · 12h Transpacific</div>
+          <div class="train-route">Los Angeles → Tokyo Haneda</div>
+        </div>
+        <span class="badge badge-success">✓ Booked</span>
+      </div>
+      <div class="train-body">
+        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">May 24–25</div></div>
+        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">11:40 AM LAX</div></div>
+        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">3:05 PM HND</div></div>
+        <div class="train-cell"><div class="info-label">Conf.</div><div class="info-value">AYCCBN</div></div>
+      </div>
+      <div class="hotel-card-footer">Seats + long-haul tips ›</div>
+    </div>
+
+    <div class="section-title" style="margin-top:24px; font-size:18px;">✈️ Return — Home</div>
+
+    <div class="train-card hotel-card" onclick="openFlightDetail('ua34')">
+      <div class="train-header">
+        <span class="train-icon">✈️</span>
+        <div>
+          <div class="train-name">UA34 · 10h Transpacific</div>
+          <div class="train-route">Kansai Airport → San Francisco</div>
+        </div>
+        <span class="badge badge-success">✓ Booked</span>
+      </div>
+      <div class="train-body">
+        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">Jun 5</div></div>
+        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">4:55 PM KIX</div></div>
+        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">11:05 AM SFO</div></div>
+        <div class="train-cell"><div class="info-label">Conf.</div><div class="info-value">AYCCBN</div></div>
+      </div>
+      <div class="hotel-card-footer">Seats + departure tips ›</div>
+    </div>
+
+    <div class="train-card hotel-card" onclick="openFlightDetail('ua2017')">
+      <div class="train-header">
+        <span class="train-icon">✈️</span>
+        <div>
+          <div class="train-name">UA2017 · United Airlines</div>
+          <div class="train-route">San Francisco → Salt Lake City</div>
+        </div>
+        <span class="badge badge-success">✓ Booked</span>
+      </div>
+      <div class="train-body">
+        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">Jun 5</div></div>
+        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">1:50 PM SFO</div></div>
+        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">4:50 PM SLC</div></div>
+        <div class="train-cell"><div class="info-label">Conf.</div><div class="info-value">AYCCBN</div></div>
+      </div>
+      <div class="hotel-card-footer">Seats + details ›</div>
+    </div>
+    </div><!-- end transit-flights-section -->
+
+  </div><!-- end section-trains -->
 
   <!-- ─────────────── ACTIVITIES + FOOD ─────────────── -->
   <div id="section-activities" class="section">
@@ -3958,45 +4047,48 @@
       ]
     },
     haruka: {
-      name: 'HARUKA Limited Express',
-      sub: 'Osaka → Kansai Airport (KIX) · June 5',
-      badge: '<span class="badge badge-warn">Needs booking</span>',
-      note: 'Book via JR West website. Target the 1:03 PM departure for 5 seats together.',
+      name: 'HARUKA 25 Limited Express',
+      sub: 'Tennoji → Kansai Airport (KIX) · June 5',
+      badge: '<span class="badge badge-success">✓ Booked · Klook YMB549238</span>',
+      note: 'Reserved seat · Ordinary Car · Adult x 5 · US$85 total',
       sections: [
         {
           title: 'Journey',
           rows: [
             { label: 'Date', value: 'Friday, June 5' },
-            { label: 'Target departs', value: '1:03 PM — Osaka/Tennoji' },
-            { label: 'Destination', value: 'Kansai Airport (KIX)' },
-            { label: 'Duration', value: '~75 min' },
+            { label: 'Departs', value: '12:47 PM — Tennoji (天王寺)' },
+            { label: 'Arrives', value: '1:20 PM — Kansai Airport (KIX)' },
+            { label: 'Duration', value: '33 min direct' },
+            { label: 'Seat type', value: 'Reserved seat · Ordinary Car' },
           ]
         },
         {
           title: 'Booking',
           rows: [
-            { label: 'Book via', value: '<a href="https://global.westjr.co.jp/en/howto/ticket/haruka/" target="_blank" rel="noopener" style="color:#7EB0FF">JR West HARUKA ↗</a>' },
-            { label: 'Seats needed', value: '5 together' },
-            { label: 'Status', value: '<span class="badge badge-warn">Not yet confirmed</span>' },
+            { label: 'Booking ref', value: 'YMB549238 (Klook)' },
+            { label: 'Passengers', value: 'Adult x 5' },
+            { label: 'Cost', value: 'US$85.00 total' },
+            { label: 'Status', value: '<span class="badge badge-success">✓ Confirmed</span>' },
           ]
         },
         {
           type: 'directions',
           title: 'Lien de premier → Tennoji → Kansai Airport',
-          intro: 'Check-out is 10:00 AM. Target departure is 1:03 PM from Tennoji. Leave the hotel by 11:30 AM to be comfortable.',
+          intro: 'Check-out is 10:00 AM. HARUKA departs 12:47 PM from Tennoji. Leave the hotel by 11:30 AM to be comfortable.',
           steps: [
             { heading: 'Hotel to Tennoji Station' },
             { text: '<strong>Taxi to Tennoji recommended</strong> with airport luggage: ~20–25 min, ~¥2,500–3,500. Tell driver: <strong>"天王寺駅 / Tennoji eki"</strong>.' },
             { text: 'Or: walk ~15 min to JR Nishi-Kujo (西九条), take Osaka Loop Line outer loop (外回り) ~25 min to Tennoji. Use IC card.' },
             { heading: 'At JR Tennoji Station' },
             { text: 'Follow signs for <strong>特急はるか / HARUKA Limited Express</strong>.' },
-            { text: 'Scan your HARUKA ticket at the limited express gates. <em>(Not yet booked — use the JR West link in Ticket Info above to reserve 5 seats together.)</em>' },
-            { text: 'Check the departure boards for:', sub: ['HARUKA — 関西空港 / Kansai Airport — 13:03', 'はるか / 関西空港 13:03'] },
+            { text: 'Scan your Klook HARUKA ticket at the limited express gates. Show the Klook voucher QR code.' },
+            { text: 'Check the departure boards for:', sub: ['HARUKA 25 — 関西空港 / Kansai Airport — 12:47', 'はるか / 関西空港 12:47'] },
             { heading: 'To the airport' },
-            { text: 'Journey is ~45 min from Tennoji to <strong>関西空港 / Kansai Kuko</strong> (last stop).' },
+            { text: 'Journey is 33 min from Tennoji to <strong>関西空港 / Kansai Kuko</strong> (last stop).' },
             { text: 'The station connects directly to <strong>Terminal 1</strong> (international departures) via an indoor walkway — no outdoor transfer needed.' },
+            { text: 'UA34 departs 4:55 PM — aim to be at the airport by 2:30 PM. Plenty of time after the 1:20 PM arrival.' },
           ],
-          tip: 'Quick: taxi to Tennoji → 特急はるか (HARUKA) → 13:03 → 関西空港 (direct, ~45 min) → Terminal 1 walkway.'
+          tip: 'Taxi to Tennoji → HARUKA 25 12:47 → KIX 13:20 (33 min) → Terminal 1 walkway → check in for UA34 departing 16:55.'
         }
       ]
     }
@@ -4229,7 +4321,7 @@ const DEFAULT_DAYS = [
     {id:'d11e1',type:'event',time:'Morning',text:'☕ Slow morning',note:null,highlight:false,booked:false,done:false},
     {id:'d11e2',type:'event',time:'Late AM',text:'🛍 Last-minute snacks & souvenirs',note:null,highlight:false,booked:false,done:false},
     {id:'d11e3',type:'period',text:'✈️ Departure'},
-    {id:'d11e4',type:'event',time:'~1:00 PM',text:'🚄 HARUKA Express → KIX',note:'⚠️ NOT BOOKED — 5 seats needed · Book now at jr-odekake.net',highlight:true,booked:false,done:false},
+    {id:'d11e4',type:'event',time:'12:47 PM',text:'🚄 HARUKA 25 → KIX',note:'Tennoji → Kansai Airport · 33 min · Klook ref YMB549238',highlight:true,booked:true,done:false},
   ]},
 ];
 
@@ -4271,7 +4363,7 @@ const appState = {
   days: null,
   activities: null,
   expenses: [],
-  harukaBooked: false,
+  harukaBooked: true,
   checklists: {},
   dismissedMapReminders: [],
   cityFilter: 'all',
@@ -4377,9 +4469,13 @@ function showSection(id, btn) {
     dateFilters.classList.add('hidden');
     editToggle.style.display = '';
     if (appState.editingMode) document.getElementById('section-activities').classList.add('editing-mode');
-    // Reset eat+do filter to "All" on tab switch
     const allBtn = document.getElementById('eatdo-btn-all');
     if (allBtn) filterEatDo('all', allBtn);
+  } else if (id === 'trains') {
+    dateFilters.classList.add('hidden');
+    editToggle.style.display = 'none';
+    const transitAllBtn = document.getElementById('transit-btn-all');
+    if (transitAllBtn) filterTransit('all', transitAllBtn);
   } else {
     dateFilters.classList.add('hidden');
     editToggle.style.display = 'none';
@@ -5077,6 +5173,120 @@ function scrollToToday() {
     const stickyH = document.querySelector('.sticky-header')?.offsetHeight || 60;
     window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - stickyH - 8, behavior: 'smooth' });
   }, 60);
+}
+
+function filterTransit(view, btn) {
+  document.querySelectorAll('.transit-subnav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const trainsSec = document.getElementById('transit-trains-section');
+  const flightsSec = document.getElementById('transit-flights-section');
+  if (trainsSec) trainsSec.style.display = (view === 'flights') ? 'none' : '';
+  if (flightsSec) flightsSec.style.display = (view === 'trains') ? 'none' : '';
+  window.scrollTo({ top: document.querySelector('.sticky-header')?.offsetHeight || 0, behavior: 'smooth' });
+}
+
+const FLIGHT_DETAILS = {
+  'ua5408': { name:'UA5408 — SLC → LAX', badge:'✈️ United Express · May 24', price:'Confirmation: AYCCBN', sections:[
+    { title:'Flight Info', rows:[
+      { label:'Route', value:'Salt Lake City (SLC) → Los Angeles (LAX)' },
+      { label:'Departs', value:'8:00 AM SLC' },
+      { label:'Arrives', value:'9:27 AM LAX' },
+      { label:'Duration', value:'1h 27m' },
+      { label:'Operated by', value:'SkyWest DBA United Express' },
+      { label:'Class', value:'United Economy (V)' },
+    ]},
+    { title:'Seat Assignments', rows:[
+      { label:'Diana', value:'21A' },
+      { label:'Brantley', value:'21D' },
+      { label:'Daniela', value:'21C' },
+      { label:'Kaiden', value:'20B' },
+      { label:'Jacob', value:'21B' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Arrive SLC', value:'Get to SLC airport by 6:00 AM for 8:00 AM departure' },
+      { label:'🔌 Layover', value:'2h 13min at LAX — go straight to Tom Bradley International Terminal (TBIT) for UA39' },
+    ]},
+  ]},
+  'ua39': { name:'UA39 — LAX → Tokyo Haneda', badge:'✈️ United Airlines · May 24→25', price:'Confirmation: AYCCBN', sections:[
+    { title:'Flight Info', rows:[
+      { label:'Route', value:'Los Angeles (LAX) → Tokyo Haneda (HND)' },
+      { label:'Departs', value:'11:40 AM LAX · Sunday May 24' },
+      { label:'Arrives', value:'3:05 PM HND · Monday May 25' },
+      { label:'Duration', value:'~12h 25min' },
+      { label:'Class', value:'United Economy (V)' },
+    ]},
+    { title:'Seat Assignments', rows:[
+      { label:'Diana', value:'59C' },
+      { label:'Brantley', value:'54B' },
+      { label:'Daniela', value:'55L' },
+      { label:'Kaiden', value:'55F' },
+      { label:'Jacob', value:'59D' },
+    ]},
+    { title:'Long-Haul Tips', rows:[
+      { label:'🕐 Time zone', value:'Japan is 16h ahead of SLC. Set watches to Tokyo time on board to start adjusting.' },
+      { label:'💊 Sleep', value:'Try to sleep during the flight — arrival is 3 PM Tokyo time. The sooner you adjust the better.' },
+      { label:'🍜 Food', value:'Two meal services. Japanese options are consistently better on this route — choose those.' },
+      { label:'🚶 Move around', value:'Get up and walk every 2–3 hours. Compression socks recommended.' },
+      { label:'📋 Arrival prep', value:'Fill out Visit Japan Web before boarding if you haven\'t — it speeds up immigration significantly.' },
+      { label:'🛂 At HND', value:'Haneda immigration is fast and organized. Have passport + Visit Japan QR ready. Bags to baggage claim B.' },
+    ]},
+  ]},
+  'ua34': { name:'UA34 — KIX → San Francisco', badge:'✈️ United Airlines · Jun 5', price:'Confirmation: AYCCBN', sections:[
+    { title:'Flight Info', rows:[
+      { label:'Route', value:'Kansai Airport (KIX) → San Francisco (SFO)' },
+      { label:'Departs', value:'4:55 PM KIX · Friday June 5' },
+      { label:'Arrives', value:'11:05 AM SFO · Friday June 5 (crosses date line)' },
+      { label:'Duration', value:'~10h 10min' },
+      { label:'Class', value:'United Economy (S)' },
+    ]},
+    { title:'Seat Assignments', rows:[
+      { label:'Diana', value:'48K' },
+      { label:'Brantley', value:'48E' },
+      { label:'Daniela', value:'48F' },
+      { label:'Kaiden', value:'48G' },
+      { label:'Jacob', value:'48J' },
+    ]},
+    { title:'Departure Tips', rows:[
+      { label:'🚄 HARUKA timing', value:'HARUKA 25 departs Tennoji 12:47 PM, arrives KIX 1:20 PM. Be at airport by 2:30 PM for 4:55 PM flight.' },
+      { label:'🛍️ Last duty free', value:'KIX has excellent duty free — Japanese whisky, matcha Kit-Kats, Pocky. Better selection than SFO.' },
+      { label:'💴 Spend last yen', value:'Use remaining yen at airport shops, vending machines, or food court. Tough to exchange back.' },
+      { label:'📅 Date magic', value:'You leave Friday evening and arrive Friday morning — you gain 10+ hours crossing the date line eastbound.' },
+    ]},
+  ]},
+  'ua2017': { name:'UA2017 — SFO → Salt Lake City', badge:'✈️ United Airlines · Jun 5', price:'Confirmation: AYCCBN', sections:[
+    { title:'Flight Info', rows:[
+      { label:'Route', value:'San Francisco (SFO) → Salt Lake City (SLC)' },
+      { label:'Departs', value:'1:50 PM SFO' },
+      { label:'Arrives', value:'4:50 PM SLC' },
+      { label:'Duration', value:'2h' },
+      { label:'Class', value:'United Economy (S)' },
+    ]},
+    { title:'Seat Assignments', rows:[
+      { label:'Diana', value:'29C' },
+      { label:'Brantley', value:'29E' },
+      { label:'Daniela', value:'29F' },
+      { label:'Kaiden', value:'29D' },
+      { label:'Jacob', value:'29B' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ SFO layover', value:'2h 45min at SFO. US Customs/immigration here — Global Entry lane is fast, regular line can be 45+ min.' },
+      { label:'🏠 Final leg', value:'Short hop home. You\'ve done it — 12 days in Japan complete.' },
+    ]},
+  ]},
+};
+
+function openFlightDetail(key) {
+  const d = FLIGHT_DETAILS[key];
+  if (!d) return;
+  document.getElementById('hotel-modal-name').textContent = d.name;
+  document.getElementById('hotel-modal-sub').textContent = d.price || '';
+  document.getElementById('hotel-modal-badge').innerHTML = '<span class="badge">' + d.badge + '</span>';
+  const noteEl = document.getElementById('hotel-modal-note');
+  noteEl.style.display = 'none';
+  document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
+  document.getElementById('hotel-modal-overlay').classList.add('open');
+  document.getElementById('hotel-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
 function filterEatDo(view, btn) {
