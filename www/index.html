@@ -2056,6 +2056,24 @@
   }
   .attachment-viewer-img { max-width: 100%; max-height: 90vh; object-fit: contain; padding: 16px; box-sizing: border-box; }
   .attachment-viewer-label { position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); font-size: 12px; color: #777; text-align: center; padding: 0 24px; }
+
+  /* ── Modal Details / Documents subnav ──────────────────────────────── */
+  .modal-subnav {
+    display: flex; padding: 0 20px; flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .modal-tab {
+    flex: 1; padding: 10px 0; font-size: 13px; font-weight: 600;
+    text-align: center; color: var(--text-muted);
+    background: none; border: none; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .modal-tab.active { color: var(--text); border-bottom-color: #7EB0FF; }
+  /* Docs grid (full body, no extra padding) */
+  .modal-docs-body { padding: 16px 20px 32px; }
+  .modal-docs-empty { color: var(--text-muted); font-size: 14px; text-align: center; padding: 32px 0; }
 </style>
 </head>
 <body>
@@ -4280,10 +4298,11 @@
     if (train.note) { noteEl.textContent = train.note; noteEl.style.display = 'block'; }
     else { noteEl.style.display = 'none'; }
     document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(train.sections);
+    switchModalTab('details');
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
-    loadModalAttachments(BOOKING_REFS[id] || null);
+    loadModalAttachments(BOOKING_REFS[id] !== undefined ? BOOKING_REFS[id] : id);
   }
 
   function openHotelDetail(id) {
@@ -4296,10 +4315,11 @@
     if (hotel.note) { noteEl.textContent = hotel.note; noteEl.style.display = 'block'; }
     else { noteEl.style.display = 'none'; }
     document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(hotel.sections);
+    switchModalTab('details');
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
-    loadModalAttachments(BOOKING_REFS[id] || null);
+    loadModalAttachments(BOOKING_REFS[id] !== undefined ? BOOKING_REFS[id] : id);
   }
 
   function closeHotelDetail() {
@@ -5433,10 +5453,11 @@ function openFlightDetail(key) {
   const noteEl = document.getElementById('hotel-modal-note');
   noteEl.style.display = 'none';
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
+  switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
-  loadModalAttachments(BOOKING_REFS[key] || null);
+  loadModalAttachments(BOOKING_REFS[key] !== undefined ? BOOKING_REFS[key] : key);
 }
 
 function filterEatDo(view, btn) {
@@ -6242,9 +6263,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     </div>
     <button class="hotel-modal-close" onclick="closeHotelDetail()">✕</button>
   </div>
-  <div class="hotel-modal-body">
+  <div class="modal-subnav">
+    <button class="modal-tab active" id="modal-tab-details" onclick="switchModalTab('details')">Details</button>
+    <button class="modal-tab" id="modal-tab-docs" onclick="switchModalTab('docs')">Documents</button>
+  </div>
+  <div id="modal-pane-details" class="hotel-modal-body">
     <div id="hotel-modal-note" class="hotel-note" style="display:none"></div>
     <div id="hotel-modal-sections"></div>
+  </div>
+  <div id="modal-pane-docs" class="hotel-modal-body modal-docs-body" style="display:none">
     <div id="hotel-modal-attachments"></div>
   </div>
 </div>
@@ -6276,9 +6303,9 @@ const BOOKING_REFS = {
   hakone:      'HMMAPSFSTQ',
   kyoto:       'HMQ2MS55BF',
   osaka:       'HMR98ZMTST',
-  romancecar:  null,
+  romancecar:  'train-romancecar',
   shinkansen:  'BHG063551',
-  'kyoto-osaka': null,
+  'kyoto-osaka': 'train-kyoto-osaka',
   haruka:      'YMB549238',
   ua5408:      'AYCCBN',
   ua39:        'AYCCBN',
@@ -6288,10 +6315,21 @@ const BOOKING_REFS = {
 
 let _currentModalRef = null;
 
+function switchModalTab(tab) {
+  document.getElementById('modal-tab-details').classList.toggle('active', tab === 'details');
+  document.getElementById('modal-tab-docs').classList.toggle('active', tab === 'docs');
+  document.getElementById('modal-pane-details').style.display = tab === 'details' ? '' : 'none';
+  document.getElementById('modal-pane-docs').style.display = tab === 'docs' ? '' : 'none';
+}
+
 async function loadModalAttachments(bookingRef) {
   _currentModalRef = bookingRef;
   const container = document.getElementById('hotel-modal-attachments');
-  if (!container || !bookingRef) { if (container) container.innerHTML = ''; return; }
+  if (!container) return;
+  if (!bookingRef) {
+    container.innerHTML = '<div class="modal-docs-empty">No booking reference — cannot load documents.</div>';
+    return;
+  }
   try {
     const res = await fetch(
       `${SUPA_URL}/rest/v1/trip_attachments?booking_ref=eq.${encodeURIComponent(bookingRef)}&order=created_at.asc`,
@@ -6300,7 +6338,8 @@ async function loadModalAttachments(bookingRef) {
     const items = res.ok ? await res.json() : [];
     const base = `${SUPA_URL}/storage/v1/object/public/trip-attachments/`;
     const thumbs = items.map(item => {
-      const url = item.url || (base + item.storage_path);
+      const rawUrl = item.url || (base + item.storage_path);
+      const url = rawUrl.startsWith('/') ? new URL('.' + rawUrl, window.location.href).href : rawUrl;
       const lbl = (item.label || item.filename).replace(/'/g, '&#39;');
       const isImg = item.mime_type && item.mime_type.startsWith('image/');
       return `<div class="attachment-thumb" onclick="showAttachment('${url}','${lbl}','${item.mime_type||''}')">
@@ -6309,17 +6348,17 @@ async function loadModalAttachments(bookingRef) {
       </div>`;
     }).join('');
     container.innerHTML = `
-      <div class="modal-attachments">
-        <div class="modal-attachments-title">Documents & Tickets</div>
-        <div class="modal-attachments-grid" id="attachment-grid">
-          ${thumbs}
-          <div class="attachment-add-btn" onclick="document.getElementById('attachment-file-input').click()">
-            <div class="attachment-add-icon">+</div>
-            <div class="attachment-add-label">Add</div>
-          </div>
+      <div class="modal-attachments-grid" id="attachment-grid">
+        ${thumbs}
+        <div class="attachment-add-btn" onclick="document.getElementById('attachment-file-input').click()">
+          <div class="attachment-add-icon">+</div>
+          <div class="attachment-add-label">Add</div>
         </div>
-      </div>`;
-  } catch(e) {}
+      </div>
+      ${items.length === 0 ? '<div class="modal-docs-empty">No documents yet — tap + to add one.</div>' : ''}`;
+  } catch(e) {
+    container.innerHTML = '<div class="modal-docs-empty">Could not load documents.</div>';
+  }
 }
 
 async function uploadAttachment(file) {
@@ -6333,22 +6372,29 @@ async function uploadAttachment(file) {
     const uploadRes = await fetch(
       `${SUPA_URL}/storage/v1/object/trip-attachments/${path}`,
       {
-        method: 'POST',
-        headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}`, 'Content-Type': file.type || 'application/octet-stream' },
+        method: 'PUT',
+        headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}`, 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'true' },
         body: file,
       }
     );
-    if (!uploadRes.ok) throw new Error('storage upload failed');
+    if (!uploadRes.ok) {
+      const errText = await uploadRes.text().catch(() => '');
+      throw new Error(`Upload failed (${uploadRes.status}): ${errText}`);
+    }
     const label = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
-    await fetch(`${SUPA_URL}/rest/v1/trip_attachments`, {
+    const dbRes = await fetch(`${SUPA_URL}/rest/v1/trip_attachments`, {
       method: 'POST',
       headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ booking_ref: ref, filename: file.name, storage_path: path, mime_type: file.type, label }),
+      body: JSON.stringify({ booking_ref: ref, category: 'manual', filename: file.name, storage_path: path, mime_type: file.type, label }),
     });
+    if (!dbRes.ok) {
+      const errText = await dbRes.text().catch(() => '');
+      throw new Error(`DB insert failed (${dbRes.status}): ${errText}`);
+    }
     await loadModalAttachments(ref);
   } catch(e) {
     if (container) container.classList.remove('attachment-uploading');
-    alert('Upload failed — check connection and try again.');
+    alert(e.message || 'Upload failed — check connection and try again.');
   }
 }
 
