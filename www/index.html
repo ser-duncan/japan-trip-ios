@@ -6291,7 +6291,7 @@ async function loadModalAttachments(bookingRef) {
         <div class="modal-attachments-title">Documents & Tickets</div>
         <div class="modal-attachments-grid">
           ${items.map(item => {
-            const url = base + item.storage_path;
+            const url = item.url || (base + item.storage_path);
             const lbl = (item.label || item.filename).replace(/'/g, '&#39;');
             const isImg = item.mime_type && item.mime_type.startsWith('image/');
             return `<div class="attachment-thumb" onclick="showAttachment('${url}','${lbl}','${item.mime_type||''}')">
