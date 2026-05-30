@@ -6408,12 +6408,123 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let _wakeLock = null;
 
+// ── Pinch-to-zoom state ───────────────────────────────────────────────────
+let _ptz = { s: 1, tx: 0, ty: 0, lastTap: 0 };
+let _ptzG = null; // active gesture
+
+function _ptzApply(img) {
+  img.style.transform = `translate(${_ptz.tx}px,${_ptz.ty}px) scale(${_ptz.s})`;
+}
+
+function _ptzReset(img) {
+  _ptz.s = 1; _ptz.tx = 0; _ptz.ty = 0;
+  img.style.transition = 'transform 0.22s ease';
+  _ptzApply(img);
+  setTimeout(() => { img.style.transition = ''; }, 240);
+}
+
+function _ptzSetup(img) {
+  img.style.transformOrigin = '0 0';
+  img.style.willChange = 'transform';
+  img.style.touchAction = 'none';
+
+  img.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const rect = img.getBoundingClientRect();
+      const mx0 = (t1.clientX + t2.clientX) / 2;
+      const my0 = (t1.clientY + t2.clientY) / 2;
+      // Store natural (pre-transform) origin and element-space pinch point
+      _ptzG = {
+        type: 'pinch',
+        d0: Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY),
+        s0: _ptz.s,
+        L: rect.left - _ptz.tx,  // natural left (invariant)
+        T: rect.top  - _ptz.ty,  // natural top  (invariant)
+        epx: (mx0 - rect.left) / _ptz.s,
+        epy: (my0 - rect.top)  / _ptz.s,
+      };
+    } else if (e.touches.length === 1) {
+      const t = e.touches[0];
+      const now = Date.now();
+      if (now - _ptz.lastTap < 280) {
+        // double-tap: toggle zoom
+        e.preventDefault();
+        _ptz.lastTap = 0;
+        if (_ptz.s > 1.05) {
+          _ptzReset(img);
+        } else {
+          const rect = img.getBoundingClientRect();
+          const L = rect.left - _ptz.tx, T = rect.top - _ptz.ty;
+          const epx = (t.clientX - rect.left) / _ptz.s;
+          const epy = (t.clientY - rect.top)  / _ptz.s;
+          const sNew = 3;
+          _ptz.s = sNew;
+          _ptz.tx = t.clientX - L - epx * sNew;
+          _ptz.ty = t.clientY - T - epy * sNew;
+          img.style.transition = 'transform 0.22s ease';
+          _ptzApply(img);
+          setTimeout(() => { img.style.transition = ''; }, 240);
+        }
+        return;
+      }
+      _ptz.lastTap = now;
+      if (_ptz.s > 1.05) {
+        e.preventDefault();
+        _ptzG = { type: 'pan', mx0: t.clientX, my0: t.clientY, tx0: _ptz.tx, ty0: _ptz.ty };
+      } else {
+        _ptzG = null;
+      }
+    }
+  }, { passive: false });
+
+  img.addEventListener('touchmove', e => {
+    if (!_ptzG) return;
+    if (_ptzG.type === 'pinch' && e.touches.length >= 2) {
+      e.preventDefault();
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const d = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      const mx = (t1.clientX + t2.clientX) / 2;
+      const my = (t1.clientY + t2.clientY) / 2;
+      const sNew = Math.max(1, Math.min(8, _ptzG.s0 * d / _ptzG.d0));
+      _ptz.s  = sNew;
+      _ptz.tx = mx - _ptzG.L - _ptzG.epx * sNew;
+      _ptz.ty = my - _ptzG.T - _ptzG.epy * sNew;
+      _ptzApply(img);
+    } else if (_ptzG.type === 'pan' && e.touches.length === 1) {
+      e.preventDefault();
+      _ptz.tx = _ptzG.tx0 + e.touches[0].clientX - _ptzG.mx0;
+      _ptz.ty = _ptzG.ty0 + e.touches[0].clientY - _ptzG.my0;
+      _ptzApply(img);
+    }
+  }, { passive: false });
+
+  img.addEventListener('touchend', e => {
+    if (_ptzG?.type === 'pinch' && e.touches.length === 1) {
+      // seamlessly hand off from pinch → pan
+      _ptzG = { type: 'pan', mx0: e.touches[0].clientX, my0: e.touches[0].clientY, tx0: _ptz.tx, ty0: _ptz.ty };
+    } else if (e.touches.length === 0) {
+      _ptzG = null;
+      if (_ptz.s < 1.05) _ptzReset(img);
+    }
+  }, { passive: true });
+}
+
 function showAttachment(url, label, mime) {
   if (mime === 'application/pdf') { window.open(url, '_blank'); return; }
   const viewer  = document.getElementById('attachment-viewer');
   const content = document.getElementById('attachment-viewer-content');
   document.getElementById('attachment-viewer-label').textContent = label;
-  content.innerHTML = `<img class="attachment-viewer-img" src="${url}">`;
+  // Reset zoom state
+  _ptz.s = 1; _ptz.tx = 0; _ptz.ty = 0; _ptz.lastTap = 0; _ptzG = null;
+  const img = document.createElement('img');
+  img.className = 'attachment-viewer-img';
+  img.src = url;
+  img.onclick = e => e.stopPropagation(); // image tap doesn't close viewer
+  content.innerHTML = '';
+  content.appendChild(img);
+  _ptzSetup(img);
   viewer.classList.add('open');
   document.body.style.overflow = 'hidden';
   if ('wakeLock' in navigator) {
@@ -6424,6 +6535,7 @@ function showAttachment(url, label, mime) {
 function closeAttachmentViewer() {
   document.getElementById('attachment-viewer').classList.remove('open');
   document.body.style.overflow = '';
+  _ptz.s = 1; _ptz.tx = 0; _ptz.ty = 0; _ptzG = null;
   if (_wakeLock) { _wakeLock.release().catch(() => {}); _wakeLock = null; }
 }
 </script>
