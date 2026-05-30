@@ -48,9 +48,9 @@ email contains **new or changed information** beyond the original confirmation.
 3. **Classify** — read subject + body; determine category and whether it contains new info
 4. **Extract** — pull structured data per the schemas below
 5. **Write Supabase** — **CRITICAL: insert into `email_processing_log` for EVERY email processed, regardless of category or outcome (including skips and actionable items alike).** This is how deduplication works — if you skip this step, the same email will be re-processed on the next run. Then insert into `travel_updates` for actionable items only (confidence ≥ 0.50).
-6. **Edit HTML** — for high-confidence changes to existing bookings, update `www/index.html` directly (see rules below)
-7. **Commit & push** — if any HTML edits were made, commit and push to `main`
-8. **Done** — report: `Processed N emails · M Supabase records written · K HTML fields updated · A attachments saved`
+6. **Write booking_updates** — for high-confidence changes (≥ 0.85), upsert rows into `booking_updates` (see schema below). The app reads this table live — no HTML editing needed.
+7. **Commit & push** — only if structural HTML changes were made (new hardcoded itinerary items). Skip this step for data-only updates.
+8. **Done** — report: `Processed N emails · M Supabase records written · K booking_updates upserted · A attachments saved`
 
 ---
 
@@ -74,65 +74,121 @@ newer_than:3d (japan OR tokyo OR kyoto OR osaka OR hakone OR booking OR reservat
 
 ---
 
-## HTML editing rules
+## booking_updates — data-driven modal overlay (NEW)
 
-Edit `www/index.html` when confidence ≥ 0.85 **and** the email contains info not already in the file.
+**Do NOT edit `www/index.html` for booking changes anymore.**
+Instead, write to the `booking_updates` Supabase table. The app reads this table every time a
+modal is opened and overlays the data on top of the base hardcoded info.
 
-### What to edit and where
+### Table: `booking_updates`
 
-**Flight update** (gate change, delay, cancellation, new seat assignment):
-- Find the matching key in `FLIGHT_DETAILS` (match by flight number or confirmation AYCCBN)
-- Add or update a row in the appropriate `rows` array, e.g.:
-  ```js
-  { label: 'Gate', value: 'B14 (updated Jun 3)' },
-  { label: 'Status', value: '⚠️ Delayed — new departure 5:45 PM' },
-  ```
-- For seat changes, update the value in the `Seat Assignments` section rows
+| Column | Type | Description |
+|--------|------|-------------|
+| `item_key` | text | Key matching the JS object: `koala`, `hakone`, `kyoto`, `osaka`, `romancecar`, `shinkansen`, `kyoto-osaka`, `haruka`, `ua5408`, `ua39`, `ua34`, `ua2017` |
+| `category` | text | `hotel`, `train`, `flight`, or `activity` |
+| `booking_ref` | text | Confirmation number (optional but useful) |
+| `section` | text | Section title exactly as shown in the modal (e.g. `"Key Box Entry"`, `"Seat Assignments"`, `"Journey"`) |
+| `section_sort` | int | Order of section within the modal (0 = first). New sections go after base sections. |
+| `label` | text | Row label (e.g. `"PIN Code"`, `"Gate"`, `"Jacob"`) |
+| `value` | text | Raw value — see `value_type` for formatting |
+| `value_type` | text | See types below |
+| `row_sort` | int | Order of this row within the section |
+| `source` | text | `"poller"` |
+| `confidence` | numeric | 0.00–1.00 |
+| `notes` | text | Human-readable notes (not shown in app) |
+| `source_email_id` | text | gmail_message_id that triggered this update |
 
-**Hotel update** (PIN code, check-in instructions, lockbox code, host message):
-- Find `HOTEL_DETAILS['koala' | 'hakone' | 'kyoto' | 'osaka']` by confirmation number
-- Update or add the relevant `label`/`value` row in the correct section, e.g.:
-  ```js
-  { label: 'PIN Code', value: '<span class="hotel-pin">8821</span>' },
-  { label: 'Early check-in', value: 'Confirmed for 1:00 PM — host Miwa approved' },
-  ```
+**UNIQUE constraint:** `(item_key, section, label)` — use ON CONFLICT DO UPDATE to upsert.
 
-**Train update** (platform, time change, new booking):
-- Find `TRAIN_DETAILS['romancecar' | 'shinkansen' | 'haruka']` and update the relevant rows
+### value_type options
 
-**Activity update** (time change, cancellation, new booking):
-- Find the event by id in `DEFAULT_DAYS` (line ~4300)
-- Update the `note` field or `time` field on the matching event object
-- For new booked activities: set `booked: true` and add the confirmation ref to `note`
+| Type | App rendering | Use for |
+|------|--------------|---------|
+| `text` | plain string | Most values, descriptions, notes |
+| `pin` | large monospace blue badge | Door PINs, lock codes, access codes |
+| `wifi_password` | large monospace blue badge | WiFi passwords |
+| `conf_code` | small monospace blue badge | Confirmation/booking refs |
+| `seat` | small green monospace badge | Seat assignments |
+| `status_ok` | green "✓ value" | Confirmed status, good news |
+| `status_warn` | amber "⚠ value" | Delays, warnings, tentative info |
+| `phone` | clickable tel: link | Phone numbers |
+| `link` | clickable hyperlink | URLs — format as `"Label|https://url"` or just `"https://url"` |
+| `html` | raw HTML injected | Complex formatting (use sparingly) |
 
-**New booking not yet in the app**:
-- For a new hotel: add a new key to `HOTEL_DETAILS` following the existing pattern
-- For a new activity: add a new event object to `DEFAULT_DAYS` in the correct day array
-- For a new flight/train: add to `FLIGHT_DETAILS` / `TRAIN_DETAILS`
+### Upsert SQL template
 
-### What NOT to edit
-- Don't change PIN codes or lock codes unless you're very confident the email is from the property
-- Don't edit anything with confidence < 0.85
-- Don't remove existing information — only add or update
-- Don't change dates, confirmation numbers, or names unless an explicit correction email
-
----
-
-## Git commit step
-
-After editing `www/index.html`:
-
-```bash
-cd /Users/jakeroyston/documents/github/japan-trip-ios
-git add www/index.html
-git commit -m "Trip inbox: <one-line summary of what changed>
-
-Auto-updated by poller from Gmail. Sources:
-<bullet list of email subjects that triggered changes>"
-git push origin main
+```sql
+INSERT INTO booking_updates
+  (item_key, category, booking_ref, section, section_sort, label, value, value_type,
+   row_sort, source, confidence, notes, source_email_id)
+VALUES
+  ($item_key, $category, $booking_ref, $section, $section_sort, $label, $value, $value_type,
+   $row_sort, 'poller', $confidence, $notes, $gmail_message_id)
+ON CONFLICT (item_key, section, label) DO UPDATE SET
+  value           = EXCLUDED.value,
+  value_type      = EXCLUDED.value_type,
+  confidence      = EXCLUDED.confidence,
+  notes           = EXCLUDED.notes,
+  source_email_id = EXCLUDED.source_email_id,
+  updated_at      = now();
 ```
 
-Use a descriptive commit message so Jacob can review what changed in the git log.
+### Examples by category
+
+**Hotel — PIN code or access code:**
+```sql
+-- item_key matches hotel key; section = descriptive name; label = field name
+('kyoto', 'hotel', 'HMQ2MS55BF', 'Entrance Door', 0, 'PIN Code', '5847', 'pin', 0, ...)
+('hakone','hotel','HMMAPSFSTQ','Key Box Entry', 0, 'Key Box PIN','2493','pin', 0, ...)
+```
+
+**Hotel — WiFi:**
+```sql
+('hakone','hotel','HMMAPSFSTQ','WiFi', 1, 'Network',  'GolfVilla', 'text',         0, ...)
+('hakone','hotel','HMMAPSFSTQ','WiFi', 1, 'Password', 'par5eagle', 'wifi_password', 1, ...)
+```
+
+**Hotel — early check-in, host message, instructions:**
+```sql
+('koala','hotel','HMBQZPZ3QA','Check-in', 0, 'Early check-in', 'Confirmed for 1:00 PM — host Miwa approved', 'status_ok', 0, ...)
+```
+
+**Flight — gate change:**
+```sql
+('ua39','flight','AYCCBN','Departure', 0, 'Gate', 'C18 (updated May 24)', 'text', 2, ...)
+```
+
+**Flight — delay:**
+```sql
+('ua39','flight','AYCCBN','Departure', 0, 'Status', 'Delayed — new departure 1:15 PM', 'status_warn', 3, ...)
+```
+
+**Train — platform or time update:**
+```sql
+('shinkansen','train','BHG063551','Journey', 0, 'Departs', '12:07 PM — Odawara (Platform 13*)', 'text', 1, ...)
+```
+
+**Train — seat assignments (one row per traveler):**
+```sql
+('shinkansen','train','BHG063551','Seat Assignments', 2, 'Jacob',   'Car 6 · Seat 14-A', 'seat', 0, ...)
+('shinkansen','train','BHG063551','Seat Assignments', 2, 'Diana',   'Car 6 · Seat 14-B', 'seat', 1, ...)
+('shinkansen','train','BHG063551','Seat Assignments', 2, 'Brantley','Car 6 · Seat 15-A', 'seat', 2, ...)
+('shinkansen','train','BHG063551','Seat Assignments', 2, 'Daniela', 'Car 6 · Seat 15-B', 'seat', 3, ...)
+('shinkansen','train','BHG063551','Seat Assignments', 2, 'Kaiden',  'Car 6 · Seat 16-A', 'seat', 4, ...)
+```
+
+### Rules for booking_updates writes
+
+- Only write when confidence ≥ 0.85 (same threshold as before, but now it's a DB write, not HTML edit)
+- Never delete rows — only upsert (the UNIQUE conflict ensures idempotent updates)
+- The `section` title must match an existing section in the modal OR be a new descriptive section name
+- For new sections not in the base data, choose a clear title and pick a `section_sort` > 10 so they append after base sections
+- `notes` field is for your own audit trail — include the email subject or key fact
+
+### No more HTML edits
+
+**Do not edit `www/index.html` for dynamic data.** The git commit step below is only needed for
+structural changes (new itinerary items, entirely new bookings not yet in the file at all).
 
 ---
 
