@@ -141,7 +141,7 @@
   .container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
 
   /* ── Section ── */
-  .section { display: none; padding-top: 40px; overflow-x: hidden; }
+  .section { display: none; padding-top: 40px; overflow-x: clip; }
   .section.visible { display: block; }
 
   .section-title {
@@ -1891,7 +1891,11 @@
     font-family: inherit;
   }
   .food-detail-btn:active { background: rgba(126,176,255,0.2); }
-  .eatdo-subnav, .transit-subnav { display: flex; gap: 8px; margin-bottom: 20px; }
+  .eatdo-subnav, .transit-subnav {
+    display: flex; gap: 8px; margin-bottom: 20px;
+    position: sticky; top: var(--nav-h, 56px); z-index: 50;
+    background: var(--bg); padding-bottom: 8px;
+  }
   .eatdo-subnav-btn, .transit-subnav-btn {
     flex: 1; padding: 10px 12px; font-size: 13px; font-weight: 600;
     color: var(--text-muted); background: var(--surface2); border: 1px solid var(--border);
@@ -4666,7 +4670,15 @@ function showSection(id, btn) {
     document.getElementById('section-itinerary').classList.remove('editing-mode');
     document.getElementById('section-activities').classList.remove('editing-mode');
   }
+  updateNavHeight();
 }
+
+function updateNavHeight() {
+  const h = document.querySelector('.sticky-header');
+  if (h) document.documentElement.style.setProperty('--nav-h', h.offsetHeight + 'px');
+}
+document.addEventListener('DOMContentLoaded', updateNavHeight);
+window.addEventListener('resize', updateNavHeight);
 
 // ── City filter (override) ──
 function filterCity(city) {
