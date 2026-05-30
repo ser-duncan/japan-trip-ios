@@ -4711,7 +4711,7 @@ const appState = {
   checklists: {},
   dismissedMapReminders: [],
   cityFilter: 'all',
-  dateFilter: 'all',
+  dateFilter: 'upcoming',
   editingMode: false,
   _movingEvent: null,
   _assigningActivity: null,
@@ -6265,6 +6265,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Show filter bar elements for default itinerary tab
   document.getElementById('date-filters').classList.remove('hidden');
   document.getElementById('edit-toggle').style.display = '';
+  document.getElementById('date-filter-select').value = 'upcoming';
   const fab = document.getElementById('today-fab');
   if (fab) fab.classList.add('visible');
   // Show sync dot only if Supabase connected
