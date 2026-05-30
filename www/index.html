@@ -2023,6 +2023,17 @@
   .attachment-thumb img { width: 100%; height: 80px; object-fit: cover; display: block; }
   .attachment-thumb-icon { width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 30px; }
   .attachment-thumb-label { font-size: 10px; color: var(--text-muted); padding: 4px 6px 6px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .attachment-add-btn {
+    width: 88px; height: 114px; flex-shrink: 0; cursor: pointer;
+    border-radius: 10px; border: 1.5px dashed rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.04);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 5px; -webkit-tap-highlight-color: transparent;
+  }
+  .attachment-add-btn:active { opacity: 0.6; }
+  .attachment-add-icon { font-size: 22px; color: var(--text-muted); }
+  .attachment-add-label { font-size: 10px; color: var(--text-muted); }
+  .attachment-uploading { opacity: 0.5; pointer-events: none; }
 
   /* ── Full-screen attachment viewer ───────────────────────────────────── */
   .attachment-viewer {
@@ -6237,6 +6248,8 @@ document.addEventListener('DOMContentLoaded', async function() {
   </div>
 </div>
 
+<input type="file" id="attachment-file-input" accept="image/*,application/pdf" style="display:none">
+
 <!-- Full-screen attachment viewer -->
 <div id="attachment-viewer" class="attachment-viewer" onclick="closeAttachmentViewer()">
   <div class="attachment-viewer-hint">☀️ Increase brightness to scan</div>
@@ -6272,37 +6285,79 @@ const BOOKING_REFS = {
   ua2017:      'AYCCBN',
 };
 
+let _currentModalRef = null;
+
 async function loadModalAttachments(bookingRef) {
+  _currentModalRef = bookingRef;
   const container = document.getElementById('hotel-modal-attachments');
-  if (!container) return;
-  container.innerHTML = '';
-  if (!bookingRef) return;
+  if (!container || !bookingRef) { if (container) container.innerHTML = ''; return; }
   try {
     const res = await fetch(
       `${SUPA_URL}/rest/v1/trip_attachments?booking_ref=eq.${encodeURIComponent(bookingRef)}&order=created_at.asc`,
       { headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` } }
     );
-    if (!res.ok) return;
-    const items = await res.json();
-    if (!items.length) return;
+    const items = res.ok ? await res.json() : [];
     const base = `${SUPA_URL}/storage/v1/object/public/trip-attachments/`;
+    const thumbs = items.map(item => {
+      const url = item.url || (base + item.storage_path);
+      const lbl = (item.label || item.filename).replace(/'/g, '&#39;');
+      const isImg = item.mime_type && item.mime_type.startsWith('image/');
+      return `<div class="attachment-thumb" onclick="showAttachment('${url}','${lbl}','${item.mime_type||''}')">
+        ${isImg ? `<img src="${url}" loading="lazy">` : `<div class="attachment-thumb-icon">📄</div>`}
+        <div class="attachment-thumb-label">${item.label || item.filename}</div>
+      </div>`;
+    }).join('');
     container.innerHTML = `
       <div class="modal-attachments">
         <div class="modal-attachments-title">Documents & Tickets</div>
-        <div class="modal-attachments-grid">
-          ${items.map(item => {
-            const url = item.url || (base + item.storage_path);
-            const lbl = (item.label || item.filename).replace(/'/g, '&#39;');
-            const isImg = item.mime_type && item.mime_type.startsWith('image/');
-            return `<div class="attachment-thumb" onclick="showAttachment('${url}','${lbl}','${item.mime_type||''}')">
-              ${isImg ? `<img src="${url}" loading="lazy">` : `<div class="attachment-thumb-icon">📄</div>`}
-              <div class="attachment-thumb-label">${item.label || item.filename}</div>
-            </div>`;
-          }).join('')}
+        <div class="modal-attachments-grid" id="attachment-grid">
+          ${thumbs}
+          <div class="attachment-add-btn" onclick="document.getElementById('attachment-file-input').click()">
+            <div class="attachment-add-icon">+</div>
+            <div class="attachment-add-label">Add</div>
+          </div>
         </div>
       </div>`;
   } catch(e) {}
 }
+
+async function uploadAttachment(file) {
+  const ref = _currentModalRef;
+  if (!ref || !file) return;
+  const container = document.getElementById('hotel-modal-attachments');
+  if (container) container.classList.add('attachment-uploading');
+  try {
+    const safe = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '-').toLowerCase();
+    const path = `${ref}/${Date.now()}-${safe}`;
+    const uploadRes = await fetch(
+      `${SUPA_URL}/storage/v1/object/trip-attachments/${path}`,
+      {
+        method: 'POST',
+        headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}`, 'Content-Type': file.type || 'application/octet-stream' },
+        body: file,
+      }
+    );
+    if (!uploadRes.ok) throw new Error('storage upload failed');
+    const label = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
+    await fetch(`${SUPA_URL}/rest/v1/trip_attachments`, {
+      method: 'POST',
+      headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ booking_ref: ref, filename: file.name, storage_path: path, mime_type: file.type, label }),
+    });
+    await loadModalAttachments(ref);
+  } catch(e) {
+    if (container) container.classList.remove('attachment-uploading');
+    alert('Upload failed — check connection and try again.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('attachment-file-input').addEventListener('change', function() {
+    const file = this.files[0];
+    this.value = '';
+    if (file) uploadAttachment(file);
+  });
+});
 
 let _wakeLock = null;
 
