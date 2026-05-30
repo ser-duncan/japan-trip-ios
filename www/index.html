@@ -1975,6 +1975,38 @@
   .inbox-item-body strong { color: var(--text); }
   .inbox-flagged { border-color: rgba(232,150,60,0.4); }
   .inbox-flagged .inbox-item-confidence { color: rgba(232,150,60,0.8); }
+  .inbox-last-checked {
+    font-size: 11px; color: var(--text-muted); margin-top: 2px; min-height: 14px;
+  }
+  .inbox-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; }
+  .inbox-tab {
+    flex: 1; padding: 10px 0; font-size: 13px; font-weight: 600; text-align: center;
+    color: var(--text-muted); background: none; border: none; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .inbox-tab.active { color: var(--text); border-bottom-color: #7EB0FF; }
+  .inbox-run-group { margin-bottom: 8px; }
+  .inbox-run-header {
+    font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 0.6px; padding: 12px 0 6px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+  .inbox-run-group:first-child .inbox-run-header { border-top: none; padding-top: 4px; }
+  .inbox-log-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .inbox-log-row:last-child { border-bottom: none; }
+  .inbox-log-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .inbox-log-dot.skip     { background: rgba(255,255,255,0.18); }
+  .inbox-log-dot.flight   { background: #7EB0FF; }
+  .inbox-log-dot.hotel    { background: var(--hakone); }
+  .inbox-log-dot.train    { background: var(--kyoto); }
+  .inbox-log-dot.activity { background: var(--tokyo); }
+  .inbox-log-subject { font-size: 13px; line-height: 1.35; }
+  .inbox-log-reason { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-style: italic; }
+  .inbox-log-tag    { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -6183,11 +6215,18 @@ document.addEventListener('DOMContentLoaded', async function() {
 <div class="inbox-sheet" id="inbox-sheet">
   <div class="inbox-sheet-handle"></div>
   <div class="inbox-sheet-header">
-    <span class="inbox-sheet-title">📬 Trip Inbox</span>
+    <div>
+      <span class="inbox-sheet-title">📬 Trip Inbox</span>
+      <div class="inbox-last-checked" id="inbox-last-checked"></div>
+    </div>
     <button class="inbox-sheet-close" onclick="closeInbox()">×</button>
   </div>
+  <div class="inbox-tabs">
+    <button class="inbox-tab active" id="inbox-tab-updates" onclick="switchInboxTab('updates')">Updates</button>
+    <button class="inbox-tab" id="inbox-tab-log" onclick="switchInboxTab('log')">Run Log</button>
+  </div>
   <div class="inbox-sheet-body" id="inbox-sheet-body">
-    <div class="inbox-empty">Loading updates…</div>
+    <div class="inbox-empty">Loading…</div>
   </div>
 </div>
 
@@ -6203,34 +6242,58 @@ const SUPA_URL  = 'https://ubtzeulovzfguazmdchp.supabase.co';
 const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVidHpldWxvdnpmZ3Vhem1kY2hwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTI1MjgsImV4cCI6MjA5NTQ4ODUyOH0.7aWtRc53i8zspqWY3d6L5Ajd2y05wxvV4dWuYq1L0Dg';
 
 let inboxItems = [];
+let inboxLogItems = [];
+let inboxActiveTab = 'updates';
+
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return days === 1 ? 'yesterday' : `${days}d ago`;
+}
 
 async function loadInboxUpdates() {
   try {
-    const res = await fetch(`${SUPA_URL}/rest/v1/travel_updates?applied=eq.true&order=created_at.desc`, {
-      headers: {
-        'apikey': SUPA_ANON,
-        'Authorization': `Bearer ${SUPA_ANON}`,
-      }
-    });
-    if (!res.ok) return;
-    inboxItems = await res.json();
-    if (!inboxItems.length) return;
+    const h = { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` };
+    const [updRes, logRes] = await Promise.all([
+      fetch(`${SUPA_URL}/rest/v1/travel_updates?order=created_at.desc&limit=50`, { headers: h }),
+      fetch(`${SUPA_URL}/rest/v1/email_processing_log?order=processed_at.desc&limit=100`, { headers: h }),
+    ]);
+    if (updRes.ok) inboxItems = await updRes.json();
+    if (logRes.ok) inboxLogItems = await logRes.json();
+
+    // Update "Last checked" indicator
+    if (inboxLogItems.length) {
+      const el = document.getElementById('inbox-last-checked');
+      if (el) el.textContent = 'Last checked: ' + timeAgo(inboxLogItems[0].processed_at);
+    }
+
+    const applied = inboxItems.filter(i => i.applied);
+    if (!applied.length && !inboxLogItems.length) return;
 
     const fab = document.getElementById('inbox-fab');
-    const badge = document.getElementById('inbox-badge');
     if (!fab) return;
     fab.style.display = 'flex';
 
-    // Track last-seen via localStorage to show "new" count
     const lastSeen = localStorage.getItem('inbox_last_seen') || '1970-01-01';
-    const newCount = inboxItems.filter(i => i.created_at > lastSeen).length;
-    if (newCount > 0) {
+    const newCount = applied.filter(i => i.created_at > lastSeen).length;
+    const badge = document.getElementById('inbox-badge');
+    if (newCount > 0 && badge) {
       badge.textContent = newCount;
       badge.style.display = 'inline-block';
     }
-  } catch (e) {
-    // Silently fail — app works fine without live data
-  }
+  } catch (e) {}
+}
+
+function switchInboxTab(tab) {
+  inboxActiveTab = tab;
+  document.getElementById('inbox-tab-updates').classList.toggle('active', tab === 'updates');
+  document.getElementById('inbox-tab-log').classList.toggle('active', tab === 'log');
+  if (tab === 'updates') renderInboxItems(); else renderRunLog();
 }
 
 function openInbox() {
@@ -6238,12 +6301,11 @@ function openInbox() {
   document.getElementById('inbox-sheet').classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  // Mark all as seen
   localStorage.setItem('inbox_last_seen', new Date().toISOString());
   const badge = document.getElementById('inbox-badge');
   if (badge) badge.style.display = 'none';
 
-  renderInboxItems();
+  if (inboxActiveTab === 'updates') renderInboxItems(); else renderRunLog();
 }
 
 function closeInbox() {
@@ -6256,19 +6318,18 @@ const CATEGORY_ICONS = { flight: '✈️', hotel: '🏨', train: '🚄', activit
 
 function renderInboxItems() {
   const body = document.getElementById('inbox-sheet-body');
-  if (!inboxItems.length) {
-    body.innerHTML = '<div class="inbox-empty">No updates yet — the poller checks every 30 min.</div>';
+  const visible = inboxItems.filter(i => i.applied || i.flagged);
+  if (!visible.length) {
+    body.innerHTML = '<div class="inbox-empty">No updates yet — check Run Log for poller history.</div>';
     return;
   }
 
-  body.innerHTML = inboxItems.map(item => {
+  body.innerHTML = visible.map(item => {
     const icon  = CATEGORY_ICONS[item.category] || '📋';
     const d     = item.data || {};
     const conf  = Math.round((item.confidence || 0) * 100);
     const flagClass = item.flagged ? ' inbox-flagged' : '';
-
     const details = buildItemDetails(item.category, d);
-
     return `
       <div class="inbox-item${flagClass}">
         <div class="inbox-item-header">
@@ -6320,6 +6381,53 @@ function buildItemDetails(category, d) {
     ].filter(Boolean).join('<br>');
   }
   return JSON.stringify(d, null, 2);
+}
+
+function renderRunLog() {
+  const body = document.getElementById('inbox-sheet-body');
+  if (!inboxLogItems.length) {
+    body.innerHTML = '<div class="inbox-empty">No runs logged yet.</div>';
+    return;
+  }
+
+  // Group by processed_at (same timestamp = same poller run)
+  const runs = {};
+  for (const item of inboxLogItems) {
+    const key = item.processed_at;
+    if (!runs[key]) runs[key] = [];
+    runs[key].push(item);
+  }
+  const sortedKeys = Object.keys(runs).sort((a, b) => b.localeCompare(a));
+
+  body.innerHTML = sortedKeys.map(key => {
+    const items = runs[key];
+    const dt = new Date(key);
+    const dateStr = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const timeStr = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const actioned = items.filter(i => i.category !== 'skip').length;
+    const skipped  = items.filter(i => i.category === 'skip').length;
+    const summary  = [actioned ? `${actioned} actioned` : '', skipped ? `${skipped} skipped` : ''].filter(Boolean).join(' · ') || 'nothing found';
+
+    const rows = items.map(item => {
+      const dotCls = item.category === 'skip' ? 'skip' : (item.category || 'skip');
+      const icon   = CATEGORY_ICONS[item.category] || '';
+      const tagLine = item.category === 'skip'
+        ? `<div class="inbox-log-reason">${item.skip_reason || 'skipped'}</div>`
+        : `<div class="inbox-log-tag">${icon} ${item.category} · ${Math.round((item.confidence || 0) * 100)}% confidence → applied</div>`;
+      return `<div class="inbox-log-row">
+        <div class="inbox-log-dot ${dotCls}"></div>
+        <div>
+          <div class="inbox-log-subject">${item.subject || '(no subject)'}</div>
+          ${tagLine}
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="inbox-run-group">
+      <div class="inbox-run-header">${dateStr} · ${timeStr} &nbsp;·&nbsp; ${items.length} email${items.length !== 1 ? 's' : ''} &nbsp;·&nbsp; ${summary}</div>
+      ${rows}
+    </div>`;
+  }).join('');
 }
 
 // Swipe-to-close for inbox sheet
