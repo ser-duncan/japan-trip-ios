@@ -1303,6 +1303,17 @@
     padding: 4px 14px;
     color: #7EB0FF;
   }
+  .seat-badge {
+    font-family: monospace;
+    font-size: 13px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 8px;
+    color: #A8D8A8;
+  }
+  .update-status-ok  { color: #6FCF97; font-weight: 500; }
+  .update-status-warn { color: #F2994A; font-weight: 500; }
 
   /* ── Passcode Gate ── */
   #passcode-gate {
@@ -4348,6 +4359,104 @@
     }).join('');
   }
 
+  // ── Booking Updates (data-driven modal overlay) ──────────────────────────
+
+  const _BU_TTL = 5 * 60 * 1000; // 5-minute localStorage cache
+
+  function formatBookingValue(value, type) {
+    switch (type) {
+      case 'pin':
+      case 'wifi_password':
+        return `<span class="hotel-pin">${value}</span>`;
+      case 'conf_code':
+        return `<span class="conf-code">${value}</span>`;
+      case 'seat':
+        return `<span class="seat-badge">${value}</span>`;
+      case 'status_ok':
+        return `<span class="update-status-ok">✓ ${value}</span>`;
+      case 'status_warn':
+        return `<span class="update-status-warn">⚠ ${value}</span>`;
+      case 'phone':
+        return `<a href="tel:${value}">${value}</a>`;
+      case 'link': {
+        const pipe = value.indexOf('|');
+        return pipe > -1
+          ? `<a href="${value.slice(pipe+1)}" target="_blank" rel="noopener">${value.slice(0, pipe)}</a>`
+          : `<a href="${value}" target="_blank" rel="noopener">${value}</a>`;
+      }
+      case 'html':
+        return value;
+      default:
+        return value;
+    }
+  }
+
+  async function loadBookingUpdates(itemKey) {
+    const ck = 'bu_' + itemKey;
+    try {
+      const s = localStorage.getItem(ck);
+      if (s) { const o = JSON.parse(s); if (Date.now() - o.ts < _BU_TTL) return o.data; }
+    } catch(e) {}
+    try {
+      const url = `${SUPA_URL}/rest/v1/booking_updates?item_key=eq.${encodeURIComponent(itemKey)}&select=section,section_sort,label,value,value_type,row_sort&order=section_sort.asc,row_sort.asc`;
+      const res = await fetch(url, { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } });
+      if (!res.ok) return [];
+      const data = await res.json();
+      try { localStorage.setItem(ck, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
+      return data;
+    } catch(e) { return []; }
+  }
+
+  function mergeBookingUpdates(baseSections, updates) {
+    if (!updates || !updates.length) return baseSections;
+    // deep-clone base so we never mutate the global HOTEL_DETAILS / TRAIN_DETAILS / FLIGHT_DETAILS
+    const merged = baseSections.map(s => ({
+      ...s,
+      rows:  s.rows  ? s.rows.map(r => ({...r}))  : undefined,
+      steps: s.steps ? [...s.steps]                : undefined,
+    }));
+
+    // group updates by section title, preserving section_sort for ordering new sections
+    const bySection = new Map();
+    updates.forEach(u => {
+      if (!bySection.has(u.section)) bySection.set(u.section, { sort: u.section_sort, rows: [] });
+      bySection.get(u.section).rows.push(u);
+    });
+
+    const newSections = [];
+    bySection.forEach((secData, secTitle) => {
+      let sec = merged.find(s => s.title === secTitle);
+      if (!sec) {
+        sec = { title: secTitle, rows: [], _newSort: secData.sort };
+        newSections.push(sec);
+      }
+      if (!sec.rows) sec.rows = [];
+      const sorted = [...secData.rows].sort((a, b) => a.row_sort - b.row_sort);
+      sorted.forEach(u => {
+        const fv = formatBookingValue(u.value, u.value_type);
+        const existing = sec.rows.find(r => r.label === u.label);
+        if (existing) { existing.value = fv; }
+        else          { sec.rows.push({ label: u.label, value: fv }); }
+      });
+    });
+
+    // append entirely-new sections in section_sort order
+    newSections.sort((a, b) => a._newSort - b._newSort);
+    merged.push(...newSections);
+    return merged;
+  }
+
+  async function applyBookingUpdates(itemKey, baseSections) {
+    const updates = await loadBookingUpdates(itemKey);
+    if (!updates.length) return;
+    const el = document.getElementById('hotel-modal-sections');
+    // only re-render if the modal is still open (user may have closed it)
+    if (!el || !document.getElementById('hotel-modal').classList.contains('open')) return;
+    el.innerHTML = renderModalSections(mergeBookingUpdates(baseSections, updates));
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+
   function openTrainDetail(id) {
     const train = TRAIN_DETAILS[id];
     if (!train) return;
@@ -4363,6 +4472,7 @@
     document.getElementById('hotel-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
     loadModalAttachments(BOOKING_REFS[id] !== undefined ? BOOKING_REFS[id] : id);
+    applyBookingUpdates(id, train.sections);
   }
 
   function openHotelDetail(id) {
@@ -4380,6 +4490,7 @@
     document.getElementById('hotel-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
     loadModalAttachments(BOOKING_REFS[id] !== undefined ? BOOKING_REFS[id] : id);
+    applyBookingUpdates(id, hotel.sections);
   }
 
   function closeHotelDetail() {
@@ -5530,6 +5641,7 @@ function openFlightDetail(key) {
   document.getElementById('hotel-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
   loadModalAttachments(BOOKING_REFS[key] !== undefined ? BOOKING_REFS[key] : key);
+  applyBookingUpdates(key, d.sections);
 }
 
 function filterEatDo(view, btn) {
