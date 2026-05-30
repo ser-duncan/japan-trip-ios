@@ -1,128 +1,184 @@
 #!/usr/bin/env python3
-"""Generate torii gate app icons — dark navy + white sun, Myojin-style gate."""
+"""Generate torii gate icon matching the reference illustration."""
 import cairosvg
 
 SVG = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <clipPath id="rrect">
+    <clipPath id="clip">
       <rect width="512" height="512" rx="112" ry="112"/>
     </clipPath>
-    <!-- Background radial rings -->
-    <radialGradient id="bgRings" cx="50%" cy="52%" r="54%">
-      <stop offset="0%"   stop-color="#232B5A"/>
-      <stop offset="40%"  stop-color="#1C2348"/>
-      <stop offset="100%" stop-color="#141932"/>
+
+    <!-- Background: very dark navy, slightly lighter in centre -->
+    <radialGradient id="bg" cx="50%" cy="54%" r="62%">
+      <stop offset="0%"   stop-color="#1C2652"/>
+      <stop offset="50%"  stop-color="#101840"/>
+      <stop offset="100%" stop-color="#060A1A"/>
     </radialGradient>
-    <!-- Subtle concentric ring glow -->
-    <radialGradient id="ringGlow" cx="50%" cy="52%" r="50%">
-      <stop offset="0%"  stop-color="#2A3470" stop-opacity="0"/>
-      <stop offset="60%" stop-color="#2A3470" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#2A3470" stop-opacity="0"/>
+
+    <!-- Moon: hard white circle with soft outer halo -->
+    <radialGradient id="moon" cx="50%" cy="50%" r="50%">
+      <stop offset="58%"  stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="72%"  stop-color="#FFFFFF" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
     </radialGradient>
-    <!-- Gate color -->
-    <linearGradient id="gateGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="#C42020"/>
-      <stop offset="100%" stop-color="#A01818"/>
+
+    <!-- Pillar: side-lit cylinder feel, left=shadow, 20-25%=highlight, right=shadow -->
+    <linearGradient id="pillar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#B52E00"/>
+      <stop offset="22%"  stop-color="#FF5828"/>
+      <stop offset="55%"  stop-color="#E54010"/>
+      <stop offset="100%" stop-color="#A52800"/>
     </linearGradient>
-    <!-- Sun glow -->
-    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="70%"  stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#DDEEFF" stop-opacity="0"/>
-    </radialGradient>
+
+    <!-- Beam front face: bright top, slightly darker base -->
+    <linearGradient id="beamFace" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#FF5828"/>
+      <stop offset="35%"  stop-color="#E84010"/>
+      <stop offset="100%" stop-color="#CC3800"/>
+    </linearGradient>
+
+    <!-- Kasagi top dark cap -->
+    <linearGradient id="cap" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#0C1124"/>
+      <stop offset="100%" stop-color="#182040"/>
+    </linearGradient>
+
+    <!-- Pillar band (dark ring accent) -->
+    <linearGradient id="band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#0A0F22"/>
+      <stop offset="40%"  stop-color="#1A2245"/>
+      <stop offset="100%" stop-color="#0A0F22"/>
+    </linearGradient>
   </defs>
 
-  <g clip-path="url(#rrect)">
+  <g clip-path="url(#clip)">
 
-    <!-- Background -->
-    <rect width="512" height="512" fill="#161C3C"/>
-    <rect width="512" height="512" fill="url(#bgRings)"/>
+    <!-- ── Background ── -->
+    <rect width="512" height="512" fill="url(#bg)"/>
 
-    <!-- Concentric decorative rings (subtle, like original) -->
-    <circle cx="256" cy="268" r="195" fill="none" stroke="#252E62" stroke-width="22" opacity="0.7"/>
-    <circle cx="256" cy="268" r="155" fill="none" stroke="#1E2754" stroke-width="16" opacity="0.6"/>
-    <circle cx="256" cy="268" r="118" fill="none" stroke="#1B2349" stroke-width="12" opacity="0.5"/>
+    <!-- ── Moon halo layers ── -->
+    <circle cx="256" cy="296" r="228" fill="#FFFFFF" opacity="0.035"/>
+    <circle cx="256" cy="296" r="205" fill="#FFFFFF" opacity="0.045"/>
+    <!-- Moon disc -->
+    <circle cx="256" cy="296" r="180" fill="url(#moon)"/>
 
-    <!-- Sun / white circle -->
-    <circle cx="256" cy="268" r="96" fill="url(#sunGlow)"/>
-    <circle cx="256" cy="268" r="90" fill="#FFFFFF"/>
-
-    <!-- ===== MYOJIN TORII GATE ===== -->
+    <!-- ── GATE ── -->
     <!--
-      Proportions tuned to match original icon's gate placement,
-      but with authentic Myojin curved kasagi with upswept ends.
-
-      Pillars: left cx=162, right cx=350, width=44
-      Gate spans: ~x=115 to x=397
-      Nuki (lower bar): y=270-292
-      Shimaki (upper flat bar): y=196-214
-      Kasagi (curved top beam): ~y=148-175 with ends sweeping up to ~y=130
+      Layout (all x symmetric about 256):
+        Left pillar:   x=140–192  (52 px wide)
+        Right pillar:  x=320–372  (52 px wide)
+        Pillar height: y=188–500
+        Shimaki:       y=224–262
+        Nuki:          y=376–414
+        Kasagi body:   y=178–228  (front face, curves up at ends)
+        Kasagi cap:    y=158–182  (dark top face)
     -->
 
     <!-- Left pillar -->
-    <rect x="140" y="168" width="44" height="316" rx="5" fill="url(#gateGrad)"/>
+    <rect x="140" y="188" width="52" height="316" fill="url(#pillar)"/>
     <!-- Right pillar -->
-    <rect x="328" y="168" width="44" height="316" rx="5" fill="url(#gateGrad)"/>
+    <rect x="320" y="188" width="52" height="316" fill="url(#pillar)"/>
 
-    <!-- Nuki (lower crossbar) -->
-    <rect x="116" y="272" width="280" height="24" rx="5" fill="url(#gateGrad)"/>
-    <!-- Nuki end stubs past pillars -->
-    <rect x="104" y="276" width="14" height="16" rx="3" fill="#A01818"/>
-    <rect x="394" y="276" width="14" height="16" rx="3" fill="#A01818"/>
+    <!-- Pillar dark bands (pair of rings mid-pillar) -->
+    <rect x="135" y="364" width="62" height="10" rx="2" fill="url(#band)"/>
+    <rect x="135" y="377" width="62" height="10" rx="2" fill="url(#band)"/>
+    <rect x="315" y="364" width="62" height="10" rx="2" fill="url(#band)"/>
+    <rect x="315" y="377" width="62" height="10" rx="2" fill="url(#band)"/>
 
-    <!-- Shimaki (upper flat beam, below kasagi) -->
-    <rect x="108" y="196" width="296" height="22" rx="4" fill="url(#gateGrad)"/>
+    <!-- ── Nuki (lower crossbar) ── -->
+    <!-- Dark top face of nuki -->
+    <rect x="118" y="376" width="276" height="10" rx="1" fill="url(#cap)"/>
+    <!-- Red front face -->
+    <rect x="118" y="386" width="276" height="28" rx="3" fill="url(#beamFace)"/>
+    <!-- Nuki kibana tabs (outside of pillars) -->
+    <rect x="100" y="381" width="42" height="25" rx="3" fill="#E84010"/>
+    <rect x="370" y="381" width="42" height="25" rx="3" fill="#E84010"/>
+    <!-- Kibana dark top face -->
+    <rect x="100" y="381" width="42" height="8"  rx="1" fill="url(#cap)"/>
+    <rect x="370" y="381" width="42" height="8"  rx="1" fill="url(#cap)"/>
 
-    <!-- Daiwa (pillar caps between shimaki and kasagi) -->
-    <rect x="140" y="170" width="44" height="28" rx="3" fill="#A01818"/>
-    <rect x="328" y="170" width="44" height="28" rx="3" fill="#A01818"/>
+    <!-- ── Shimaki (upper flat beam) ── -->
+    <!-- Dark top face -->
+    <rect x="106" y="224" width="300" height="12" rx="1" fill="url(#cap)"/>
+    <!-- Red front face -->
+    <rect x="106" y="236" width="300" height="26" rx="3" fill="url(#beamFace)"/>
+    <!-- Shimaki kibana tabs -->
+    <rect x="86"  y="228" width="56" height="26" rx="3" fill="#E84010"/>
+    <rect x="370" y="228" width="56" height="26" rx="3" fill="#E84010"/>
+    <!-- Kibana dark top face -->
+    <rect x="86"  y="228" width="56" height="10" rx="1" fill="url(#cap)"/>
+    <rect x="370" y="228" width="56" height="10" rx="1" fill="url(#cap)"/>
 
+    <!-- ── Kasagi front (red body, curves up at ends) ── -->
     <!--
-      Kasagi — Myojin style:
-      The beam curves gently downward in the center (sag) and
-      sweeps UP at both ends. This is the distinctive Myojin shape.
+      Main curved body: gently concave at centre (sags ~8 px), sweeps up at wings.
+      Front face.
     -->
-    <!-- Main kasagi body (slightly curved — concave upward in centre) -->
     <path d="
-      M 116 172
-      C 116 172, 190 163, 256 165
-      C 322 163, 396 172, 396 172
-      L 396 190
-      C 396 190, 322 181, 256 183
-      C 190 181, 116 190, 116 190
+      M  88 192
+      C  88 192, 170 176, 256 178
+      C 342 176, 424 192, 424 192
+      L 424 228
+      C 424 228, 342 214, 256 216
+      C 170 214,  88 228,  88 228
       Z
-    " fill="url(#gateGrad)"/>
+    " fill="url(#beamFace)"/>
 
-    <!-- Left upswept wing tip -->
+    <!-- Left upswept wing -->
     <path d="
-      M 116 172
-      C  96 162,  82 150,  78 139
-      C  75 131,  80 127,  88 132
-      C  96 137, 106 150, 116 190
+      M  88 192
+      C  68 180,  54 163,  50 148
+      C  48 138,  55 135,  65 142
+      C  75 149,  84 166,  88 228
       Z
-    " fill="#B81C1C"/>
-    <!-- Left wing underside fill to join cleanly -->
+    " fill="#D63A0C"/>
+    <!-- Right upswept wing -->
     <path d="
-      M 116 190
-      C 106 150,  96 137,  88 132
-      C  94 136, 102 148, 112 188
+      M 424 192
+      C 444 180, 458 163, 462 148
+      C 464 138, 457 135, 447 142
+      C 437 149, 428 166, 424 228
       Z
-    " fill="#A01818"/>
+    " fill="#D63A0C"/>
 
-    <!-- Right upswept wing tip -->
+    <!-- ── Kasagi dark top cap ── -->
+    <!--
+      Sits above the red body. This is the charcoal-coloured top surface
+      giving the 3-D "beam viewed from slightly above" look.
+    -->
     <path d="
-      M 396 172
-      C 416 162, 430 150, 434 139
-      C 437 131, 432 127, 424 132
-      C 416 137, 406 150, 396 190
+      M  84 172
+      C  84 172, 168 155, 256 157
+      C 344 155, 428 172, 428 172
+      L 428 194
+      C 428 194, 344 178, 256 180
+      C 168 178,  84 194,  84 194
       Z
-    " fill="#B81C1C"/>
-    <!-- Right wing underside fill -->
+    " fill="url(#cap)"/>
+
+    <!-- Left cap wing -->
     <path d="
-      M 396 190
-      C 406 150, 416 137, 424 132
-      C 418 136, 410 148, 400 188
+      M  84 172
+      C  63 159,  49 141,  44 124
+      C  42 114,  50 112,  61 119
+      C  72 126,  81 145,  84 194
       Z
-    " fill="#A01818"/>
+    " fill="#0C1124"/>
+    <!-- Right cap wing -->
+    <path d="
+      M 428 172
+      C 449 159, 463 141, 468 124
+      C 470 114, 462 112, 451 119
+      C 440 126, 431 145, 428 194
+      Z
+    " fill="#0C1124"/>
+
+    <!-- Subtle highlight rim at base of dark cap (where cap meets red face) -->
+    <path d="
+      M  84 194  C  84 194, 168 178, 256 180  C 344 178, 428 194, 428 194
+      L 428 196  C 428 196, 344 181, 256 183  C 168 181,  84 196,  84 196
+      Z
+    " fill="#FF6030" opacity="0.6"/>
 
   </g>
 </svg>'''
@@ -132,9 +188,11 @@ with open('/home/user/japan-trip-ios/icon.svg', 'w') as f:
 
 svg_bytes = SVG.encode('utf-8')
 
-cairosvg.svg2png(bytestring=svg_bytes, write_to='/home/user/japan-trip-ios/www/icons/icon-512.png',
+cairosvg.svg2png(bytestring=svg_bytes,
+                 write_to='/home/user/japan-trip-ios/www/icons/icon-512.png',
                  output_width=512, output_height=512)
-cairosvg.svg2png(bytestring=svg_bytes, write_to='/home/user/japan-trip-ios/www/icons/icon-192.png',
+cairosvg.svg2png(bytestring=svg_bytes,
+                 write_to='/home/user/japan-trip-ios/www/icons/icon-192.png',
                  output_width=192, output_height=192)
 
 print("Done.")
