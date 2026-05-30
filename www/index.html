@@ -4772,6 +4772,56 @@ async function loadAppState() {
   appState.dismissedMapReminders = [];
 }
 
+// ── Itinerary events overlay (data-driven, written by poller) ────────────
+// Fetches rows from `itinerary_events` and merges them into appState.days.
+// New events are inserted at sort_order index; existing ones (matched by
+// event_id) are updated in-place while preserving the user's `done` state.
+async function applyItineraryEvents() {
+  const ck = 'ie_cache';
+  let rows;
+  try {
+    const s = localStorage.getItem(ck);
+    if (s) { const o = JSON.parse(s); if (Date.now() - o.ts < 5 * 60 * 1000) rows = o.data; }
+  } catch(e) {}
+  if (!rows) {
+    try {
+      const res = await fetch(
+        `${SUPA_URL}/rest/v1/itinerary_events?order=day_date.asc,sort_order.asc`,
+        { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } }
+      );
+      if (!res.ok) return;
+      rows = await res.json();
+      try { localStorage.setItem(ck, JSON.stringify({ ts: Date.now(), data: rows })); } catch(e) {}
+    } catch(e) { return; }
+  }
+  if (!rows || !rows.length || !appState.days) return;
+  rows.forEach(row => {
+    const day = appState.days.find(d => d.date === row.day_date);
+    if (!day) return;
+    const evObj = {
+      id:        row.event_id,
+      type:      row.type,
+      time:      row.time || null,
+      text:      row.text,
+      note:      row.note || null,
+      booked:    !!row.booked,
+      highlight: !!row.highlight,
+      done:      false,
+    };
+    const idx = day.events.findIndex(e => e.id === row.event_id);
+    if (idx >= 0) {
+      // Update in-place, preserve user's done state
+      day.events[idx] = { ...day.events[idx], ...evObj, done: day.events[idx].done };
+    } else {
+      // Insert at sort_order position, or append if out of range
+      const pos = (typeof row.sort_order === 'number' && row.sort_order >= 0 && row.sort_order <= day.events.length)
+        ? row.sort_order : day.events.length;
+      day.events.splice(pos, 0, evObj);
+    }
+  });
+}
+// ─────────────────────────────────────────────────────────────────────────
+
 function saveAppState() {
   const data = { days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders };
   try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
@@ -6267,6 +6317,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   await initSupabase();
   await loadAppState();
+  await applyItineraryEvents();
   renderTripProgress();
   checkHarukaBanner();
   renderTodayCard();
@@ -6295,8 +6346,11 @@ document.addEventListener('visibilitychange', () => {
     _hiddenAt = Date.now();
   } else if (document.visibilityState === 'visible' && _hiddenAt > 0) {
     if (Date.now() - _hiddenAt > 15 * 60 * 1000) {
+      // Bust caches so any new poller data is picked up
+      try { localStorage.removeItem('ie_cache'); } catch(e) {}
+      try { Object.keys(localStorage).filter(k => k.startsWith('bu_')).forEach(k => localStorage.removeItem(k)); } catch(e) {}
       _goItinerary();
-      renderItinerary();
+      applyItineraryEvents().then(() => renderItinerary());
     }
     _hiddenAt = 0;
   }
