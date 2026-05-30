@@ -2061,11 +2061,12 @@
   /* ── Full-screen attachment viewer ─────────────────────────────────────── */
   .attachment-viewer {
     position: fixed; inset: 0; z-index: 9999;
-    background: #000; display: flex; flex-direction: column;
+    background: #000; display: none; flex-direction: column;
     align-items: center; justify-content: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    opacity: 0; transition: opacity 0.2s;
+    touch-action: none;
   }
-  .attachment-viewer.open { opacity: 1; pointer-events: auto; }
+  .attachment-viewer.open { display: flex; opacity: 1; }
   .attachment-viewer-close {
     position: absolute; top: env(safe-area-inset-top, 16px); right: 16px;
     margin-top: 8px; width: 38px; height: 38px; border-radius: 50%;
@@ -6554,9 +6555,12 @@ async function loadModalAttachments(bookingRef) {
     const thumbs = items.map(item => {
       const rawUrl = item.url || (base + item.storage_path);
       const url = rawUrl.startsWith('/') ? new URL('.' + rawUrl, window.location.href).href : rawUrl;
-      const lbl = (item.label || item.filename).replace(/'/g, '&#39;');
       const isImg = item.mime_type && item.mime_type.startsWith('image/');
-      return `<div class="attachment-thumb" onclick="showAttachment('${url}','${lbl}','${item.mime_type||''}')">
+      // Use data-* attributes — avoids any quote/encoding issues in onclick strings
+      return `<div class="attachment-thumb"
+          data-url="${encodeURIComponent(url)}"
+          data-label="${encodeURIComponent(item.label || item.filename)}"
+          data-mime="${encodeURIComponent(item.mime_type || '')}">
         ${isImg ? `<img src="${url}" loading="lazy">` : `<div class="attachment-thumb-icon">📄</div>`}
         <div class="attachment-thumb-label">${item.label || item.filename}</div>
       </div>`;
@@ -6564,12 +6568,26 @@ async function loadModalAttachments(bookingRef) {
     container.innerHTML = `
       <div class="modal-attachments-grid" id="attachment-grid">
         ${thumbs}
-        <div class="attachment-add-btn" onclick="document.getElementById('attachment-file-input').click()">
+        <div class="attachment-add-btn" id="attachment-add-btn">
           <div class="attachment-add-icon">+</div>
           <div class="attachment-add-label">Add</div>
         </div>
       </div>
       ${items.length === 0 ? '<div class="modal-docs-empty">No documents yet — tap + to add one.</div>' : ''}`;
+    // Delegated listener — works regardless of quote chars in labels/URLs
+    const grid = document.getElementById('attachment-grid');
+    if (grid) {
+      grid.addEventListener('click', e => {
+        const addBtn = e.target.closest('#attachment-add-btn');
+        if (addBtn) { document.getElementById('attachment-file-input').click(); return; }
+        const thumb = e.target.closest('.attachment-thumb');
+        if (thumb) showAttachment(
+          decodeURIComponent(thumb.dataset.url),
+          decodeURIComponent(thumb.dataset.label),
+          decodeURIComponent(thumb.dataset.mime)
+        );
+      });
+    }
   } catch(e) {
     container.innerHTML = '<div class="modal-docs-empty">Could not load documents.</div>';
   }
@@ -6730,16 +6748,22 @@ function showAttachment(url, label, mime) {
   const viewer  = document.getElementById('attachment-viewer');
   const content = document.getElementById('attachment-viewer-content');
   document.getElementById('attachment-viewer-label').textContent = label;
-  // Reset zoom state
   _ptz.s = 1; _ptz.tx = 0; _ptz.ty = 0; _ptz.lastTap = 0; _ptzG = null;
   const img = document.createElement('img');
   img.className = 'attachment-viewer-img';
   img.src = url;
-  img.onclick = e => e.stopPropagation(); // image tap doesn't close viewer
+  img.addEventListener('click', e => e.stopPropagation());
   content.innerHTML = '';
   content.appendChild(img);
   _ptzSetup(img);
-  viewer.classList.add('open');
+  // display:none→flex first, then opacity fade on next frame so transition fires
+  viewer.style.display = 'flex';
+  viewer.style.opacity = '0';
+  requestAnimationFrame(() => {
+    viewer.classList.add('open');
+    viewer.style.display = '';
+    viewer.style.opacity = '';
+  });
   document.body.style.overflow = 'hidden';
   if ('wakeLock' in navigator) {
     navigator.wakeLock.request('screen').then(wl => { _wakeLock = wl; }).catch(() => {});
@@ -6747,8 +6771,12 @@ function showAttachment(url, label, mime) {
 }
 
 function closeAttachmentViewer() {
-  document.getElementById('attachment-viewer').classList.remove('open');
-  document.body.style.overflow = '';
+  const viewer = document.getElementById('attachment-viewer');
+  viewer.classList.remove('open');
+  // Only unlock body scroll if the hotel modal is also closed
+  if (!document.getElementById('hotel-modal').classList.contains('open')) {
+    document.body.style.overflow = '';
+  }
   _ptz.s = 1; _ptz.tx = 0; _ptz.ty = 0; _ptzG = null;
   if (_wakeLock) { _wakeLock.release().catch(() => {}); _wakeLock = null; }
 }
