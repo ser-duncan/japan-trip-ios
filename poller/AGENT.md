@@ -43,7 +43,7 @@ email contains **new or changed information** beyond the original confirmation.
 
 ## Run checklist (execute in order)
 
-1. **Search Gmail** — use the query below, `newer_than:3d`, limit 25 results
+1. **Search Gmail** — use the query below with a fixed `after:` date covering the full trip window, limit 50 results. Deduplication via `email_processing_log` prevents re-processing old messages.
 2. **Deduplicate** — for each message, check `email_processing_log` in Supabase; skip if `gmail_message_id` already exists
 3. **Classify** — read subject + body; determine category and whether it contains new info
 4. **Extract** — pull structured data per the schemas below
@@ -58,8 +58,10 @@ email contains **new or changed information** beyond the original confirmation.
 ## Gmail search query
 
 ```
-newer_than:3d (japan OR tokyo OR kyoto OR osaka OR hakone OR booking OR reservation OR confirmation OR flight OR hotel OR klook OR viator OR airbnb OR united OR shinkansen OR haruka OR JR pass)
+after:2026/05/23 (japan OR tokyo OR kyoto OR osaka OR hakone OR booking OR reservation OR confirmation OR flight OR hotel OR airbnb OR klook OR viator OR united OR shinkansen OR haruka OR "JR pass" OR from:jacob.royston1@gmail.com OR from:express@airbnb.com OR from:automated@airbnb.com OR from:support-noreply@klook.com OR from:do-not-reply@notification.getyourguide.com OR from:booking@klook.com)
 ```
+
+**Why `after:` instead of `newer_than:`:** The fixed date (one day before trip start) ensures every trip-related email from the full May 25 – June 5 window is always in scope, regardless of when the poller runs. The limit is 50 results; deduplication via `email_processing_log` keeps re-processing cost at zero.
 
 ---
 
