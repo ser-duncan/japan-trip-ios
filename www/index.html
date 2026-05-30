@@ -1987,6 +1987,9 @@
   .inbox-item-body strong { color: var(--text); }
   .inbox-flagged { border-color: rgba(232,150,60,0.4); }
   .inbox-flagged .inbox-item-confidence { color: rgba(232,150,60,0.8); }
+  .inbox-last-checked {
+    font-size: 11px; color: var(--text-muted); margin-top: 2px; min-height: 14px;
+  }
   .inbox-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; }
   .inbox-tab {
     flex: 1; padding: 10px 0; font-size: 13px; font-weight: 600; text-align: center;
@@ -2016,76 +2019,6 @@
   .inbox-log-subject { font-size: 13px; line-height: 1.35; }
   .inbox-log-reason { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-style: italic; }
   .inbox-log-tag    { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-  /* ── Attachment thumbnails in modals ─────────────────────────────────── */
-  .modal-attachments { padding: 20px 0 4px; }
-  .modal-attachments-title {
-    font-size: 11px; font-weight: 700; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px;
-  }
-  .modal-attachments-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-  .attachment-thumb {
-    width: 88px; flex-shrink: 0; cursor: pointer;
-    border-radius: 10px; overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.07);
-    -webkit-tap-highlight-color: transparent;
-  }
-  .attachment-thumb:active { opacity: 0.7; }
-  .attachment-thumb img { width: 100%; height: 80px; object-fit: cover; display: block; }
-  .attachment-thumb-icon { width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 30px; }
-  .attachment-thumb-label { font-size: 10px; color: var(--text-muted); padding: 4px 6px 6px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .attachment-add-btn {
-    width: 88px; height: 114px; flex-shrink: 0; cursor: pointer;
-    border-radius: 10px; border: 1.5px dashed rgba(255,255,255,0.18);
-    background: rgba(255,255,255,0.04);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 5px; -webkit-tap-highlight-color: transparent;
-  }
-  .attachment-add-btn:active { opacity: 0.6; }
-  .attachment-add-icon { font-size: 22px; color: var(--text-muted); }
-  .attachment-add-label { font-size: 10px; color: var(--text-muted); }
-  .attachment-uploading { opacity: 0.5; pointer-events: none; }
-
-  /* ── Full-screen attachment viewer ───────────────────────────────────── */
-  .attachment-viewer {
-    position: fixed; inset: 0; z-index: 9999;
-    background: #ffffff; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.2s;
-  }
-  .attachment-viewer.open { opacity: 1; pointer-events: auto; }
-  .attachment-viewer-close {
-    position: absolute; top: env(safe-area-inset-top, 16px); right: 16px;
-    margin-top: 8px;
-    width: 38px; height: 38px; border-radius: 50%;
-    background: rgba(0,0,0,0.12); border: none; cursor: pointer;
-    font-size: 18px; color: #333; display: flex; align-items: center; justify-content: center;
-  }
-  .attachment-viewer-hint {
-    position: absolute; top: env(safe-area-inset-top, 16px); left: 16px;
-    margin-top: 12px; font-size: 11px; color: #999;
-  }
-  .attachment-viewer-img { max-width: 100%; max-height: 90vh; object-fit: contain; padding: 16px; box-sizing: border-box; }
-  .attachment-viewer-label { position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); font-size: 12px; color: #777; text-align: center; padding: 0 24px; }
-
-  /* ── Modal Details / Documents subnav ──────────────────────────────── */
-  .modal-subnav {
-    display: flex; padding: 0 20px; flex-shrink: 0;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-  }
-  .modal-tab {
-    flex: 1; padding: 10px 0; font-size: 13px; font-weight: 600;
-    text-align: center; color: var(--text-muted);
-    background: none; border: none; cursor: pointer;
-    border-bottom: 2px solid transparent; margin-bottom: -1px;
-    -webkit-tap-highlight-color: transparent;
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .modal-tab.active { color: var(--text); border-bottom-color: #7EB0FF; }
-  /* Docs grid (full body, no extra padding) */
-  .modal-docs-body { padding: 16px 20px 32px; }
-  .modal-docs-empty { color: var(--text-muted); font-size: 14px; text-align: center; padding: 32px 0; }
 </style>
 </head>
 <body>
@@ -6573,7 +6506,10 @@ function closeAttachmentViewer() {
 <div class="inbox-sheet" id="inbox-sheet">
   <div class="inbox-sheet-handle"></div>
   <div class="inbox-sheet-header">
-    <span class="inbox-sheet-title">📬 Trip Inbox</span>
+    <div>
+      <span class="inbox-sheet-title">📬 Trip Inbox</span>
+      <div class="inbox-last-checked" id="inbox-last-checked"></div>
+    </div>
     <button class="inbox-sheet-close" onclick="closeInbox()">×</button>
   </div>
   <div class="inbox-tabs">
@@ -6581,7 +6517,7 @@ function closeAttachmentViewer() {
     <button class="inbox-tab" id="inbox-tab-log" onclick="switchInboxTab('log')">Run Log</button>
   </div>
   <div class="inbox-sheet-body" id="inbox-sheet-body">
-    <div class="inbox-empty">Loading updates…</div>
+    <div class="inbox-empty">Loading…</div>
   </div>
 </div>
 
@@ -6600,6 +6536,17 @@ let inboxItems = [];
 let inboxLogItems = [];
 let inboxActiveTab = 'updates';
 
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return days === 1 ? 'yesterday' : `${days}d ago`;
+}
+
 async function loadInboxUpdates() {
   try {
     const h = { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` };
@@ -6609,6 +6556,12 @@ async function loadInboxUpdates() {
     ]);
     if (updRes.ok) inboxItems = await updRes.json();
     if (logRes.ok) inboxLogItems = await logRes.json();
+
+    // Update "Last checked" indicator
+    if (inboxLogItems.length) {
+      const el = document.getElementById('inbox-last-checked');
+      if (el) el.textContent = 'Last checked: ' + timeAgo(inboxLogItems[0].processed_at);
+    }
 
     const applied = inboxItems.filter(i => i.applied);
     if (!applied.length && !inboxLogItems.length) return;
@@ -6667,9 +6620,7 @@ function renderInboxItems() {
     const d     = item.data || {};
     const conf  = Math.round((item.confidence || 0) * 100);
     const flagClass = item.flagged ? ' inbox-flagged' : '';
-
     const details = buildItemDetails(item.category, d);
-
     return `
       <div class="inbox-item${flagClass}">
         <div class="inbox-item-header">

@@ -48,7 +48,6 @@ email contains **new or changed information** beyond the original confirmation.
 3. **Classify** — read subject + body; determine category and whether it contains new info
 4. **Extract** — pull structured data per the schemas below
 5. **Write Supabase** — **CRITICAL: insert into `email_processing_log` for EVERY email processed, regardless of category or outcome (including skips and actionable items alike).** This is how deduplication works — if you skip this step, the same email will be re-processed on the next run. Then insert into `travel_updates` for actionable items only (confidence ≥ 0.50).
-5b. **Save attachments** — for any email with PDF or image attachments (QR codes, ticket PDFs, confirmation docs): download each attachment, upload to Supabase Storage bucket `trip-attachments` at path `{booking_ref}/{filename}` (e.g. `BHG063551/adult-1-qr.png`), then insert a row into `trip_attachments` (see schema below). Match `booking_ref` from the email content. Skip if a row with the same `storage_path` already exists.
 6. **Edit HTML** — for high-confidence changes to existing bookings, update `www/index.html` directly (see rules below)
 7. **Commit & push** — if any HTML edits were made, commit and push to `main`
 8. **Done** — report: `Processed N emails · M Supabase records written · K HTML fields updated · A attachments saved`
