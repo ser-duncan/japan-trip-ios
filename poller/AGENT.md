@@ -51,7 +51,8 @@ email contains **new or changed information** beyond the original confirmation.
 6. **Write booking_updates** — for high-confidence changes (≥ 0.85), upsert rows into `booking_updates` (see schema below). The app reads this table live — no HTML editing needed.
 7. **Write itinerary_events** — for new activities, reservations, or experiences not yet in the itinerary, upsert rows into `itinerary_events` (see schema below). The app merges these into the day view on load — no HTML editing needed.
 8. **Commit & push** — almost never needed now; only if something genuinely can't be expressed via `booking_updates` or `itinerary_events`.
-9. **Done** — report: `Processed N emails · M Supabase records written · K booking_updates upserted · J itinerary_events upserted · A attachments saved`
+9. **Log the run** — INSERT one row into `poller_runs` (see schema below). This is what drives the Poller tab and "Last checked" timestamp in the app UI. Do this even if nothing actionable was found.
+10. **Done** — report: `Processed N emails · M actionable · K booking_updates upserted · J itinerary_events upserted · A attachments saved`
 
 ---
 
@@ -300,6 +301,44 @@ ON CONFLICT (event_id) DO UPDATE SET
 
 **Project:** `ubtzeulovzfguazmdchp` · `https://ubtzeulovzfguazmdchp.supabase.co`
 **Use:** Supabase MCP `execute_sql` tool
+
+### poller_runs (one row per run — REQUIRED, drives the app UI)
+
+Insert this **at the end of every run**, whether or not anything actionable was found. This is what populates the Poller tab run history and the "Last checked" timestamp in the Trip Inbox.
+
+```sql
+INSERT INTO poller_runs
+  (gmail_query, emails_found, emails_deduped, emails_skipped, emails_actionable,
+   supabase_rows_written, booking_updates_upserted, itinerary_events_upserted,
+   attachments_saved, committed, commit_sha, summary, notes)
+VALUES
+  ($gmail_query, $emails_found, $emails_deduped, $emails_skipped, $emails_actionable,
+   $supabase_rows_written, $booking_updates_upserted, $itinerary_events_upserted,
+   $attachments_saved, $committed, $commit_sha, $summary, $notes);
+```
+
+| Column | What to put |
+|--------|-------------|
+| `gmail_query` | The exact query string used (copy from the Gmail search query section) |
+| `emails_found` | Total threads returned by Gmail |
+| `emails_deduped` | Threads already in `email_processing_log` (skipped immediately) |
+| `emails_skipped` | Threads classified as `skip` after reading |
+| `emails_actionable` | Threads that produced a write to `booking_updates` or `itinerary_events` |
+| `supabase_rows_written` | Total rows inserted/upserted across all tables (excluding `poller_runs` itself) |
+| `booking_updates_upserted` | Rows upserted into `booking_updates` |
+| `itinerary_events_upserted` | Rows upserted into `itinerary_events` |
+| `attachments_saved` | Files uploaded to Supabase Storage |
+| `committed` | `true` only if a git commit was pushed this run |
+| `commit_sha` | SHA of that commit, or `null` |
+| `summary` | One or two sentences describing what this run found/did — shown in the Poller tab UI |
+| `notes` | Optional extra detail (multi-line ok) — shown expanded in the UI |
+
+**`summary` writing guide:** Be specific and scannable. Good examples:
+- `"No new travel info — 33 emails already processed."`
+- `"Shinkansen seats confirmed (Car 6, all 5 travelers) + Kyoto door PIN 5847 written."`
+- `"Hakone key box PIN 2493 + WiFi added. Haruka platform 15 updated."`
+
+---
 
 ### email_processing_log (every processed email, including skips)
 
