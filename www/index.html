@@ -6251,7 +6251,19 @@ function renderFoodGuide() {
 }
 
 // ── App init ──
+function _goItinerary() {
+  const btn = document.querySelector('.nav-btn[onclick*="itinerary"]');
+  if (btn) showSection('itinerary', btn);
+  const sel = document.getElementById('date-filter-select');
+  if (sel) sel.value = 'upcoming';
+  appState.dateFilter = 'upcoming';
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
+  // Pin to itinerary immediately — before any async work — so no other
+  // code can switch tabs while initSupabase/loadAppState are in flight.
+  _goItinerary();
+
   await initSupabase();
   await loadAppState();
   renderTripProgress();
@@ -6262,27 +6274,27 @@ document.addEventListener('DOMContentLoaded', async function() {
   renderExpenses();
   renderFoodGuide();
   initWeather();
-  // Always open to itinerary tab on fresh load
-  const itinBtn = document.querySelector('.nav-btn[onclick*="itinerary"]');
-  if (itinBtn) showSection('itinerary', itinBtn);
-  document.getElementById('date-filter-select').value = 'upcoming';
+  // Re-assert itinerary after all renders in case any of them touched the nav
+  _goItinerary();
   const fab = document.getElementById('today-fab');
   if (fab) fab.classList.add('visible');
   // Show sync dot only if Supabase connected
   if (_sb) document.getElementById('sync-dot').style.opacity = '0';
 });
 
-// Reset to itinerary when app resumes after being in background for 15+ min (PWA cold open)
+// iOS fires `pageshow` (not DOMContentLoaded) when restoring a page from
+// its back-forward / app-switcher cache, so DOMContentLoaded never re-runs.
+// Catch that here so cold PWA opens always land on Itinerary.
+window.addEventListener('pageshow', () => _goItinerary());
+
+// Also reset after 15 min in background (user opens app icon after a while)
 let _hiddenAt = 0;
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
     _hiddenAt = Date.now();
   } else if (document.visibilityState === 'visible' && _hiddenAt > 0) {
     if (Date.now() - _hiddenAt > 15 * 60 * 1000) {
-      const btn = document.querySelector('.nav-btn[onclick*="itinerary"]');
-      if (btn) showSection('itinerary', btn);
-      document.getElementById('date-filter-select').value = 'upcoming';
-      appState.dateFilter = 'upcoming';
+      _goItinerary();
       renderItinerary();
     }
     _hiddenAt = 0;
