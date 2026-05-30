@@ -141,7 +141,7 @@
   .container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
 
   /* ── Section ── */
-  .section { display: none; padding-top: 40px; overflow-x: hidden; }
+  .section { display: none; padding-top: 40px; overflow-x: clip; }
   .section.visible { display: block; }
 
   .section-title {
@@ -1204,8 +1204,9 @@
     transform: translateY(100%);
     transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
     max-height: 85vh;
-    overflow-y: auto;
-    padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   .hotel-modal.open { transform: translateY(0); }
   .hotel-modal-handle {
@@ -1223,6 +1224,7 @@
     padding: 14px 20px 14px;
     border-bottom: 1px solid var(--border);
     gap: 12px;
+    flex-shrink: 0;
   }
   .hotel-modal-badge { margin-bottom: 6px; }
   .hotel-modal-title { font-size: 18px; font-weight: 700; }
@@ -1242,7 +1244,13 @@
     flex-shrink: 0;
     margin-top: 4px;
   }
-  .hotel-modal-body { padding: 20px; }
+  .hotel-modal-body {
+    padding: 20px;
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 32px);
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   .hotel-note {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -1883,7 +1891,11 @@
     font-family: inherit;
   }
   .food-detail-btn:active { background: rgba(126,176,255,0.2); }
-  .eatdo-subnav, .transit-subnav { display: flex; gap: 8px; margin-bottom: 20px; }
+  .eatdo-subnav, .transit-subnav {
+    display: flex; gap: 8px; margin-bottom: 20px;
+    position: sticky; top: var(--nav-h, 56px); z-index: 50;
+    background: var(--bg); padding-bottom: 8px;
+  }
   .eatdo-subnav-btn, .transit-subnav-btn {
     flex: 1; padding: 10px 12px; font-size: 13px; font-weight: 600;
     color: var(--text-muted); background: var(--surface2); border: 1px solid var(--border);
@@ -2056,6 +2068,24 @@
   }
   .attachment-viewer-img { max-width: 100%; max-height: 90vh; object-fit: contain; padding: 16px; box-sizing: border-box; }
   .attachment-viewer-label { position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); font-size: 12px; color: #777; text-align: center; padding: 0 24px; }
+
+  /* ── Modal Details / Documents subnav ──────────────────────────────── */
+  .modal-subnav {
+    display: flex; padding: 0 20px; flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .modal-tab {
+    flex: 1; padding: 10px 0; font-size: 13px; font-weight: 600;
+    text-align: center; color: var(--text-muted);
+    background: none; border: none; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .modal-tab.active { color: var(--text); border-bottom-color: #7EB0FF; }
+  /* Docs grid (full body, no extra padding) */
+  .modal-docs-body { padding: 16px 20px 32px; }
+  .modal-docs-empty { color: var(--text-muted); font-size: 14px; text-align: center; padding: 32px 0; }
 </style>
 </head>
 <body>
@@ -4280,10 +4310,11 @@
     if (train.note) { noteEl.textContent = train.note; noteEl.style.display = 'block'; }
     else { noteEl.style.display = 'none'; }
     document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(train.sections);
+    switchModalTab('details');
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
-    loadModalAttachments(BOOKING_REFS[id] || null);
+    loadModalAttachments(BOOKING_REFS[id] !== undefined ? BOOKING_REFS[id] : id);
   }
 
   function openHotelDetail(id) {
@@ -4296,10 +4327,11 @@
     if (hotel.note) { noteEl.textContent = hotel.note; noteEl.style.display = 'block'; }
     else { noteEl.style.display = 'none'; }
     document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(hotel.sections);
+    switchModalTab('details');
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
-    loadModalAttachments(BOOKING_REFS[id] || null);
+    loadModalAttachments(BOOKING_REFS[id] !== undefined ? BOOKING_REFS[id] : id);
   }
 
   function closeHotelDetail() {
@@ -4316,7 +4348,11 @@
 
     modal.addEventListener('touchstart', function(e) {
       startY = e.touches[0].clientY;
-      startScroll = modal.scrollTop;
+      // Read scroll from the active content pane, not the modal (which no longer scrolls)
+      const pane = document.getElementById('modal-pane-docs').style.display === 'none'
+        ? document.getElementById('modal-pane-details')
+        : document.getElementById('modal-pane-docs');
+      startScroll = pane ? pane.scrollTop : 0;
       isDragging = false;
     }, { passive: true });
 
@@ -4634,7 +4670,15 @@ function showSection(id, btn) {
     document.getElementById('section-itinerary').classList.remove('editing-mode');
     document.getElementById('section-activities').classList.remove('editing-mode');
   }
+  updateNavHeight();
 }
+
+function updateNavHeight() {
+  const h = document.querySelector('.sticky-header');
+  if (h) document.documentElement.style.setProperty('--nav-h', h.offsetHeight + 'px');
+}
+document.addEventListener('DOMContentLoaded', updateNavHeight);
+window.addEventListener('resize', updateNavHeight);
 
 // ── City filter (override) ──
 function filterCity(city) {
@@ -5433,10 +5477,11 @@ function openFlightDetail(key) {
   const noteEl = document.getElementById('hotel-modal-note');
   noteEl.style.display = 'none';
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
+  switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
-  loadModalAttachments(BOOKING_REFS[key] || null);
+  loadModalAttachments(BOOKING_REFS[key] !== undefined ? BOOKING_REFS[key] : key);
 }
 
 function filterEatDo(view, btn) {
@@ -6242,9 +6287,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     </div>
     <button class="hotel-modal-close" onclick="closeHotelDetail()">✕</button>
   </div>
-  <div class="hotel-modal-body">
+  <div class="modal-subnav">
+    <button class="modal-tab active" id="modal-tab-details" onclick="switchModalTab('details')">Details</button>
+    <button class="modal-tab" id="modal-tab-docs" onclick="switchModalTab('docs')">Documents</button>
+  </div>
+  <div id="modal-pane-details" class="hotel-modal-body">
     <div id="hotel-modal-note" class="hotel-note" style="display:none"></div>
     <div id="hotel-modal-sections"></div>
+  </div>
+  <div id="modal-pane-docs" class="hotel-modal-body modal-docs-body" style="display:none">
     <div id="hotel-modal-attachments"></div>
   </div>
 </div>
@@ -6276,9 +6327,9 @@ const BOOKING_REFS = {
   hakone:      'HMMAPSFSTQ',
   kyoto:       'HMQ2MS55BF',
   osaka:       'HMR98ZMTST',
-  romancecar:  null,
+  romancecar:  'train-romancecar',
   shinkansen:  'BHG063551',
-  'kyoto-osaka': null,
+  'kyoto-osaka': 'train-kyoto-osaka',
   haruka:      'YMB549238',
   ua5408:      'AYCCBN',
   ua39:        'AYCCBN',
@@ -6288,10 +6339,21 @@ const BOOKING_REFS = {
 
 let _currentModalRef = null;
 
+function switchModalTab(tab) {
+  document.getElementById('modal-tab-details').classList.toggle('active', tab === 'details');
+  document.getElementById('modal-tab-docs').classList.toggle('active', tab === 'docs');
+  document.getElementById('modal-pane-details').style.display = tab === 'details' ? '' : 'none';
+  document.getElementById('modal-pane-docs').style.display = tab === 'docs' ? '' : 'none';
+}
+
 async function loadModalAttachments(bookingRef) {
   _currentModalRef = bookingRef;
   const container = document.getElementById('hotel-modal-attachments');
-  if (!container || !bookingRef) { if (container) container.innerHTML = ''; return; }
+  if (!container) return;
+  if (!bookingRef) {
+    container.innerHTML = '<div class="modal-docs-empty">No booking reference — cannot load documents.</div>';
+    return;
+  }
   try {
     const res = await fetch(
       `${SUPA_URL}/rest/v1/trip_attachments?booking_ref=eq.${encodeURIComponent(bookingRef)}&order=created_at.asc`,
@@ -6300,7 +6362,8 @@ async function loadModalAttachments(bookingRef) {
     const items = res.ok ? await res.json() : [];
     const base = `${SUPA_URL}/storage/v1/object/public/trip-attachments/`;
     const thumbs = items.map(item => {
-      const url = item.url || (base + item.storage_path);
+      const rawUrl = item.url || (base + item.storage_path);
+      const url = rawUrl.startsWith('/') ? new URL('.' + rawUrl, window.location.href).href : rawUrl;
       const lbl = (item.label || item.filename).replace(/'/g, '&#39;');
       const isImg = item.mime_type && item.mime_type.startsWith('image/');
       return `<div class="attachment-thumb" onclick="showAttachment('${url}','${lbl}','${item.mime_type||''}')">
@@ -6309,17 +6372,17 @@ async function loadModalAttachments(bookingRef) {
       </div>`;
     }).join('');
     container.innerHTML = `
-      <div class="modal-attachments">
-        <div class="modal-attachments-title">Documents & Tickets</div>
-        <div class="modal-attachments-grid" id="attachment-grid">
-          ${thumbs}
-          <div class="attachment-add-btn" onclick="document.getElementById('attachment-file-input').click()">
-            <div class="attachment-add-icon">+</div>
-            <div class="attachment-add-label">Add</div>
-          </div>
+      <div class="modal-attachments-grid" id="attachment-grid">
+        ${thumbs}
+        <div class="attachment-add-btn" onclick="document.getElementById('attachment-file-input').click()">
+          <div class="attachment-add-icon">+</div>
+          <div class="attachment-add-label">Add</div>
         </div>
-      </div>`;
-  } catch(e) {}
+      </div>
+      ${items.length === 0 ? '<div class="modal-docs-empty">No documents yet — tap + to add one.</div>' : ''}`;
+  } catch(e) {
+    container.innerHTML = '<div class="modal-docs-empty">Could not load documents.</div>';
+  }
 }
 
 async function uploadAttachment(file) {
@@ -6333,22 +6396,29 @@ async function uploadAttachment(file) {
     const uploadRes = await fetch(
       `${SUPA_URL}/storage/v1/object/trip-attachments/${path}`,
       {
-        method: 'POST',
-        headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}`, 'Content-Type': file.type || 'application/octet-stream' },
+        method: 'PUT',
+        headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}`, 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'true' },
         body: file,
       }
     );
-    if (!uploadRes.ok) throw new Error('storage upload failed');
+    if (!uploadRes.ok) {
+      const errText = await uploadRes.text().catch(() => '');
+      throw new Error(`Upload failed (${uploadRes.status}): ${errText}`);
+    }
     const label = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
-    await fetch(`${SUPA_URL}/rest/v1/trip_attachments`, {
+    const dbRes = await fetch(`${SUPA_URL}/rest/v1/trip_attachments`, {
       method: 'POST',
       headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ booking_ref: ref, filename: file.name, storage_path: path, mime_type: file.type, label }),
+      body: JSON.stringify({ booking_ref: ref, category: 'manual', filename: file.name, storage_path: path, mime_type: file.type, label }),
     });
+    if (!dbRes.ok) {
+      const errText = await dbRes.text().catch(() => '');
+      throw new Error(`DB insert failed (${dbRes.status}): ${errText}`);
+    }
     await loadModalAttachments(ref);
   } catch(e) {
     if (container) container.classList.remove('attachment-uploading');
-    alert('Upload failed — check connection and try again.');
+    alert(e.message || 'Upload failed — check connection and try again.');
   }
 }
 
@@ -6362,12 +6432,123 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let _wakeLock = null;
 
+// ── Pinch-to-zoom state ───────────────────────────────────────────────────
+let _ptz = { s: 1, tx: 0, ty: 0, lastTap: 0 };
+let _ptzG = null; // active gesture
+
+function _ptzApply(img) {
+  img.style.transform = `translate(${_ptz.tx}px,${_ptz.ty}px) scale(${_ptz.s})`;
+}
+
+function _ptzReset(img) {
+  _ptz.s = 1; _ptz.tx = 0; _ptz.ty = 0;
+  img.style.transition = 'transform 0.22s ease';
+  _ptzApply(img);
+  setTimeout(() => { img.style.transition = ''; }, 240);
+}
+
+function _ptzSetup(img) {
+  img.style.transformOrigin = '0 0';
+  img.style.willChange = 'transform';
+  img.style.touchAction = 'none';
+
+  img.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const rect = img.getBoundingClientRect();
+      const mx0 = (t1.clientX + t2.clientX) / 2;
+      const my0 = (t1.clientY + t2.clientY) / 2;
+      // Store natural (pre-transform) origin and element-space pinch point
+      _ptzG = {
+        type: 'pinch',
+        d0: Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY),
+        s0: _ptz.s,
+        L: rect.left - _ptz.tx,  // natural left (invariant)
+        T: rect.top  - _ptz.ty,  // natural top  (invariant)
+        epx: (mx0 - rect.left) / _ptz.s,
+        epy: (my0 - rect.top)  / _ptz.s,
+      };
+    } else if (e.touches.length === 1) {
+      const t = e.touches[0];
+      const now = Date.now();
+      if (now - _ptz.lastTap < 280) {
+        // double-tap: toggle zoom
+        e.preventDefault();
+        _ptz.lastTap = 0;
+        if (_ptz.s > 1.05) {
+          _ptzReset(img);
+        } else {
+          const rect = img.getBoundingClientRect();
+          const L = rect.left - _ptz.tx, T = rect.top - _ptz.ty;
+          const epx = (t.clientX - rect.left) / _ptz.s;
+          const epy = (t.clientY - rect.top)  / _ptz.s;
+          const sNew = 3;
+          _ptz.s = sNew;
+          _ptz.tx = t.clientX - L - epx * sNew;
+          _ptz.ty = t.clientY - T - epy * sNew;
+          img.style.transition = 'transform 0.22s ease';
+          _ptzApply(img);
+          setTimeout(() => { img.style.transition = ''; }, 240);
+        }
+        return;
+      }
+      _ptz.lastTap = now;
+      if (_ptz.s > 1.05) {
+        e.preventDefault();
+        _ptzG = { type: 'pan', mx0: t.clientX, my0: t.clientY, tx0: _ptz.tx, ty0: _ptz.ty };
+      } else {
+        _ptzG = null;
+      }
+    }
+  }, { passive: false });
+
+  img.addEventListener('touchmove', e => {
+    if (!_ptzG) return;
+    if (_ptzG.type === 'pinch' && e.touches.length >= 2) {
+      e.preventDefault();
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const d = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      const mx = (t1.clientX + t2.clientX) / 2;
+      const my = (t1.clientY + t2.clientY) / 2;
+      const sNew = Math.max(1, Math.min(8, _ptzG.s0 * d / _ptzG.d0));
+      _ptz.s  = sNew;
+      _ptz.tx = mx - _ptzG.L - _ptzG.epx * sNew;
+      _ptz.ty = my - _ptzG.T - _ptzG.epy * sNew;
+      _ptzApply(img);
+    } else if (_ptzG.type === 'pan' && e.touches.length === 1) {
+      e.preventDefault();
+      _ptz.tx = _ptzG.tx0 + e.touches[0].clientX - _ptzG.mx0;
+      _ptz.ty = _ptzG.ty0 + e.touches[0].clientY - _ptzG.my0;
+      _ptzApply(img);
+    }
+  }, { passive: false });
+
+  img.addEventListener('touchend', e => {
+    if (_ptzG?.type === 'pinch' && e.touches.length === 1) {
+      // seamlessly hand off from pinch → pan
+      _ptzG = { type: 'pan', mx0: e.touches[0].clientX, my0: e.touches[0].clientY, tx0: _ptz.tx, ty0: _ptz.ty };
+    } else if (e.touches.length === 0) {
+      _ptzG = null;
+      if (_ptz.s < 1.05) _ptzReset(img);
+    }
+  }, { passive: true });
+}
+
 function showAttachment(url, label, mime) {
   if (mime === 'application/pdf') { window.open(url, '_blank'); return; }
   const viewer  = document.getElementById('attachment-viewer');
   const content = document.getElementById('attachment-viewer-content');
   document.getElementById('attachment-viewer-label').textContent = label;
-  content.innerHTML = `<img class="attachment-viewer-img" src="${url}">`;
+  // Reset zoom state
+  _ptz.s = 1; _ptz.tx = 0; _ptz.ty = 0; _ptz.lastTap = 0; _ptzG = null;
+  const img = document.createElement('img');
+  img.className = 'attachment-viewer-img';
+  img.src = url;
+  img.onclick = e => e.stopPropagation(); // image tap doesn't close viewer
+  content.innerHTML = '';
+  content.appendChild(img);
+  _ptzSetup(img);
   viewer.classList.add('open');
   document.body.style.overflow = 'hidden';
   if ('wakeLock' in navigator) {
@@ -6378,6 +6559,7 @@ function showAttachment(url, label, mime) {
 function closeAttachmentViewer() {
   document.getElementById('attachment-viewer').classList.remove('open');
   document.body.style.overflow = '';
+  _ptz.s = 1; _ptz.tx = 0; _ptz.ty = 0; _ptzG = null;
   if (_wakeLock) { _wakeLock.release().catch(() => {}); _wakeLock = null; }
 }
 </script>
