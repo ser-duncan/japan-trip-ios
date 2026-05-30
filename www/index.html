@@ -6262,14 +6262,31 @@ document.addEventListener('DOMContentLoaded', async function() {
   renderExpenses();
   renderFoodGuide();
   initWeather();
-  // Show filter bar elements for default itinerary tab
-  document.getElementById('date-filters').classList.remove('hidden');
-  document.getElementById('edit-toggle').style.display = '';
+  // Always open to itinerary tab on fresh load
+  const itinBtn = document.querySelector('.nav-btn[onclick*="itinerary"]');
+  if (itinBtn) showSection('itinerary', itinBtn);
   document.getElementById('date-filter-select').value = 'upcoming';
   const fab = document.getElementById('today-fab');
   if (fab) fab.classList.add('visible');
   // Show sync dot only if Supabase connected
   if (_sb) document.getElementById('sync-dot').style.opacity = '0';
+});
+
+// Reset to itinerary when app resumes after being in background for 15+ min (PWA cold open)
+let _hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    _hiddenAt = Date.now();
+  } else if (document.visibilityState === 'visible' && _hiddenAt > 0) {
+    if (Date.now() - _hiddenAt > 15 * 60 * 1000) {
+      const btn = document.querySelector('.nav-btn[onclick*="itinerary"]');
+      if (btn) showSection('itinerary', btn);
+      document.getElementById('date-filter-select').value = 'upcoming';
+      appState.dateFilter = 'upcoming';
+      renderItinerary();
+    }
+    _hiddenAt = 0;
+  }
 });
 </script>
 
