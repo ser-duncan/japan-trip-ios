@@ -1204,8 +1204,9 @@
     transform: translateY(100%);
     transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
     max-height: 85vh;
-    overflow-y: auto;
-    padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   .hotel-modal.open { transform: translateY(0); }
   .hotel-modal-handle {
@@ -1223,6 +1224,7 @@
     padding: 14px 20px 14px;
     border-bottom: 1px solid var(--border);
     gap: 12px;
+    flex-shrink: 0;
   }
   .hotel-modal-badge { margin-bottom: 6px; }
   .hotel-modal-title { font-size: 18px; font-weight: 700; }
@@ -1242,7 +1244,13 @@
     flex-shrink: 0;
     margin-top: 4px;
   }
-  .hotel-modal-body { padding: 20px; }
+  .hotel-modal-body {
+    padding: 20px;
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 32px);
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   .hotel-note {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -4336,7 +4344,11 @@
 
     modal.addEventListener('touchstart', function(e) {
       startY = e.touches[0].clientY;
-      startScroll = modal.scrollTop;
+      // Read scroll from the active content pane, not the modal (which no longer scrolls)
+      const pane = document.getElementById('modal-pane-docs').style.display === 'none'
+        ? document.getElementById('modal-pane-details')
+        : document.getElementById('modal-pane-docs');
+      startScroll = pane ? pane.scrollTop : 0;
       isDragging = false;
     }, { passive: true });
 
