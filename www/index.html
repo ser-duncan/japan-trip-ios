@@ -1998,6 +1998,32 @@
     transition: color 0.15s, border-color 0.15s;
   }
   .inbox-tab.active { color: var(--text); border-bottom-color: #7EB0FF; }
+  .poller-run-card {
+    background: rgba(255,255,255,0.04); border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.07); padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .poller-run-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .poller-run-time { font-size: 13px; font-weight: 600; }
+  .poller-run-committed {
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px;
+    background: rgba(76,200,140,0.15); color: #4CC88C;
+  }
+  .poller-run-committed.no { background: rgba(255,255,255,0.07); color: var(--text-muted); }
+  .poller-run-stats {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;
+  }
+  .poller-stat {
+    font-size: 11px; padding: 2px 8px; border-radius: 20px;
+    background: rgba(255,255,255,0.07); color: var(--text-muted);
+  }
+  .poller-stat.highlight { background: rgba(126,176,255,0.15); color: #7EB0FF; }
+  .poller-run-summary { font-size: 13px; color: var(--text); line-height: 1.45; margin-bottom: 4px; }
+  .poller-run-notes { font-size: 12px; color: var(--text-muted); line-height: 1.45; font-style: italic; }
+  .poller-run-sha { font-size: 10px; color: var(--text-muted); margin-top: 6px; font-family: monospace; }
   .inbox-run-group { margin-bottom: 8px; }
   .inbox-run-header {
     font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;
@@ -6515,6 +6541,7 @@ function closeAttachmentViewer() {
   <div class="inbox-tabs">
     <button class="inbox-tab active" id="inbox-tab-updates" onclick="switchInboxTab('updates')">Updates</button>
     <button class="inbox-tab" id="inbox-tab-log" onclick="switchInboxTab('log')">Run Log</button>
+    <button class="inbox-tab" id="inbox-tab-poller" onclick="switchInboxTab('poller')">Poller</button>
   </div>
   <div class="inbox-sheet-body" id="inbox-sheet-body">
     <div class="inbox-empty">Loading…</div>
@@ -6534,6 +6561,7 @@ const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIs
 
 let inboxItems = [];
 let inboxLogItems = [];
+let pollerRunItems = [];
 let inboxActiveTab = 'updates';
 
 function timeAgo(dateStr) {
@@ -6550,21 +6578,26 @@ function timeAgo(dateStr) {
 async function loadInboxUpdates() {
   try {
     const h = { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` };
-    const [updRes, logRes] = await Promise.all([
+    const [updRes, logRes, pollerRes] = await Promise.all([
       fetch(`${SUPA_URL}/rest/v1/travel_updates?order=created_at.desc&limit=50`, { headers: h }),
       fetch(`${SUPA_URL}/rest/v1/email_processing_log?order=processed_at.desc&limit=100`, { headers: h }),
+      fetch(`${SUPA_URL}/rest/v1/poller_runs?order=run_at.desc&limit=50`, { headers: h }),
     ]);
     if (updRes.ok) inboxItems = await updRes.json();
     if (logRes.ok) inboxLogItems = await logRes.json();
+    if (pollerRes.ok) pollerRunItems = await pollerRes.json();
 
-    // Update "Last checked" indicator
-    if (inboxLogItems.length) {
+    // Update "Last checked" indicator — prefer poller_runs timestamp if available
+    const lastRunAt = pollerRunItems.length ? pollerRunItems[0].run_at
+                    : inboxLogItems.length  ? inboxLogItems[0].processed_at
+                    : null;
+    if (lastRunAt) {
       const el = document.getElementById('inbox-last-checked');
-      if (el) el.textContent = 'Last checked: ' + timeAgo(inboxLogItems[0].processed_at);
+      if (el) el.textContent = 'Last checked: ' + timeAgo(lastRunAt);
     }
 
     const applied = inboxItems.filter(i => i.applied);
-    if (!applied.length && !inboxLogItems.length) return;
+    if (!applied.length && !inboxLogItems.length && !pollerRunItems.length) return;
 
     const fab = document.getElementById('inbox-fab');
     if (!fab) return;
@@ -6584,7 +6617,10 @@ function switchInboxTab(tab) {
   inboxActiveTab = tab;
   document.getElementById('inbox-tab-updates').classList.toggle('active', tab === 'updates');
   document.getElementById('inbox-tab-log').classList.toggle('active', tab === 'log');
-  if (tab === 'updates') renderInboxItems(); else renderRunLog();
+  document.getElementById('inbox-tab-poller').classList.toggle('active', tab === 'poller');
+  if (tab === 'updates') renderInboxItems();
+  else if (tab === 'log') renderRunLog();
+  else renderPollerRuns();
 }
 
 function openInbox() {
@@ -6596,7 +6632,9 @@ function openInbox() {
   const badge = document.getElementById('inbox-badge');
   if (badge) badge.style.display = 'none';
 
-  if (inboxActiveTab === 'updates') renderInboxItems(); else renderRunLog();
+  if (inboxActiveTab === 'updates') renderInboxItems();
+  else if (inboxActiveTab === 'log') renderRunLog();
+  else renderPollerRuns();
 }
 
 function closeInbox() {
@@ -6717,6 +6755,52 @@ function renderRunLog() {
     return `<div class="inbox-run-group">
       <div class="inbox-run-header">${dateStr} · ${timeStr} &nbsp;·&nbsp; ${items.length} email${items.length !== 1 ? 's' : ''} &nbsp;·&nbsp; ${summary}</div>
       ${rows}
+    </div>`;
+  }).join('');
+}
+
+function renderPollerRuns() {
+  const body = document.getElementById('inbox-sheet-body');
+  if (!pollerRunItems.length) {
+    body.innerHTML = '<div class="inbox-empty">No poller runs recorded yet.</div>';
+    return;
+  }
+
+  body.innerHTML = pollerRunItems.map(run => {
+    const dt = new Date(run.run_at);
+    const dateStr = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const timeStr = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+    const stats = [
+      run.emails_found    != null ? `${run.emails_found} found`       : null,
+      run.emails_deduped  != null ? `${run.emails_deduped} deduped`   : null,
+      run.emails_skipped  != null ? `${run.emails_skipped} skipped`   : null,
+      run.emails_actionable != null && run.emails_actionable > 0
+        ? `<span class="poller-stat highlight">${run.emails_actionable} actioned</span>` : null,
+      run.html_edits      != null && run.html_edits > 0
+        ? `<span class="poller-stat highlight">${run.html_edits} HTML edits</span>` : null,
+      run.attachments_saved != null && run.attachments_saved > 0
+        ? `<span class="poller-stat highlight">${run.attachments_saved} attachments</span>` : null,
+    ].filter(Boolean).map(s => s.startsWith('<') ? s : `<span class="poller-stat">${s}</span>`).join('');
+
+    const committedLabel = run.committed
+      ? '<span class="poller-run-committed">pushed</span>'
+      : '<span class="poller-run-committed no">no push</span>';
+
+    const sha = run.commit_sha
+      ? `<div class="poller-run-sha">commit ${run.commit_sha.slice(0, 7)}</div>` : '';
+    const summary = run.summary
+      ? `<div class="poller-run-summary">${run.summary}</div>` : '';
+    const notes = run.notes
+      ? `<div class="poller-run-notes">${run.notes}</div>` : '';
+
+    return `<div class="poller-run-card">
+      <div class="poller-run-card-header">
+        <span class="poller-run-time">${dateStr} · ${timeStr}</span>
+        ${committedLabel}
+      </div>
+      ${stats ? `<div class="poller-run-stats">${stats}</div>` : ''}
+      ${summary}${notes}${sha}
     </div>`;
   }).join('');
 }
