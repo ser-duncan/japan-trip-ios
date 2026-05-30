@@ -48,9 +48,10 @@ email contains **new or changed information** beyond the original confirmation.
 3. **Classify** — read subject + body; determine category and whether it contains new info
 4. **Extract** — pull structured data per the schemas below
 5. **Write Supabase** — **CRITICAL: insert into `email_processing_log` for EVERY email processed, regardless of category or outcome (including skips and actionable items alike).** This is how deduplication works — if you skip this step, the same email will be re-processed on the next run. Then insert into `travel_updates` for actionable items only (confidence ≥ 0.50).
+5b. **Save attachments** — for any email with PDF or image attachments (QR codes, ticket PDFs, confirmation docs): download each attachment, upload to Supabase Storage bucket `trip-attachments` at path `{booking_ref}/{filename}` (e.g. `BHG063551/adult-1-qr.png`), then insert a row into `trip_attachments` (see schema below). Match `booking_ref` from the email content. Skip if a row with the same `storage_path` already exists.
 6. **Edit HTML** — for high-confidence changes to existing bookings, update `www/index.html` directly (see rules below)
 7. **Commit & push** — if any HTML edits were made, commit and push to `main`
-8. **Done** — report: `Processed N emails · M Supabase records written · K HTML fields updated`
+8. **Done** — report: `Processed N emails · M Supabase records written · K HTML fields updated · A attachments saved`
 
 ---
 
@@ -159,6 +160,28 @@ VALUES ($1, $2, $3, $4, $applied, $flagged, $source_id);
 
 - `applied = true` when confidence ≥ 0.80
 - `applied = false, flagged = true` when confidence < 0.80
+
+### trip_attachments (PDF/image attachments from booking emails)
+
+Upload file to Supabase Storage bucket `trip-attachments` first, then insert:
+
+```sql
+INSERT INTO trip_attachments
+  (booking_ref, category, label, filename, storage_path, mime_type, source_email_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+ON CONFLICT DO NOTHING;
+```
+
+- `booking_ref`: the confirmation number the attachment belongs to (e.g. `BHG063551`)
+- `category`: same as the email category (`train`, `flight`, `hotel`, `activity`)
+- `label`: human-readable label, e.g. `Adult 1 — Car 6 Seat 14-A`, `Check-in Instructions`
+- `filename`: original filename (e.g. `qr-adult-1.png`)
+- `storage_path`: path within the bucket — always `{booking_ref}/{filename}` (e.g. `BHG063551/qr-adult-1.png`)
+- `mime_type`: `image/png`, `image/jpeg`, `application/pdf`, etc.
+- `source_email_id`: the `gmail_message_id`
+
+**Storage upload:** Use Supabase MCP storage tools or the REST API:
+`PUT https://ubtzeulovzfguazmdchp.supabase.co/storage/v1/object/trip-attachments/{storage_path}`
 
 ---
 
