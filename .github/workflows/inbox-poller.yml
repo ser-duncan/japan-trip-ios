@@ -1,0 +1,96 @@
+name: Japan Trip Inbox Poller
+
+# ─── Schedule ────────────────────────────────────────────────────────────────
+# Runs every 30 minutes. GitHub Actions guarantees within ~10 min of the
+# scheduled time; unlike the Mac mini launchd, it never misses a run due to
+# sleep/wake cycles or session timeouts.
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # also triggerable manually from the Actions tab
+
+# ─── Required GitHub Secrets ──────────────────────────────────────────────────
+# Go to repo → Settings → Secrets and variables → Actions → New repository secret
+#
+#   ANTHROPIC_API_KEY        your Anthropic API key (console.anthropic.com)
+#   SUPABASE_ACCESS_TOKEN    personal access token from supabase.com/dashboard →
+#                            account icon → Access Tokens → Generate new token
+#   GMAIL_CLIENT_ID          }  from Google Cloud Console → APIs & Services →
+#   GMAIL_CLIENT_SECRET      }  Credentials → OAuth 2.0 Client IDs
+#   GMAIL_REFRESH_TOKEN      }  (see poller/gmail-oauth-setup.md for step-by-step)
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: write   # so the action can git push HTML changes to main
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          # Use a PAT so that pushes from within the action trigger the deploy
+          # workflow. GITHUB_TOKEN pushes do NOT trigger other workflows.
+          # If you don't have a PAT, use GITHUB_TOKEN and manually re-run deploy.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Japan trip inbox poller
+        uses: anthropic/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+          prompt: |
+            Read the file poller/AGENT.md carefully and follow every instruction
+            in its run checklist from step 1 through step 8. This is a scheduled
+            automated run — work through the complete checklist without asking
+            for confirmation at each step.
+
+            For the git commit step (step 7), the working directory is already
+            the repo root, so use:
+              git add www/index.html
+              git commit -m "..."
+              git push origin main
+
+          allowed_tools: >-
+            Bash,Read,Edit,Write,
+            mcp__supabase__execute_sql,
+            mcp__supabase__list_tables,
+            mcp__supabase__apply_migration,
+            mcp__gmail__search_threads,
+            mcp__gmail__get_thread,
+            mcp__gmail__list_labels,
+            mcp__gmail__list_drafts,
+            mcp__gmail__create_draft,
+            mcp__gmail__label_thread,
+            mcp__gmail__label_message,
+            mcp__gmail__unlabel_thread,
+            mcp__gmail__unlabel_message
+
+          mcp_config: |
+            {
+              "mcpServers": {
+                "supabase": {
+                  "command": "npx",
+                  "args": [
+                    "-y",
+                    "@supabase/mcp-server-supabase@latest",
+                    "--access-token",
+                    "$SUPABASE_ACCESS_TOKEN"
+                  ],
+                  "env": {
+                    "SUPABASE_ACCESS_TOKEN": "${{ secrets.SUPABASE_ACCESS_TOKEN }}"
+                  }
+                },
+                "gmail": {
+                  "command": "npx",
+                  "args": ["-y", "@gptscript-ai/gmail-oauth2-mcp@latest"],
+                  "env": {
+                    "GMAIL_CLIENT_ID":     "${{ secrets.GMAIL_CLIENT_ID }}",
+                    "GMAIL_CLIENT_SECRET": "${{ secrets.GMAIL_CLIENT_SECRET }}",
+                    "GMAIL_REFRESH_TOKEN": "${{ secrets.GMAIL_REFRESH_TOKEN }}"
+                  }
+                }
+              }
+            }
