@@ -124,7 +124,7 @@ Edit `www/index.html` when confidence ≥ 0.85 **and** the email contains info n
 After editing `www/index.html`:
 
 ```bash
-cd /Users/jakeroyston/documents/github/japan-trip-ios
+# cd to repo root first if not already there (Mac mini only — cloud runner starts there)
 git add www/index.html
 git commit -m "Trip inbox: <one-line summary of what changed>
 
