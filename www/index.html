@@ -1998,6 +1998,23 @@
     transition: color 0.15s, border-color 0.15s;
   }
   .inbox-tab.active { color: var(--text); border-bottom-color: #7EB0FF; }
+
+  /* ── Modal Details / Documents subnav ──────────────────────────────────── */
+  .modal-subnav {
+    display: flex; padding: 0 20px; flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .modal-tab {
+    flex: 1; padding: 10px 0; font-size: 13px; font-weight: 600;
+    text-align: center; color: var(--text-muted);
+    background: none; border: none; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .modal-tab.active { color: var(--text); border-bottom-color: #7EB0FF; }
+  .modal-docs-body { padding: 16px 20px 32px; }
+  .modal-docs-empty { color: var(--text-muted); font-size: 14px; text-align: center; padding: 32px 0; }
   .poller-run-card {
     background: rgba(255,255,255,0.04); border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.07); padding: 14px 16px;
