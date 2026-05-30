@@ -2004,7 +2004,58 @@
   .inbox-log-subject { font-size: 13px; line-height: 1.35; }
   .inbox-log-reason { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-style: italic; }
   .inbox-log-tag    { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-</style>
+
+  /* ── Attachment thumbnails in modals ─────────────────────────────────── */
+  .modal-attachments { padding: 20px 0 4px; }
+  .modal-attachments-title {
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px;
+  }
+  .modal-attachments-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+  .attachment-thumb {
+    width: 88px; flex-shrink: 0; cursor: pointer;
+    border-radius: 10px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.07);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .attachment-thumb:active { opacity: 0.7; }
+  .attachment-thumb img { width: 100%; height: 80px; object-fit: cover; display: block; }
+  .attachment-thumb-icon { width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+  .attachment-thumb-label { font-size: 10px; color: var(--text-muted); padding: 4px 6px 6px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .attachment-add-btn {
+    width: 88px; height: 114px; flex-shrink: 0; cursor: pointer;
+    border-radius: 10px; border: 1.5px dashed rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.04);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 5px; -webkit-tap-highlight-color: transparent;
+  }
+  .attachment-add-btn:active { opacity: 0.6; }
+  .attachment-add-icon { font-size: 22px; color: var(--text-muted); }
+  .attachment-add-label { font-size: 10px; color: var(--text-muted); }
+  .attachment-uploading { opacity: 0.5; pointer-events: none; }
+
+  /* ── Full-screen attachment viewer ───────────────────────────────────── */
+  .attachment-viewer {
+    position: fixed; inset: 0; z-index: 9999;
+    background: #ffffff; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .attachment-viewer.open { opacity: 1; pointer-events: auto; }
+  .attachment-viewer-close {
+    position: absolute; top: env(safe-area-inset-top, 16px); right: 16px;
+    margin-top: 8px;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: rgba(0,0,0,0.12); border: none; cursor: pointer;
+    font-size: 18px; color: #333; display: flex; align-items: center; justify-content: center;
+  }
+  .attachment-viewer-hint {
+    position: absolute; top: env(safe-area-inset-top, 16px); left: 16px;
+    margin-top: 12px; font-size: 11px; color: #999;
+  }
+  .attachment-viewer-img { max-width: 100%; max-height: 90vh; object-fit: contain; padding: 16px; box-sizing: border-box; }
+  .attachment-viewer-label { position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); font-size: 12px; color: #777; text-align: center; padding: 0 24px; }
 </head>
 <body>
 
@@ -4231,6 +4282,7 @@
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
+    loadModalAttachments(BOOKING_REFS[id] || null);
   }
 
   function openHotelDetail(id) {
@@ -4246,6 +4298,7 @@
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
+    loadModalAttachments(BOOKING_REFS[id] || null);
   }
 
   function closeHotelDetail() {
@@ -5382,6 +5435,7 @@ function openFlightDetail(key) {
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
+  loadModalAttachments(BOOKING_REFS[key] || null);
 }
 
 function filterEatDo(view, btn) {
@@ -6190,7 +6244,18 @@ document.addEventListener('DOMContentLoaded', async function() {
   <div class="hotel-modal-body">
     <div id="hotel-modal-note" class="hotel-note" style="display:none"></div>
     <div id="hotel-modal-sections"></div>
+    <div id="hotel-modal-attachments"></div>
   </div>
+</div>
+
+<input type="file" id="attachment-file-input" accept="image/*,application/pdf" style="display:none">
+
+<!-- Full-screen attachment viewer -->
+<div id="attachment-viewer" class="attachment-viewer" onclick="closeAttachmentViewer()">
+  <div class="attachment-viewer-hint">☀️ Increase brightness to scan</div>
+  <button class="attachment-viewer-close" onclick="event.stopPropagation();closeAttachmentViewer()">✕</button>
+  <div id="attachment-viewer-content"></div>
+  <div id="attachment-viewer-label" class="attachment-viewer-label"></div>
 </div>
 
 <!-- Show-to-Staff Overlay -->
@@ -6203,6 +6268,119 @@ document.addEventListener('DOMContentLoaded', async function() {
 <button class="today-fab" id="today-fab" onclick="scrollToToday()">⬇ Today</button>
 
 <!-- Trip Inbox FAB -->
+<script>
+// ── Booking ref lookup (used by attachment loader) ────────────────────────
+const BOOKING_REFS = {
+  koala:       'HMBQZPZ3QA',
+  hakone:      'HMMAPSFSTQ',
+  kyoto:       'HMQ2MS55BF',
+  osaka:       'HMR98ZMTST',
+  romancecar:  null,
+  shinkansen:  'BHG063551',
+  'kyoto-osaka': null,
+  haruka:      'YMB549238',
+  ua5408:      'AYCCBN',
+  ua39:        'AYCCBN',
+  ua34:        'AYCCBN',
+  ua2017:      'AYCCBN',
+};
+
+let _currentModalRef = null;
+
+async function loadModalAttachments(bookingRef) {
+  _currentModalRef = bookingRef;
+  const container = document.getElementById('hotel-modal-attachments');
+  if (!container || !bookingRef) { if (container) container.innerHTML = ''; return; }
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/trip_attachments?booking_ref=eq.${encodeURIComponent(bookingRef)}&order=created_at.asc`,
+      { headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` } }
+    );
+    const items = res.ok ? await res.json() : [];
+    const base = `${SUPA_URL}/storage/v1/object/public/trip-attachments/`;
+    const thumbs = items.map(item => {
+      const url = item.url || (base + item.storage_path);
+      const lbl = (item.label || item.filename).replace(/'/g, '&#39;');
+      const isImg = item.mime_type && item.mime_type.startsWith('image/');
+      return `<div class="attachment-thumb" onclick="showAttachment('${url}','${lbl}','${item.mime_type||''}')">
+        ${isImg ? `<img src="${url}" loading="lazy">` : `<div class="attachment-thumb-icon">📄</div>`}
+        <div class="attachment-thumb-label">${item.label || item.filename}</div>
+      </div>`;
+    }).join('');
+    container.innerHTML = `
+      <div class="modal-attachments">
+        <div class="modal-attachments-title">Documents & Tickets</div>
+        <div class="modal-attachments-grid" id="attachment-grid">
+          ${thumbs}
+          <div class="attachment-add-btn" onclick="document.getElementById('attachment-file-input').click()">
+            <div class="attachment-add-icon">+</div>
+            <div class="attachment-add-label">Add</div>
+          </div>
+        </div>
+      </div>`;
+  } catch(e) {}
+}
+
+async function uploadAttachment(file) {
+  const ref = _currentModalRef;
+  if (!ref || !file) return;
+  const container = document.getElementById('hotel-modal-attachments');
+  if (container) container.classList.add('attachment-uploading');
+  try {
+    const safe = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '-').toLowerCase();
+    const path = `${ref}/${Date.now()}-${safe}`;
+    const uploadRes = await fetch(
+      `${SUPA_URL}/storage/v1/object/trip-attachments/${path}`,
+      {
+        method: 'POST',
+        headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}`, 'Content-Type': file.type || 'application/octet-stream' },
+        body: file,
+      }
+    );
+    if (!uploadRes.ok) throw new Error('storage upload failed');
+    const label = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
+    await fetch(`${SUPA_URL}/rest/v1/trip_attachments`, {
+      method: 'POST',
+      headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ booking_ref: ref, filename: file.name, storage_path: path, mime_type: file.type, label }),
+    });
+    await loadModalAttachments(ref);
+  } catch(e) {
+    if (container) container.classList.remove('attachment-uploading');
+    alert('Upload failed — check connection and try again.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('attachment-file-input').addEventListener('change', function() {
+    const file = this.files[0];
+    this.value = '';
+    if (file) uploadAttachment(file);
+  });
+});
+
+let _wakeLock = null;
+
+function showAttachment(url, label, mime) {
+  if (mime === 'application/pdf') { window.open(url, '_blank'); return; }
+  const viewer  = document.getElementById('attachment-viewer');
+  const content = document.getElementById('attachment-viewer-content');
+  document.getElementById('attachment-viewer-label').textContent = label;
+  content.innerHTML = `<img class="attachment-viewer-img" src="${url}">`;
+  viewer.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if ('wakeLock' in navigator) {
+    navigator.wakeLock.request('screen').then(wl => { _wakeLock = wl; }).catch(() => {});
+  }
+}
+
+function closeAttachmentViewer() {
+  document.getElementById('attachment-viewer').classList.remove('open');
+  document.body.style.overflow = '';
+  if (_wakeLock) { _wakeLock.release().catch(() => {}); _wakeLock = null; }
+}
+</script>
+
 <button class="inbox-fab" id="inbox-fab" onclick="openInbox()" style="display:none">
   📬 Updates <span class="inbox-badge" id="inbox-badge" style="display:none">0</span>
 </button>
