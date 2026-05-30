@@ -49,8 +49,9 @@ email contains **new or changed information** beyond the original confirmation.
 4. **Extract** — pull structured data per the schemas below
 5. **Write Supabase** — **CRITICAL: insert into `email_processing_log` for EVERY email processed, regardless of category or outcome (including skips and actionable items alike).** This is how deduplication works — if you skip this step, the same email will be re-processed on the next run. Then insert into `travel_updates` for actionable items only (confidence ≥ 0.50).
 6. **Write booking_updates** — for high-confidence changes (≥ 0.85), upsert rows into `booking_updates` (see schema below). The app reads this table live — no HTML editing needed.
-7. **Commit & push** — only if structural HTML changes were made (new hardcoded itinerary items). Skip this step for data-only updates.
-8. **Done** — report: `Processed N emails · M Supabase records written · K booking_updates upserted · A attachments saved`
+7. **Write itinerary_events** — for new activities, reservations, or experiences not yet in the itinerary, upsert rows into `itinerary_events` (see schema below). The app merges these into the day view on load — no HTML editing needed.
+8. **Commit & push** — almost never needed now; only if something genuinely can't be expressed via `booking_updates` or `itinerary_events`.
+9. **Done** — report: `Processed N emails · M Supabase records written · K booking_updates upserted · J itinerary_events upserted · A attachments saved`
 
 ---
 
@@ -187,8 +188,109 @@ ON CONFLICT (item_key, section, label) DO UPDATE SET
 
 ### No more HTML edits
 
-**Do not edit `www/index.html` for dynamic data.** The git commit step below is only needed for
-structural changes (new itinerary items, entirely new bookings not yet in the file at all).
+**Do not edit `www/index.html` for dynamic data.** The git commit step is almost never needed now — use `booking_updates` for existing booking details and `itinerary_events` for new day-view items.
+
+---
+
+## itinerary_events — data-driven day-view items (NEW)
+
+New activities, reservations, or free-time blocks that aren't already in the hardcoded itinerary should be inserted into `itinerary_events`. The app fetches this table on load and merges the rows into the matching day, so no HTML deploy is required.
+
+### Table: `itinerary_events`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `day_date` | date | ISO date of the day this event belongs to (e.g. `2026-05-27`) |
+| `event_id` | text UNIQUE | Stable identifier — use pattern `{date}-{slug}`, e.g. `2026-05-27-teamlab` |
+| `type` | text | Event type for icon/color: `activity`, `food`, `transport`, `hotel`, `free`, `note` |
+| `time` | text | Display time string, e.g. `"10:00 AM"` — null for all-day items |
+| `text` | text | Main display text (event name or description) |
+| `note` | text | Optional sub-label shown below text (e.g. `"Klook · ABT743615"`) |
+| `booked` | boolean | Show booked badge — true when a confirmation exists |
+| `highlight` | boolean | Highlight in the UI — true for marquee experiences |
+| `sort_order` | integer | Position within the day (0-based). New events should use a high number (e.g. 99) to append after existing ones, or a specific index to insert in order. |
+| `source` | text | `"poller"` |
+| `confidence` | numeric | 0.00–1.00 |
+| `source_email_id` | text | gmail_message_id that triggered this |
+
+**UNIQUE constraint:** `event_id` — use ON CONFLICT DO UPDATE to upsert.
+
+### event_id naming convention
+
+```
+{YYYY-MM-DD}-{lowercase-slug}
+```
+
+Examples:
+- `2026-05-27-teamlab` — teamLab Planets on May 27
+- `2026-05-28-tsukiji-breakfast` — Tsukiji market breakfast May 28
+- `2026-06-01-nishiki-market` — Nishiki market walk June 1
+- `2026-06-03-dotonbori-dinner` — Dotonbori dinner June 3
+
+### Upsert SQL template
+
+```sql
+INSERT INTO itinerary_events
+  (day_date, event_id, type, time, text, note, booked, highlight, sort_order,
+   source, confidence, source_email_id)
+VALUES
+  ($day_date, $event_id, $type, $time, $text, $note, $booked, $highlight, $sort_order,
+   'poller', $confidence, $gmail_message_id)
+ON CONFLICT (event_id) DO UPDATE SET
+  day_date        = EXCLUDED.day_date,
+  type            = EXCLUDED.type,
+  time            = EXCLUDED.time,
+  text            = EXCLUDED.text,
+  note            = EXCLUDED.note,
+  booked          = EXCLUDED.booked,
+  highlight       = EXCLUDED.highlight,
+  sort_order      = EXCLUDED.sort_order,
+  confidence      = EXCLUDED.confidence,
+  source_email_id = EXCLUDED.source_email_id,
+  updated_at      = now();
+```
+
+### type values
+
+| type | When to use |
+|------|-------------|
+| `activity` | Paid experience, attraction, tour, show |
+| `food` | Restaurant reservation, market visit, food experience |
+| `transport` | Local transit, taxi, bus — not trains (those go in `booking_updates`) |
+| `hotel` | Check-in / check-out reminder |
+| `free` | Unstructured free time block |
+| `note` | Informational note, reminder, or tip |
+
+### Examples
+
+**New activity booking (from Klook/Viator confirmation):**
+```sql
+('2026-05-28', '2026-05-28-senso-ji-tour', 'activity', '9:00 AM',
+ 'Senso-ji Temple Morning Tour', 'Klook · KLK123456', true, true, 99,
+ 'poller', 0.95, 'gmail_msg_id_here')
+```
+
+**Restaurant reservation:**
+```sql
+('2026-05-31', '2026-05-31-nishiki-lunch', 'food', '12:30 PM',
+ 'Lunch at Nishiki Market', 'Reservation confirmed', true, false, 99,
+ 'poller', 0.92, 'gmail_msg_id_here')
+```
+
+**Informational note (no booking):**
+```sql
+('2026-06-01', '2026-06-01-arashiyama-tip', 'note', null,
+ 'Arashiyama: arrive before 8 AM to beat crowds', null, false, false, 99,
+ 'poller', 0.80, 'gmail_msg_id_here')
+```
+
+### Rules for itinerary_events writes
+
+- Only write when confidence ≥ 0.85
+- Never create a duplicate of a hardcoded event — check `DEFAULT_DAYS` in `www/index.html` for existing event_ids before inserting
+- Use `sort_order: 99` (append) unless the email clearly implies a specific time that places it before another event
+- The app preserves the user's `done` checkbox state when updating existing events
+- Existing hardcoded events (e.g. `d3e1`, `d3e5`) will be updated in-place if you use their exact `event_id`
 
 ---
 
