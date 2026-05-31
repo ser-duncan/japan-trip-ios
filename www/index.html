@@ -6847,12 +6847,28 @@ function renderFoodGuide() {
 }
 
 // ── App init ──
+function getSmartCityFilter() {
+  const today = new Date().toISOString().slice(0, 10);
+  const days = appState.days;
+  if (!days) return 'all';
+  const day = days.find(d => d.date === today);
+  return day ? day.city : 'all';
+}
+
 function _goItinerary() {
   const btn = document.querySelector('.nav-btn[onclick*="itinerary"]');
   if (btn) showSection('itinerary', btn);
+
+  // Date filter: always reset to Upcoming
   const sel = document.getElementById('date-filter-select');
   if (sel) sel.value = 'upcoming';
   appState.dateFilter = 'upcoming';
+
+  // City filter: default to whichever city we're in today
+  const smartCity = getSmartCityFilter();
+  appState.cityFilter = smartCity;
+  const csel = document.getElementById('city-filter-select');
+  if (csel) csel.value = smartCity;
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -6866,13 +6882,14 @@ document.addEventListener('DOMContentLoaded', async function() {
   renderTripProgress();
   checkHarukaBanner();
   renderTodayCard();
+  // Set smart filters (upcoming + today's city) before rendering so the
+  // first paint uses the right filter state.
+  _goItinerary();
   renderItinerary();
   renderActivities();
   renderExpenses();
   renderFoodGuide();
   initWeather();
-  // Re-assert itinerary after all renders in case any of them touched the nav
-  _goItinerary();
   const fab = document.getElementById('today-fab');
   if (fab) fab.classList.add('visible');
   // Show sync dot only if Supabase connected
@@ -6882,7 +6899,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 // iOS fires `pageshow` (not DOMContentLoaded) when restoring a page from
 // its back-forward / app-switcher cache, so DOMContentLoaded never re-runs.
 // Catch that here so cold PWA opens always land on Itinerary.
-window.addEventListener('pageshow', () => _goItinerary());
+window.addEventListener('pageshow', () => { _goItinerary(); renderItinerary(); });
 
 // Also reset after 15 min in background (user opens app icon after a while)
 async function refreshItinerary() {
