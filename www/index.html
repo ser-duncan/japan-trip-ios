@@ -2083,6 +2083,23 @@
   }
   .day-edit-fab:active { transform: scale(0.92); }
 
+  /* Day detail — edit mode controls */
+  .day-detail-title-edit {
+    width: 100%; background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(126,176,255,0.35); border-radius: 10px;
+    padding: 8px 12px; color: var(--text); font-size: 20px; font-weight: 700;
+    font-family: inherit; letter-spacing: -0.3px; outline: none; box-sizing: border-box;
+  }
+  .day-reorder-row { display: flex; gap: 8px; margin-top: 10px; }
+  .day-reorder-btn {
+    flex: 1; padding: 9px 12px; border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06);
+    color: var(--text-muted); font-size: 13px; font-weight: 600;
+    font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .day-reorder-btn:disabled { opacity: 0.25; cursor: default; }
+  .day-reorder-btn:not(:disabled):active { background: rgba(255,255,255,0.12); }
+
   /* Day detail bottom sheet */
   .day-detail-overlay {
     position: fixed; inset: 0; z-index: 300;
@@ -5599,6 +5616,63 @@ function toggleEditMode() {
     if (fab) { fab.classList.remove('active'); fab.textContent = '✏'; }
     iSec.classList.remove('editing-mode'); aSec.classList.remove('editing-mode');
   }
+  // Refresh the open detail sheet so edit controls appear/disappear
+  if (_openDetailDayId) openDayDetail(_openDetailDayId);
+}
+
+function handleEditFabTap() {
+  if (!appState.editingMode) {
+    toggleEditMode();
+    // On itinerary, open current day detail so edits are immediately accessible
+    const itin = document.getElementById('section-itinerary');
+    if (itin && itin.classList.contains('visible')) {
+      const dayId = _currentSwiperDayId || appState.days?.[0]?.id;
+      if (dayId) openDayDetail(dayId);
+    }
+  } else {
+    toggleEditMode();
+    closeDayDetail();
+  }
+}
+
+function _swapDayContents(days, a, b) {
+  const tmp = { title: days[a].title, events: days[a].events, city: days[a].city };
+  days[a].title = days[b].title;
+  days[a].events = days[b].events;
+  days[a].city = days[b].city;
+  days[b].title = tmp.title;
+  days[b].events = tmp.events;
+  days[b].city = tmp.city;
+}
+
+function moveDayEarlier(dayId) {
+  const days = appState.days;
+  const idx = days.findIndex(d => d.id === dayId);
+  if (idx <= 0) return;
+  _swapDayContents(days, idx, idx - 1);
+  saveAppState();
+  renderDayCards();
+  openDayDetail(days[idx - 1].id);
+}
+
+function moveDayLater(dayId) {
+  const days = appState.days;
+  const idx = days.findIndex(d => d.id === dayId);
+  if (idx < 0 || idx >= days.length - 1) return;
+  _swapDayContents(days, idx, idx + 1);
+  saveAppState();
+  renderDayCards();
+  openDayDetail(days[idx + 1].id);
+}
+
+function updateDayTitle(dayId, newTitle) {
+  const day = appState.days.find(d => d.id === dayId);
+  if (!day) return;
+  day.title = newTitle;
+  // Live-update the card title without re-rendering the whole swiper
+  const cardTitle = document.querySelector('.day-card[data-day-id="' + dayId + '"] .day-card-title');
+  if (cardTitle) cardTitle.textContent = newTitle;
+  saveAppState();
 }
 
 // ── Render itinerary ──
@@ -6390,11 +6464,23 @@ function openDayDetail(dayId) {
   if (!sheet || !overlay) return;
   _openDetailDayId = dayId;
   const cityLabel = {tokyo:'🗼 Tokyo',hakone:'🏔 Hakone',kyoto:'⛩ Kyoto',osaka:'🦀 Osaka'};
+  const editing = appState.editingMode;
+  const dayIdx = appState.days.findIndex(d => d.id === dayId);
+  const titleHtml = editing
+    ? '<input class="day-detail-title-edit" value="' + day.title.replace(/"/g, '&quot;') + '" oninput="updateDayTitle(\'' + dayId + '\',this.value)" placeholder="Day title">'
+    : '<div class="day-detail-hdr-title">' + day.title + '</div>';
+  const reorderHtml = editing
+    ? '<div class="day-reorder-row">'
+      + '<button class="day-reorder-btn" onclick="moveDayEarlier(\'' + dayId + '\')"' + (dayIdx <= 0 ? ' disabled' : '') + '>← Move earlier</button>'
+      + '<button class="day-reorder-btn" onclick="moveDayLater(\'' + dayId + '\')"' + (dayIdx >= appState.days.length - 1 ? ' disabled' : '') + '>Move later →</button>'
+      + '</div>'
+    : '';
   sheet.innerHTML = '<div class="day-detail-handle" onclick="closeDayDetail()"></div>'
     + '<div class="day-detail-hdr">'
     + '<div class="day-detail-hdr-text">'
-    + '<div class="day-detail-hdr-title">' + day.title + '</div>'
+    + titleHtml
     + '<div class="day-detail-hdr-sub">' + day.dateLabel + ' · ' + (cityLabel[day.city] || day.city) + '</div>'
+    + reorderHtml
     + '</div>'
     + '<button class="day-detail-close" onclick="closeDayDetail()">✕</button>'
     + '</div>'
@@ -8609,7 +8695,7 @@ document.addEventListener('visibilitychange', () => {
 </div>
 
 <button class="today-fab" id="today-fab" onclick="scrollToToday()">📅 Today</button>
-<button class="day-edit-fab" id="day-edit-fab" onclick="toggleEditMode()" title="Edit">✏</button>
+<button class="day-edit-fab" id="day-edit-fab" onclick="handleEditFabTap()" title="Edit">✏</button>
 
 <!-- Trip Inbox FAB -->
 <script>
