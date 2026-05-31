@@ -2002,6 +2002,14 @@
   .inbox-last-checked {
     font-size: 11px; color: var(--text-muted); margin-top: 2px; min-height: 14px;
   }
+  .inbox-refresh-btn {
+    background: none; border: none; color: var(--text-muted); font-size: 14px;
+    cursor: pointer; padding: 0 4px; line-height: 1; opacity: 0.7; transition: opacity 0.15s;
+    vertical-align: middle;
+  }
+  .inbox-refresh-btn:active { opacity: 0.4; }
+  .inbox-refresh-btn.spinning { animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
   .inbox-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; }
   .inbox-tab {
     flex: 1; padding: 10px 0; font-size: 13px; font-weight: 600; text-align: center;
@@ -6340,12 +6348,25 @@ document.addEventListener('DOMContentLoaded', async function() {
 window.addEventListener('pageshow', () => _goItinerary());
 
 // Also reset after 15 min in background (user opens app icon after a while)
+async function refreshItinerary() {
+  const btn = document.getElementById('inbox-refresh-btn');
+  const lbl = document.getElementById('inbox-last-checked');
+  if (btn) btn.classList.add('spinning');
+  if (lbl) lbl.textContent = 'Refreshing…';
+  try { localStorage.removeItem('ie_cache'); } catch(e) {}
+  try { Object.keys(localStorage).filter(k => k.startsWith('bu_')).forEach(k => localStorage.removeItem(k)); } catch(e) {}
+  await applyItineraryEvents();
+  renderItinerary();
+  if (btn) btn.classList.remove('spinning');
+  if (lbl) lbl.textContent = 'Refreshed just now';
+}
+
 let _hiddenAt = 0;
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
     _hiddenAt = Date.now();
   } else if (document.visibilityState === 'visible' && _hiddenAt > 0) {
-    if (Date.now() - _hiddenAt > 15 * 60 * 1000) {
+    if (Date.now() - _hiddenAt > 5 * 60 * 1000) {
       // Bust caches so any new poller data is picked up
       try { localStorage.removeItem('ie_cache'); } catch(e) {}
       try { Object.keys(localStorage).filter(k => k.startsWith('bu_')).forEach(k => localStorage.removeItem(k)); } catch(e) {}
@@ -6847,7 +6868,10 @@ function closeAttachmentViewer() {
   <div class="inbox-sheet-header">
     <div>
       <span class="inbox-sheet-title">📬 Trip Inbox</span>
-      <div class="inbox-last-checked" id="inbox-last-checked"></div>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <div class="inbox-last-checked" id="inbox-last-checked"></div>
+        <button class="inbox-refresh-btn" id="inbox-refresh-btn" onclick="refreshItinerary()" title="Refresh itinerary">↻</button>
+      </div>
     </div>
     <button class="inbox-sheet-close" onclick="closeInbox()">×</button>
   </div>
