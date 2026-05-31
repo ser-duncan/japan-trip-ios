@@ -1959,6 +1959,181 @@
     font-family: inherit;
   }
   .food-detail-btn:active { background: rgba(126,176,255,0.2); }
+  /* ── Day card swiper ── */
+  .day-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 4px 10px;
+  }
+  .day-nav-dots { display: flex; gap: 5px; align-items: center; overflow: hidden; max-width: 60%; }
+  .day-nav-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.18);
+    cursor: pointer; transition: all 0.25s; flex-shrink: 0;
+  }
+  .day-nav-dot.active { background: var(--accent); width: 18px; border-radius: 3px; }
+  .day-nav-counter { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.4px; }
+
+  .day-swiper {
+    display: flex; overflow-x: scroll; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    padding-bottom: 2px;
+    height: calc(100svh - var(--nav-h, 56px) - 200px);
+    min-height: 380px;
+  }
+  .day-swiper::-webkit-scrollbar { display: none; }
+
+  .day-card {
+    min-width: 100%; scroll-snap-align: start; flex-shrink: 0;
+    padding: 0 4px 16px; box-sizing: border-box;
+  }
+  .day-card-inner {
+    background: var(--surface); border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.07);
+    padding: 20px 20px 0; height: 100%; box-sizing: border-box;
+    display: flex; flex-direction: column;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.35);
+    overflow: hidden;
+  }
+  .day-card-top {
+    display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px;
+  }
+  .day-card-meta {
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    letter-spacing: 0.8px; text-transform: uppercase; padding-top: 2px;
+  }
+  .day-card-meta .today-chip { color: var(--accent); margin-right: 3px; }
+  .day-card-city-badge {
+    font-size: 12px; font-weight: 600; padding: 4px 10px;
+    border-radius: 99px; border: 1px solid; flex-shrink: 0;
+  }
+  .day-card-city-badge.tokyo  { color:var(--tokyo);  border-color:rgba(232,80,91,0.35);  background:rgba(232,80,91,0.08); }
+  .day-card-city-badge.hakone { color:var(--hakone); border-color:rgba(76,175,130,0.35); background:rgba(76,175,130,0.08); }
+  .day-card-city-badge.kyoto  { color:var(--kyoto);  border-color:rgba(232,150,60,0.35); background:rgba(232,150,60,0.08); }
+  .day-card-city-badge.osaka  { color:var(--osaka);  border-color:rgba(124,111,205,0.35);background:rgba(124,111,205,0.08); }
+
+  .day-card-title {
+    font-size: 24px; font-weight: 700; color: var(--text);
+    line-height: 1.15; margin-bottom: 14px; letter-spacing: -0.4px;
+  }
+  .day-card-weather-row {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+    padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .day-card-wx-badge { font-size: 20px; font-weight: 700; color: var(--text); }
+  .day-card-wx-cond { font-size: 13px; color: var(--text-muted); }
+
+  .day-card-agenda { flex: 1; display: flex; flex-direction: column; gap: 11px; overflow: hidden; }
+  .day-card-agenda-row { display: flex; gap: 10px; align-items: baseline; }
+  .day-card-agenda-time {
+    font-size: 12px; font-weight: 600; color: var(--text-muted);
+    min-width: 72px; flex-shrink: 0;
+  }
+  .day-card-agenda-event { font-size: 14px; color: var(--text); font-weight: 500; line-height: 1.3; }
+  .day-card-agenda-event.highlighted { color: var(--accent); font-weight: 600; }
+  .day-card-agenda-empty { font-size: 14px; color: var(--text-muted); }
+
+  .day-card-expand-handle {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 14px 0 16px; margin-top: auto;
+    color: rgba(255,255,255,0.22); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.4px; cursor: pointer; border-top: 1px solid rgba(255,255,255,0.06);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .day-card-expand-handle:active { color: rgba(255,255,255,0.5); }
+
+  /* Floating edit pencil */
+  .day-edit-fab {
+    position: fixed; bottom: calc(104px + env(safe-area-inset-bottom, 0px)); right: 20px;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(30,30,40,0.88); backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.45);
+    color: var(--text); font-size: 17px; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    z-index: 90; -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s;
+  }
+  .day-edit-fab.visible { display: flex; }
+  .day-edit-fab:active { transform: scale(0.92); }
+
+  /* Day detail bottom sheet */
+  .day-detail-overlay {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,0.55); opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .day-detail-overlay.open { opacity: 1; pointer-events: auto; }
+  .day-detail-sheet {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 301;
+    background: var(--bg); border-radius: 24px 24px 0 0;
+    border-top: 1px solid rgba(255,255,255,0.09);
+    max-height: 93vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.32,0,0.12,1);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+  }
+  .day-detail-sheet.open { transform: translateY(0); }
+  .day-detail-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 12px auto 4px; }
+  .day-detail-hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 20px 8px; position: sticky; top: 0; z-index: 1;
+    background: var(--bg); border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .day-detail-hdr-text {}
+  .day-detail-hdr-title { font-size: 17px; font-weight: 700; color: var(--text); }
+  .day-detail-hdr-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; letter-spacing: 0.3px; }
+  .day-detail-close {
+    width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.1);
+    border: none; color: var(--text-muted); font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-family: inherit; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+  }
+  .day-detail-body { padding: 8px 16px 16px; }
+
+  /* Filter icon + modal */
+  .filter-icon-btn {
+    background: none; border: none; cursor: pointer; position: relative;
+    width: 36px; height: 36px; border-radius: 10px; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; font-size: 19px;
+    color: var(--text); -webkit-tap-highlight-color: transparent;
+  }
+  .filter-active-dot {
+    position: absolute; top: 5px; right: 5px; width: 7px; height: 7px;
+    border-radius: 50%; background: var(--accent); display: none;
+  }
+  .filter-active-dot.on { display: block; }
+  .filter-modal-overlay {
+    position: fixed; inset: 0; z-index: 250;
+    background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .filter-modal-overlay.open { opacity: 1; pointer-events: auto; }
+  .filter-modal {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 251;
+    background: var(--surface); border-radius: 24px 24px 0 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 0 20px calc(env(safe-area-inset-bottom, 0px) + 28px);
+    transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0,0.12,1);
+  }
+  .filter-modal.open { transform: translateY(0); }
+  .filter-modal-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 12px auto 20px; }
+  .filter-modal-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .filter-modal-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+  .filter-section-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+  .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+  .filter-chip {
+    padding: 9px 18px; border-radius: 99px; font-size: 14px; font-weight: 600;
+    border: 1.5px solid rgba(255,255,255,0.14); background: none; color: var(--text-muted);
+    cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; transition: all 0.15s;
+  }
+  .filter-chip[data-city="all"].active { border-color: rgba(255,255,255,0.5); color: var(--text); background: rgba(255,255,255,0.07); }
+  .filter-chip[data-city="tokyo"].active  { border-color:var(--tokyo);  color:var(--tokyo);  background:rgba(232,80,91,0.1); }
+  .filter-chip[data-city="hakone"].active { border-color:var(--hakone); color:var(--hakone); background:rgba(76,175,130,0.1); }
+  .filter-chip[data-city="kyoto"].active  { border-color:var(--kyoto);  color:var(--kyoto);  background:rgba(232,150,60,0.1); }
+  .filter-chip[data-city="osaka"].active  { border-color:var(--osaka);  color:var(--osaka);  background:rgba(124,111,205,0.1); }
+  .filter-done-btn {
+    width: 100%; padding: 15px; background: var(--accent); color: #000;
+    border: none; border-radius: 14px; font-size: 16px; font-weight: 700;
+    cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent;
+  }
+
   /* ── Segmented control subnav ── */
   .subnav-sticky {
     position: sticky; top: var(--nav-h, 56px); z-index: 50;
@@ -2003,7 +2178,7 @@
   }
   .eatdo-subnav-btn:active, .transit-subnav-btn:active { opacity: 0.7; }
   .logistics-subnav-btn {
-    flex-shrink: 0; padding: 8px 12px; font-size: 13px; font-weight: 600;
+    flex: 1; padding: 8px 6px; font-size: 13px; font-weight: 600;
     color: rgba(255,255,255,0.38); background: none; border: none;
     border-radius: 10px; font-family: inherit; cursor: pointer; white-space: nowrap;
     transition: all 0.2s; -webkit-tap-highlight-color: transparent;
@@ -2374,6 +2549,17 @@
     <div class="app-header-actions">
       <div class="sync-dot" id="sync-dot"></div>
       <button class="app-header-edit-btn" id="edit-toggle" onclick="toggleEditMode()" style="display:none">✏️ Edit</button>
+      <button class="filter-icon-btn" id="filter-icon-btn" onclick="openFilterModal()" title="Filter">
+        <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block">
+          <line x1="1" y1="2" x2="17" y2="2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="1" y1="7" x2="17" y2="7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="1" y1="12" x2="17" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="12" cy="2" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.8"/>
+          <circle cx="5" cy="7" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.8"/>
+          <circle cx="12" cy="12" r="2" fill="var(--bg)" stroke="currentColor" stroke-width="1.8"/>
+        </svg>
+        <span class="filter-active-dot" id="filter-active-dot"></span>
+      </button>
       <button class="app-header-btn" id="inbox-fab" onclick="openInbox()" title="Trip Inbox">
         📬<span class="inbox-badge" id="inbox-badge" style="display:none">0</span>
       </button>
@@ -2385,13 +2571,6 @@
 
   <!-- ─────────────── ITINERARY ─────────────── -->
   <div id="section-itinerary" class="section visible">
-    <div class="subnav-sticky">
-      <div class="date-seg-wrap">
-        <button class="date-seg-btn" id="date-seg-today" onclick="selectDateSeg('today')">Today</button>
-        <button class="date-seg-btn active" id="date-seg-upcoming" onclick="selectDateSeg('upcoming')">Upcoming</button>
-        <button class="date-seg-btn" id="date-seg-all" onclick="selectDateSeg('all')">All</button>
-      </div>
-    </div>
     <div id="trip-progress-bar" class="trip-progress-wrap">
       <div class="trip-progress-row">
         <span class="trip-progress-label" id="trip-day-label">Day — of 12</span>
@@ -2412,9 +2591,17 @@
         <button class="haruka-done-btn" onclick="markHarukaBooked()">✓ Done</button>
       </div>
     </div>
-    <div id="today-card-container"></div>
-    <div id="weather-bar" class="weather-bar"></div>
-    <div id="itinerary-timeline" class="timeline"><!-- rendered by JS --></div>
+    <!-- Day swiper navigation -->
+    <div class="day-nav" id="day-nav">
+      <div class="day-nav-dots" id="day-nav-dots"></div>
+      <span class="day-nav-counter" id="day-nav-counter">Day 1 of 12</span>
+    </div>
+    <!-- Horizontal card swiper -->
+    <div class="day-swiper" id="day-swiper"></div>
+    <!-- Legacy containers kept hidden so JS references don't break -->
+    <div id="today-card-container" style="display:none"></div>
+    <div id="weather-bar" class="weather-bar" style="display:none"></div>
+    <div id="itinerary-timeline" class="timeline" style="display:none"></div>
     <div class="timeline" style="display:none"><!-- static backup -->
 
       <!-- ── TOKYO ── -->
@@ -3354,14 +3541,14 @@
         <button class="logistics-subnav-btn active" id="log-btn-all" onclick="filterLogistics('all',this)">All</button>
         <button class="logistics-subnav-btn" id="log-btn-converter" onclick="filterLogistics('converter',this)">💱 Converter</button>
         <button class="logistics-subnav-btn" id="log-btn-essentials" onclick="filterLogistics('essentials',this)">🗒 Essentials</button>
-        <button class="logistics-subnav-btn" id="log-btn-reservations" onclick="filterLogistics('reservations',this)">🍽 Reservations</button>
         <button class="logistics-subnav-btn" id="log-btn-more-trigger" onclick="toggleLogisticsMore(this)">··· More</button>
       </div>
     </div>
     <!-- Logistics overflow popup -->
     <div class="subnav-overflow-popup" id="log-more-popup">
-      <button class="subnav-overflow-item" id="log-btn-emergency" onclick="filterLogistics('emergency', this)">🆘 Emergency</button>
-      <button class="subnav-overflow-item" id="log-btn-spend" onclick="filterLogistics('spend', this)">💴 Spend</button>
+      <button class="subnav-overflow-item" id="log-btn-reservations" onclick="filterLogistics('reservations',this)">🍽 Reservations</button>
+      <button class="subnav-overflow-item" id="log-btn-emergency" onclick="filterLogistics('emergency',this)">🆘 Emergency</button>
+      <button class="subnav-overflow-item" id="log-btn-spend" onclick="filterLogistics('spend',this)">💴 Spend</button>
     </div>
 
     <!-- ── Yen Converter ── -->
@@ -5261,6 +5448,8 @@ function showSection(id, btn) {
   btn.classList.add('active');
   const fab = document.getElementById('today-fab');
   if (fab) fab.classList.toggle('visible', id === 'itinerary');
+  const dayEditFab = document.getElementById('day-edit-fab');
+  if (dayEditFab) dayEditFab.classList.toggle('visible', id === 'itinerary');
 
   const editToggle = document.getElementById('edit-toggle');
   if (id === 'itinerary') {
@@ -5321,16 +5510,13 @@ function _syncTagPillsForView(view) {
 }
 
 function filterLogistics(view, btn) {
-  // Close overflow popup
   document.getElementById('log-more-popup')?.classList.remove('open');
-  // Sync active state — subnav buttons + overflow items
   document.querySelectorAll('.logistics-subnav-btn, .subnav-overflow-item').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  // If selection came from overflow, also highlight the More trigger
-  const overflowViews = ['emergency','spend'];
+  // When an overflow item is selected, also highlight the More trigger
+  const overflowViews = ['reservations','emergency','spend'];
   const moreTrigger = document.getElementById('log-btn-more-trigger');
   if (moreTrigger) moreTrigger.classList.toggle('active', overflowViews.includes(view));
-  // Show/hide content sections
   const views = ['converter','essentials','reservations','emergency','spend'];
   views.forEach(v => {
     const el = document.getElementById('log-view-' + v);
@@ -5342,6 +5528,14 @@ function toggleLogisticsMore(triggerBtn) {
   const popup = document.getElementById('log-more-popup');
   if (popup) popup.classList.toggle('open');
 }
+
+document.addEventListener('click', e => {
+  const popup = document.getElementById('log-more-popup');
+  if (!popup) return;
+  if (!popup.contains(e.target) && !e.target.closest('#log-btn-more-trigger')) {
+    popup.classList.remove('open');
+  }
+});
 
 function goMoreSection(id) {
   showSection(id, document.getElementById('tab-more'));
@@ -5355,29 +5549,19 @@ function updateNavHeight() {
 document.addEventListener('DOMContentLoaded', updateNavHeight);
 window.addEventListener('resize', updateNavHeight);
 
-// Close logistics overflow popup when clicking outside
-document.addEventListener('click', e => {
-  const popup = document.getElementById('log-more-popup');
-  if (!popup) return;
-  if (!popup.contains(e.target) && e.target.id !== 'log-btn-more-trigger' && !e.target.closest('#log-btn-more-trigger')) {
-    popup.classList.remove('open');
-  }
-});
 
-// ── City filter (state only — no UI chips) ──
+// ── City filter ──
 function filterCity(city) {
   appState.cityFilter = city;
-  renderItinerary();
+  renderDayCards();
   renderActivities();
   renderFoodGuide();
+  _syncFilterDot();
 }
 
-// ── Date filter ──
+// ── Date filter (segmented control removed from itinerary; kept for API compat) ──
 function filterDate(date) {
   appState.dateFilter = date;
-  ['today','upcoming','all'].forEach(v =>
-    document.getElementById('date-seg-'+v)?.classList.toggle('active', date === v));
-  renderItinerary();
 }
 
 // ── Edit mode ──
@@ -5397,51 +5581,7 @@ function toggleEditMode() {
 
 // ── Render itinerary ──
 function renderItinerary() {
-  const container = document.getElementById('itinerary-timeline');
-  if (!container || !appState.days) return;
-  const today = jstDateStr();
-  const { cityFilter, dateFilter } = appState;
-  const cityDivLabels = {
-    tokyo: '🗼 Tokyo &nbsp;·&nbsp; May 25–29',
-    hakone: '🏔 Hakone &nbsp;·&nbsp; May 29–30',
-    kyoto: '⛩ Kyoto &nbsp;·&nbsp; May 30–Jun 3',
-    osaka: '🦀 Osaka &nbsp;·&nbsp; Jun 3–5',
-  };
-  let html = '', lastCity = null;
-
-  appState.days.forEach(day => {
-    if (cityFilter !== 'all' && day.city !== cityFilter) return;
-    if (dateFilter === 'today' && day.date !== today) return;
-    if (dateFilter === 'upcoming' && day.date < today) return;
-    if (dateFilter !== 'all' && dateFilter !== 'today' && dateFilter !== 'upcoming' && day.id !== dateFilter) return;
-
-    if (day.city !== lastCity) {
-      lastCity = day.city;
-      html += '<div class="city-divider ' + day.city + '">' + cityDivLabels[day.city] + '</div>';
-    }
-    const cityName = day.city.charAt(0).toUpperCase() + day.city.slice(1);
-    const globalIdx = appState.days.findIndex(d => d.id === day.id);
-    const isTodayClass = day.date === today ? ' is-today' : '';
-    html += '<div class="day-block' + isTodayClass + '" data-city="' + day.city + '" data-day-id="' + day.id + '" data-day-idx="' + globalIdx + '">'
-      + '<div class="day-dot ' + day.city + '"></div>'
-      + '<div class="day-header" onclick="toggleDay(this)">'
-        + '<span class="day-date">' + day.dateLabel + '</span>'
-        + '<span class="day-title">' + day.title + '</span>'
-        + '<span class="badge badge-' + day.city + '">' + cityName + '</span>'
-        + '<span class="day-toggle open">▼</span>'
-      + '</div>'
-      + '<div class="day-events">'
-        + day.events.map(ev => buildEventHTML(ev, day.id)).join('')
-        + buildDayExtras(day.id)
-        + '<button class="add-event-btn" onclick="openEventModal(\'' + day.id + '\',null)">＋ Add item</button>'
-      + '</div>'
-    + '</div>';
-  });
-
-  if (!html) html = '<p style="color:var(--text-muted);padding:24px 0">No days match the current filter.</p>';
-  container.innerHTML = html;
-  if (appState.editingMode) document.getElementById('section-itinerary').classList.add('editing-mode');
-  injectMapButtons();
+  renderDayCards();
 }
 
 function buildEventHTML(ev, dayId) {
@@ -5870,68 +6010,17 @@ function renderWeatherBar(data, today) {
 }
 
 function updateTodayWeather(data, today) {
-  const el = document.getElementById('today-weather-badge');
-  if (el && data && data.current) {
-    const temp = Math.round(data.current.temperature_2m);
-    const icon = WX_ICONS[data.current.weathercode] || '🌡';
-    el.innerHTML = icon + ' ' + temp + '°F';
-  }
-  const strip = document.getElementById('today-hourly-strip');
-  if (!strip || !data || !data.hourly) return;
-  const { hourly } = data;
-  const currentHour = jstHour();
-  let html = '';
-  let count = 0;
-  for (let i = 0; i < hourly.time.length && count < 18; i++) {
-    const t = hourly.time[i]; // "2026-05-28T14:00"
-    if (!t.startsWith(today)) continue;
-    const hour = parseInt(t.slice(11, 13), 10);
-    if (hour < currentHour - 1) continue;
-    const isNow = hour === currentHour;
-    const icon = WX_ICONS[hourly.weathercode[i]] || '🌡';
-    const temp = Math.round(hourly.temperature_2m[i]);
-    const label = hour === 0 ? '12am' : hour < 12 ? hour + 'am' : hour === 12 ? '12pm' : (hour - 12) + 'pm';
-    html += '<div class="today-hour-pill' + (isNow ? ' now' : '') + '">'
-      + '<span class="today-hour-time">' + label + '</span>'
-      + '<span class="today-hour-icon">' + icon + '</span>'
-      + '<span class="today-hour-temp">' + temp + '°</span>'
-      + '</div>';
-    count++;
-  }
-  strip.innerHTML = html;
-  strip.style.display = html ? '' : 'none';
+  if (!data || !data.current) return;
+  const temp = Math.round(data.current.temperature_2m);
+  const icon = WX_ICONS[data.current.weathercode] || '🌡';
+  const todayDay = appState.days && appState.days.find(d => d.date === today);
+  if (!todayDay) return;
+  const wxEl = document.getElementById('day-card-wx-' + todayDay.id);
+  if (wxEl) wxEl.innerHTML = '<span class="day-card-wx-badge">' + icon + ' ' + temp + '°F</span>';
 }
 
-// ── Today Card ──
-function renderTodayCard() {
-  const container = document.getElementById('today-card-container');
-  if (!container || !appState.days) return;
-  const today = jstDateStr();
-  const todayDay = appState.days.find(d => d.date === today);
-  if (!todayDay) { container.innerHTML = ''; return; }
-  const cityLabel = {tokyo:'🗼 Tokyo', hakone:'🏔 Hakone', kyoto:'⛩ Kyoto', osaka:'🦀 Osaka'};
-  const events = todayDay.events.filter(e => e.type === 'event').slice(0, 5);
-  const evRows = events.map(ev =>
-    '<div class="today-event-row">'
-    + '<span class="today-event-time">' + (ev.time || '') + '</span>'
-    + '<span class="today-event-text' + (ev.highlight ? ' highlighted' : '') + '">' + ev.text + '</span>'
-    + '</div>'
-  ).join('');
-  container.innerHTML = '<div class="today-card">'
-    + '<div class="today-card-header">'
-    + '<div>'
-    + '<div class="today-card-label">Today · ' + todayDay.dateLabel + '</div>'
-    + '<div class="today-card-title">' + todayDay.title + '</div>'
-    + '<div class="today-card-city">' + (cityLabel[todayDay.city] || todayDay.city) + '</div>'
-    + '</div>'
-    + '<div class="today-weather-badge" id="today-weather-badge">—</div>'
-    + '</div>'
-    + '<div class="today-hourly" id="today-hourly-strip" style="display:none"></div>'
-    + '<div class="today-events-list" style="margin-top:14px">'
-    + (evRows || '<div style="color:var(--text-muted);font-size:14px">Nothing scheduled</div>')
-    + '</div>'
-    + '</div>';
-}
+// ── Today Card (no-op — today is shown in the day card swiper) ──
+function renderTodayCard() {}
 
 // ── Expenses ──
 const EXP_ICONS = {food:'🍜',transport:'🚃',activities:'🎯',shopping:'🛍',accommodation:'🏨',other:'📦'};
@@ -6088,7 +6177,195 @@ function scrollToToday() {
   const itinBtn = document.getElementById('tab-itinerary');
   if (itinBtn) showSection('itinerary', itinBtn);
   appState.cityFilter = 'all';
-  filterDate('today');
+  _syncFilterDot();
+  renderDayCards();
+  requestAnimationFrame(() => {
+    const today = jstDateStr();
+    const days = appState.days || [];
+    const todayIdx = days.findIndex(d => d.date === today);
+    if (todayIdx >= 0) jumpToDay(todayIdx);
+  });
+}
+
+// ── Day Card Swiper ──────────────────────────────────────────────────────────
+let _openDetailDayId = null;
+let _currentSwiperDayId = null;
+let _swiperScrollTimer = null;
+
+function renderDayCards() {
+  const swiper = document.getElementById('day-swiper');
+  if (!swiper || !appState.days) return;
+  const today = jstDateStr();
+  const { cityFilter } = appState;
+  const days = appState.days.filter(d => (cityFilter || 'all') === 'all' || d.city === cityFilter);
+  if (!days.length) {
+    swiper.innerHTML = '<div class="day-card" style="display:flex;align-items:center;justify-content:center"><p style="color:var(--text-muted);padding:40px 20px;text-align:center">No days match this filter.</p></div>';
+    updateDayNav(0, 0, -1);
+    return;
+  }
+  const todayIdx = days.findIndex(d => d.date === today);
+  const prevDayId = _currentSwiperDayId;
+  swiper.innerHTML = days.map((d, i) => buildDayCardHTML(d, i, today)).join('');
+  let targetIdx = todayIdx >= 0 ? todayIdx : 0;
+  if (prevDayId) {
+    const prevIdx = days.findIndex(d => d.id === prevDayId);
+    if (prevIdx >= 0) targetIdx = prevIdx;
+  }
+  _currentSwiperDayId = days[targetIdx].id;
+  updateDayNav(targetIdx, days.length, todayIdx);
+  requestAnimationFrame(() => {
+    const cards = swiper.querySelectorAll('.day-card');
+    if (cards[targetIdx]) swiper.scrollLeft = cards[targetIdx].offsetLeft;
+  });
+  swiper.onscroll = _onSwiperScroll;
+  if (_openDetailDayId) openDayDetail(_openDetailDayId);
+}
+
+function buildDayCardHTML(day, idx, today) {
+  const isToday = day.date === today;
+  const events = day.events.filter(e => e.type === 'event').slice(0, 5);
+  const agendaRows = events.map(ev =>
+    '<div class="day-card-agenda-row">'
+    + '<span class="day-card-agenda-time">' + (ev.time || '') + '</span>'
+    + '<span class="day-card-agenda-event' + (ev.highlight ? ' highlighted' : '') + '">' + ev.text + '</span>'
+    + '</div>'
+  ).join('');
+  const cityEmojis = {tokyo:'🗼',hakone:'🏔',kyoto:'⛩',osaka:'🦀'};
+  const cityNames  = {tokyo:'Tokyo',hakone:'Hakone',kyoto:'Kyoto',osaka:'Osaka'};
+  return '<div class="day-card" data-idx="' + idx + '" data-day-id="' + day.id + '">'
+    + '<div class="day-card-inner" onclick="openDayDetail(\'' + day.id + '\')">'
+    + '<div class="day-card-top">'
+    + '<div class="day-card-meta">'
+    + (isToday ? '<span class="today-chip">TODAY · </span>' : '')
+    + day.dateLabel
+    + '</div>'
+    + '<span class="day-card-city-badge ' + day.city + '">'
+    + (cityEmojis[day.city] || '') + ' ' + (cityNames[day.city] || day.city)
+    + '</span>'
+    + '</div>'
+    + '<div class="day-card-title">' + day.title + '</div>'
+    + '<div class="day-card-weather-row" id="day-card-wx-' + day.id + '">'
+    + '<span class="day-card-wx-badge">—°F</span>'
+    + '</div>'
+    + '<div class="day-card-agenda">'
+    + (agendaRows || '<div class="day-card-agenda-empty">Nothing scheduled yet</div>')
+    + '</div>'
+    + '<div class="day-card-expand-handle">Full day ↑</div>'
+    + '</div>'
+    + '</div>';
+}
+
+function _onSwiperScroll() {
+  clearTimeout(_swiperScrollTimer);
+  _swiperScrollTimer = setTimeout(_updateSwiperNav, 100);
+}
+
+function _updateSwiperNav() {
+  const swiper = document.getElementById('day-swiper');
+  if (!swiper) return;
+  const cards = swiper.querySelectorAll('.day-card');
+  if (!cards.length) return;
+  const idx = Math.round(swiper.scrollLeft / (swiper.clientWidth || 1));
+  const clamped = Math.max(0, Math.min(idx, cards.length - 1));
+  const today = jstDateStr();
+  const days = appState.days
+    ? appState.days.filter(d => (appState.cityFilter || 'all') === 'all' || d.city === appState.cityFilter)
+    : [];
+  const todayIdx = days.findIndex(d => d.date === today);
+  _currentSwiperDayId = days[clamped] ? days[clamped].id : null;
+  updateDayNav(clamped, cards.length, todayIdx);
+}
+
+function updateDayNav(activeIdx, total, todayIdx) {
+  const dotsEl = document.getElementById('day-nav-dots');
+  const counterEl = document.getElementById('day-nav-counter');
+  if (!dotsEl) return;
+  let html = '';
+  for (let i = 0; i < total; i++) {
+    html += '<div class="day-nav-dot' + (i === activeIdx ? ' active' : '') + '" onclick="jumpToDay(' + i + ')"></div>';
+  }
+  dotsEl.innerHTML = html;
+  if (counterEl) counterEl.textContent = total ? 'Day ' + (activeIdx + 1) + ' of ' + total : '';
+}
+
+function jumpToDay(idx) {
+  const swiper = document.getElementById('day-swiper');
+  if (!swiper) return;
+  const cards = swiper.querySelectorAll('.day-card');
+  if (cards[idx]) swiper.scrollTo({ left: cards[idx].offsetLeft, behavior: 'smooth' });
+}
+
+function openDayDetail(dayId) {
+  const day = appState.days && appState.days.find(d => d.id === dayId);
+  if (!day) return;
+  const sheet = document.getElementById('day-detail-sheet');
+  const overlay = document.getElementById('day-detail-overlay');
+  if (!sheet || !overlay) return;
+  _openDetailDayId = dayId;
+  const cityLabel = {tokyo:'🗼 Tokyo',hakone:'🏔 Hakone',kyoto:'⛩ Kyoto',osaka:'🦀 Osaka'};
+  sheet.innerHTML = '<div class="day-detail-handle" onclick="closeDayDetail()"></div>'
+    + '<div class="day-detail-hdr">'
+    + '<div class="day-detail-hdr-text">'
+    + '<div class="day-detail-hdr-title">' + day.title + '</div>'
+    + '<div class="day-detail-hdr-sub">' + day.dateLabel + ' · ' + (cityLabel[day.city] || day.city) + '</div>'
+    + '</div>'
+    + '<button class="day-detail-close" onclick="closeDayDetail()">✕</button>'
+    + '</div>'
+    + '<div class="day-detail-body">'
+    + day.events.map(ev => buildEventHTML(ev, day.id)).join('')
+    + buildDayExtras(day.id)
+    + '<button class="add-event-btn" onclick="openEventModal(\'' + day.id + '\',null)">＋ Add item</button>'
+    + '</div>';
+  overlay.classList.add('open');
+  sheet.classList.add('open');
+  if (appState.editingMode) {
+    sheet.querySelectorAll('.event-edit-btn').forEach(b => b.style.display = 'flex');
+    sheet.querySelectorAll('.add-event-btn').forEach(b => b.style.display = '');
+  }
+}
+
+function closeDayDetail() {
+  _openDetailDayId = null;
+  document.getElementById('day-detail-overlay')?.classList.remove('open');
+  document.getElementById('day-detail-sheet')?.classList.remove('open');
+}
+
+function openCurrentDayEdit() {
+  if (!appState.editingMode) toggleEditMode();
+  const dayId = _currentSwiperDayId || (appState.days && appState.days[0] && appState.days[0].id);
+  if (dayId) openDayDetail(dayId);
+}
+
+// ── Filter Modal ─────────────────────────────────────────────────────────────
+function openFilterModal() {
+  _syncFilterChips();
+  document.getElementById('filter-modal-overlay').classList.add('open');
+  document.getElementById('filter-modal').classList.add('open');
+}
+
+function closeFilterModal() {
+  document.getElementById('filter-modal-overlay')?.classList.remove('open');
+  document.getElementById('filter-modal')?.classList.remove('open');
+}
+
+function setFilterCity(city) {
+  appState.cityFilter = city;
+  _syncFilterChips();
+  _syncFilterDot();
+  renderDayCards();
+  renderActivities();
+  renderFoodGuide();
+}
+
+function _syncFilterChips() {
+  const city = appState.cityFilter || 'all';
+  document.querySelectorAll('.filter-chip').forEach(c =>
+    c.classList.toggle('active', c.dataset.city === city));
+}
+
+function _syncFilterDot() {
+  const dot = document.getElementById('filter-active-dot');
+  if (dot) dot.classList.toggle('on', (appState.cityFilter || 'all') !== 'all');
 }
 
 function filterTransit(view, btn) {
@@ -7915,8 +8192,7 @@ function getSmartCityFilter() {
 function _goItinerary() {
   const btn = document.getElementById('tab-itinerary');
   if (btn) showSection('itinerary', btn);
-  appState.cityFilter = 'all';
-  filterDate('upcoming');
+  renderDayCards();
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -7929,11 +8205,10 @@ document.addEventListener('DOMContentLoaded', async function() {
   await Promise.all([applyItineraryEvents(), applyTripActivities()]);
   renderTripProgress();
   checkHarukaBanner();
-  renderTodayCard();
-  // Set smart filters (upcoming + today's city) before rendering so the
-  // first paint uses the right filter state.
-  _goItinerary();
-  renderItinerary();
+  // Set smart city filter based on today's location in Japan.
+  appState.cityFilter = getSmartCityFilter();
+  _syncFilterDot();
+  renderDayCards();
   renderActivities();
   renderExpenses();
   renderFoodGuide();
@@ -8190,6 +8465,7 @@ document.addEventListener('visibilitychange', () => {
 </div>
 
 <button class="today-fab" id="today-fab" onclick="scrollToToday()">⬇ Today</button>
+<button class="day-edit-fab" id="day-edit-fab" onclick="openCurrentDayEdit()" title="Edit day">✏</button>
 
 <!-- Trip Inbox FAB -->
 <script>
@@ -8466,6 +8742,26 @@ function closeAttachmentViewer() {
   if (_wakeLock) { _wakeLock.release().catch(() => {}); _wakeLock = null; }
 }
 </script>
+
+<!-- Day detail bottom sheet -->
+<div class="day-detail-overlay" id="day-detail-overlay" onclick="closeDayDetail()"></div>
+<div class="day-detail-sheet" id="day-detail-sheet"><!-- content injected by openDayDetail() --></div>
+
+<!-- City filter modal -->
+<div class="filter-modal-overlay" id="filter-modal-overlay" onclick="closeFilterModal()"></div>
+<div class="filter-modal" id="filter-modal">
+  <div class="filter-modal-handle"></div>
+  <div class="filter-modal-title">Filter by City</div>
+  <div class="filter-modal-sub">Show only days from a specific destination</div>
+  <div class="filter-chips">
+    <button class="filter-chip active" data-city="all" onclick="setFilterCity('all')">All cities</button>
+    <button class="filter-chip" data-city="tokyo" onclick="setFilterCity('tokyo')">🗼 Tokyo</button>
+    <button class="filter-chip" data-city="hakone" onclick="setFilterCity('hakone')">🏔 Hakone</button>
+    <button class="filter-chip" data-city="kyoto" onclick="setFilterCity('kyoto')">⛩ Kyoto</button>
+    <button class="filter-chip" data-city="osaka" onclick="setFilterCity('osaka')">🦀 Osaka</button>
+  </div>
+  <button class="filter-done-btn" onclick="closeFilterModal()">Done</button>
+</div>
 
 <!-- More sheet — appears above tab bar when ··· is tapped -->
 <div class="more-overlay" id="more-overlay" onclick="closeMoreSheet()"></div>
