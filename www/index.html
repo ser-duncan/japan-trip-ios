@@ -4762,6 +4762,11 @@ const DEFAULT_ACTIVITIES = [
   {id:'a20',name:'Kimono rental',note:'Book in advance',type:'cultural',city:'kyoto',assignedDay:null},
   {id:'a21',name:"Philosopher's Path",note:null,type:'optional',city:'kyoto',assignedDay:null},
   {id:'a22',name:'Nijo Castle',note:null,type:'optional',city:'kyoto',assignedDay:null},
+  {id:'komehyo',name:'KOMEHYO Kyoto Shinkyogoku',note:'Best overall · LV, Chanel, Hermès · Authentication cert · Tax-free',type:'shopping',city:'kyoto',assignedDay:null},
+  {id:'brandoff',name:'BRAND OFF Kyoto Shijō',note:'Bags, watches, jewelry · 11:00–20:00 · Tax-free',type:'shopping',city:'kyoto',assignedDay:null},
+  {id:'2ndstreet',name:'2nd Street Shijō-Kawaramachi',note:'Treasure hunt vintage · 11:00–21:00 · Tax-free',type:'shopping',city:'kyoto',assignedDay:null},
+  {id:'decouverte',name:'Découverte Kyoto',note:'Curated feminine vintage · Céline, jewelry, bags',type:'shopping',city:'kyoto',assignedDay:null},
+  {id:'naramonocho',name:'Naramonocho Vintage Strip',note:'Mini hunting zone · multiple shops · near Nishiki Market',type:'shopping',city:'kyoto',assignedDay:null},
   {id:'a23',name:'Dotonbori',note:'Food + nightlife',type:'must',city:'osaka',assignedDay:null},
   {id:'a24',name:'Osaka Castle',note:null,type:'must',city:'osaka',assignedDay:null},
   {id:'a25',name:'Shinsekai district',note:null,type:'must',city:'osaka',assignedDay:null},
@@ -5122,8 +5127,14 @@ function buildActivityHTML(a, typeLabels) {
   var planLabel = planDay ? ('Day ' + getDayNum(a.assignedDay) + ': ' + planDay.dateLabel) : 'Plan it →';
   var planClass = isPlanned ? 'activity-plan-btn planned' : 'activity-plan-btn';
   var noteHtml = a.note ? '<div class="activity-note">' + a.note + '</div>' : '';
-  var hasDetail = !!(ACTIVITY_DETAILS && ACTIVITY_DETAILS[a.id]);
-  var detailOnclick = hasDetail ? ' onclick="openActivityDetail(\'' + a.id + '\');event.stopPropagation()"' : '';
+  var hasActivityDetail = !!(ACTIVITY_DETAILS && ACTIVITY_DETAILS[a.id]);
+  var hasShoppingDetail = !!(typeof SHOPPING_DETAILS !== 'undefined' && SHOPPING_DETAILS[a.id]);
+  var hasDetail = hasActivityDetail || hasShoppingDetail;
+  var detailOnclick = hasActivityDetail
+    ? ' onclick="openActivityDetail(\'' + a.id + '\');event.stopPropagation()"'
+    : hasShoppingDetail
+    ? ' onclick="openShoppingDetail(\'' + a.id + '\');event.stopPropagation()"'
+    : '';
   var mainClass = hasDetail ? ' activity-main tappable' : ' activity-main';
   var detailArrow = hasDetail ? '<span class="activity-arrow" style="margin-left:auto;padding-left:8px">›</span>' : '';
   return '<div class="activity-item" data-activity-id="' + a.id + '">'
