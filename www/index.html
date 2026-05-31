@@ -384,6 +384,9 @@
   .activity-main { flex: 1; }
   .activity-name { font-size: 14px; font-weight: 500; }
   .activity-note { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .activity-item.tappable { cursor: pointer; }
+  .activity-item.tappable:active { opacity: 0.75; }
+  .activity-arrow { font-size: 12px; color: var(--text-muted); flex-shrink: 0; align-self: center; }
 
   /* ── Logistics ── */
   .logistics-grid { display: grid; gap: 12px; }
@@ -3060,6 +3063,46 @@
             <div class="activity-name">Nijo Castle</div>
           </div>
         </div>
+        <div class="activity-item tappable" onclick="openShoppingDetail('komehyo')">
+          <span class="activity-type shopping">Shopping</span>
+          <div class="activity-main">
+            <div class="activity-name">KOMEHYO Kyoto Shinkyogoku</div>
+            <div class="activity-note">Best overall · LV, Chanel, Hermès · Authentication cert · Tax-free</div>
+          </div>
+          <span class="activity-arrow">›</span>
+        </div>
+        <div class="activity-item tappable" onclick="openShoppingDetail('brandoff')">
+          <span class="activity-type shopping">Shopping</span>
+          <div class="activity-main">
+            <div class="activity-name">BRAND OFF Kyoto Shijō</div>
+            <div class="activity-note">Bags, watches, jewelry · 11:00–20:00 · Tax-free</div>
+          </div>
+          <span class="activity-arrow">›</span>
+        </div>
+        <div class="activity-item tappable" onclick="openShoppingDetail('2ndstreet')">
+          <span class="activity-type shopping">Shopping</span>
+          <div class="activity-main">
+            <div class="activity-name">2nd Street Shijō-Kawaramachi</div>
+            <div class="activity-note">Treasure hunt vintage · 11:00–21:00 · Tax-free</div>
+          </div>
+          <span class="activity-arrow">›</span>
+        </div>
+        <div class="activity-item tappable" onclick="openShoppingDetail('decouverte')">
+          <span class="activity-type shopping">Shopping</span>
+          <div class="activity-main">
+            <div class="activity-name">Découverte Kyoto</div>
+            <div class="activity-note">Curated feminine vintage · Céline, jewelry, bags</div>
+          </div>
+          <span class="activity-arrow">›</span>
+        </div>
+        <div class="activity-item tappable" onclick="openShoppingDetail('naramonocho')">
+          <span class="activity-type shopping">Shopping</span>
+          <div class="activity-main">
+            <div class="activity-name">Naramonocho Vintage Strip</div>
+            <div class="activity-note">Mini hunting zone · multiple shops · near Nishiki Market</div>
+          </div>
+          <span class="activity-arrow">›</span>
+        </div>
       </div>
     </div>
 
@@ -4477,6 +4520,7 @@
     if (train.note) { noteEl.textContent = train.note; noteEl.style.display = 'block'; }
     else { noteEl.style.display = 'none'; }
     document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(train.sections);
+    const _tdt = document.getElementById('modal-tab-docs'); if (_tdt) _tdt.style.display = '';
     switchModalTab('details');
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
@@ -4495,6 +4539,7 @@
     if (hotel.note) { noteEl.textContent = hotel.note; noteEl.style.display = 'block'; }
     else { noteEl.style.display = 'none'; }
     document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(hotel.sections);
+    const _hdt = document.getElementById('modal-tab-docs'); if (_hdt) _hdt.style.display = '';
     switchModalTab('details');
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
@@ -5696,6 +5741,7 @@ function openFlightDetail(key) {
   const noteEl = document.getElementById('hotel-modal-note');
   noteEl.style.display = 'none';
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
+  const _fltdt = document.getElementById('modal-tab-docs'); if (_fltdt) _fltdt.style.display = '';
   switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
@@ -6602,6 +6648,152 @@ const FOOD_DETAILS = {
   ]},
 };
 
+const SHOPPING_DETAILS = {
+  komehyo: { name:'KOMEHYO Kyoto Shinkyogoku', badge:'⛩ Kyoto · 👜 Luxury Resale', price:'¥20,000–800,000+', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:"One of Japan's premier luxury resale chains, founded 1947. The Kyoto Shinkyogoku store sits in the famous covered shopping arcade between Shijō and Sanjō — the top vintage luxury stop in Kyoto." },
+      { label:'Neighborhood', value:'Shinkyogoku arcade, Nakagyō-ku · 5 min walk from Shijō-Kawaramachi crossing' },
+      { label:'Hours', value:'10:30 AM – 7:30 PM daily (may vary by season)' },
+      { label:'Tax-free', value:'Yes — bring passport. ¥5,000+ purchases qualify for instant tax refund at counter.' },
+    ]},
+    { title:'What to Expect', rows:[
+      { label:'🧳 Hermès', value:'Birkins, Kellys, Constance, belts — full Hermès selection. Best authenticated stock in Kyoto.' },
+      { label:'👜 Louis Vuitton', value:'Monogram, Damier, Empreinte — bags, wallets, accessories.' },
+      { label:'✨ Chanel', value:'Classic flaps, boy bags, WOC, vintage pieces.' },
+      { label:'👜 Gucci, Prada, Dior', value:'Wide selection across all major Italian houses.' },
+      { label:'⌚ Watches', value:'Rolex, Cartier, Omega — authenticated with service history.' },
+      { label:'💍 Jewelry', value:'Gold, diamond, pearl — also authenticated.' },
+    ]},
+    { title:'Why KOMEHYO', rows:[
+      { label:'✓ Authentication', value:'Every item comes with KOMEHYO certificate of authenticity — staff are professionally trained appraisers.' },
+      { label:'✓ Pricing', value:'Fair market pricing — generally 30–60% below retail for well-maintained pieces.' },
+      { label:'✓ English friendly', value:'English signage and staff at this location.' },
+      { label:'💡 Strategy', value:'Browse all cases — stock rotates daily. Check second floor for watches and fine jewelry.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'Shinkyogoku shopping arcade, Nakagyō-ku, Kyoto (near Sanjō-Shinkyogoku crossing)' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=KOMEHYO+新京極+京都" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Shijō station (Karasuma line) or Gion-Shijō station (Keihan line) — 8 min walk' },
+    ]},
+  ]},
+
+  brandoff: { name:'BRAND OFF Kyoto Shijō', badge:'⛩ Kyoto · 👜 Luxury Resale', price:'¥15,000–500,000+', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:'Major nationwide luxury resale chain specializing in bags, accessories, watches, and jewelry. Good complement to KOMEHYO — different stock, similar authentication standards.' },
+      { label:'Neighborhood', value:'Shijō area, Nakagyō-ku · close to Shijō-Kawaramachi and Shijō-Karasuma' },
+      { label:'Hours', value:'11:00 AM – 8:00 PM daily' },
+      { label:'Tax-free', value:'Yes — passport required.' },
+    ]},
+    { title:'What to Expect', rows:[
+      { label:'👜 Bags', value:'All major luxury brands — Louis Vuitton, Chanel, Gucci, Hermès, Prada, Celine, Loewe.' },
+      { label:'💍 Jewelry', value:'Gold, diamond, and branded jewelry (Tiffany, Cartier, Mikimoto).' },
+      { label:'⌚ Watches', value:'Luxury watches across all major brands with service records.' },
+      { label:'👗 Accessories', value:'Scarves, belts, sunglasses, wallets.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'💡 Visit both', value:'KOMEHYO and BRAND OFF often have different stock — visiting both doubles your chances of finding the perfect piece.' },
+      { label:'📸 Price tag photos', value:'Photograph price tags if you want to compare before deciding — staff are used to it.' },
+      { label:'🛍 Pricing', value:'Prices are fixed at chain stores — focus on finding the right piece rather than negotiating.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Neighborhood', value:'Shijō-dōri, Nakagyō-ku, Kyoto' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=BRAND+OFF+京都四条" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Shijō station or Gion-Shijō station' },
+    ]},
+  ]},
+
+  '2ndstreet': { name:'2nd Street Shijō-Kawaramachi', badge:'⛩ Kyoto · 🛍 Vintage', price:'¥1,000–150,000', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:"Japan's largest secondhand retail chain. The Shijō-Kawaramachi location is a multi-floor treasure hunt — mix of clothing, bags, accessories, shoes, and occasional luxury finds at significantly lower prices." },
+      { label:'Neighborhood', value:'Shijō-Kawaramachi crossing, Nakagyō-ku' },
+      { label:'Hours', value:'11:00 AM – 9:00 PM daily' },
+      { label:'Tax-free', value:'Yes — passport required for purchases over ¥5,000.' },
+    ]},
+    { title:'What to Expect', rows:[
+      { label:'🎲 The hunt', value:'Stock is completely random — you might find a Chanel wallet for ¥8,000 or a vintage Gucci belt for ¥3,000 next to fast fashion. That unpredictability is the appeal.' },
+      { label:'👜 Bags', value:'Wide range from budget vintage to occasional luxury pieces. Good place for Coach, Kate Spade, smaller designer labels.' },
+      { label:'👗 Clothing', value:'Vintage Japanese fashion, international brands, workwear, street style.' },
+      { label:'🔍 Strategy', value:'Go through everything systematically — browse each rack and shelf, not just the front displays.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Best time', value:'Weekday mornings when stock is freshest and crowds thinnest.' },
+      { label:'💴 Pricing', value:"Much cheaper than KOMEHYO/BRAND OFF — great for budget-conscious finds or kids' souvenirs." },
+      { label:'📦 Shipping', value:"Staff can often help arrange domestic shipping if you're buying bulky items." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Location', value:'Near Shijō-Kawaramachi crossing, Nakagyō-ku, Kyoto' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=2nd+Street+四条河原町+京都" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Gion-Shijō station (Keihan line) — 5 min walk; or Shijō station (Karasuma line) — 8 min walk' },
+    ]},
+  ]},
+
+  decouverte: { name:'Découverte Kyoto', badge:'⛩ Kyoto · 👜 Curated Vintage', price:'¥5,000–200,000', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:'Small, carefully curated vintage boutique with a feminine, romantic aesthetic. Unlike the chain stores, every piece here is hand-selected — expect Céline, vintage Chanel, delicate jewelry, and European vintage bags in beautiful condition.' },
+      { label:'Neighborhood', value:'Nakagyō-ku / Kawaramachi area, Kyoto' },
+      { label:'Hours', value:'Hours vary — check Google Maps before visiting' },
+    ]},
+    { title:'What to Expect', rows:[
+      { label:'✨ Céline', value:'Strong Céline selection — particularly the pre-Slimane era "Old Céline" pieces that command premium prices at auction.' },
+      { label:'💎 Vintage jewelry', value:'Delicate European and Japanese vintage jewelry — brooches, rings, necklaces with a romantic sensibility.' },
+      { label:'👜 Bags', value:'Curated selection of European heritage bags — mostly French and Italian houses from the 80s–2000s.' },
+      { label:'🌸 Aesthetic', value:'The shop has a distinctive feminine, French-inflected style — makes it easy to imagine the pieces on you.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'📞 Call ahead', value:'Small boutiques in Kyoto sometimes take unannounced days off — check Google Maps for hours or call ahead.' },
+      { label:'💡 Ask the owner', value:'Staff are usually knowledgeable about the provenance and era of each piece — great for learning about vintage fashion.' },
+      { label:'🎁 Gift wrapping', value:'Beautiful packaging — ideal for gifts.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Neighborhood', value:'Kawaramachi area, Nakagyō-ku, Kyoto' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Decouverte+vintage+京都" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Gion-Shijō station or Kyoto-Kawaramachi station — short walk' },
+    ]},
+  ]},
+
+  naramonocho: { name:'Naramonocho Vintage Strip', badge:'⛩ Kyoto · 🛍 Vintage Cluster', price:'¥1,000–100,000', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:'Naramonocho (奈良物町) is a narrow backstreet just off Nishiki Market packed with vintage clothing shops, antique dealers, and small secondhand boutiques. Perfect for combining with a Nishiki Market visit — the whole strip takes about 45–60 minutes to browse.' },
+      { label:'Neighborhood', value:'Naramonocho, Nakagyō-ku — one block north of Nishiki Market, between Teramachi and Shinkyogoku arcades' },
+      { label:'Hours', value:'Most shops 11:00 AM – 7:00 PM (individual shops vary)' },
+    ]},
+    { title:"What's Here", rows:[
+      { label:'👘 Vintage kimono', value:'Several shops selling vintage kimono, obi, and accessories — great unique souvenirs.' },
+      { label:'👜 Vintage bags', value:'Mix of Japanese and European vintage bags, mostly mid-century and 80s–90s pieces.' },
+      { label:'🏺 Antiques', value:'Small antique shops with ceramics, lacquerware, and Japanese craft objects.' },
+      { label:'👗 Vintage clothing', value:"Japanese vintage fashion — a great place to find unique pieces you won't find at home." },
+    ]},
+    { title:'Strategy', rows:[
+      { label:'🗺 Route', value:'Start at Nishiki Market for food, then cut north into Naramonocho for the shops. End at Teramachi arcade for more shopping or a coffee.' },
+      { label:'⏰ Timing', value:'Early afternoon is best — shops open by 11:00 and morning crowds at Nishiki will have thinned.' },
+      { label:'💴 Cash', value:'Some small shops are cash only — bring yen.' },
+      { label:'🛍 Combine with', value:'KOMEHYO Shinkyogoku is a 3-minute walk from the Shinkyogoku end of Naramonocho — easy to hit both.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Location', value:'Naramonocho, Nakagyō-ku — one block north of Nishiki Market' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=奈良物町+錦市場+京都+中京区" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Shijō station (Karasuma line) — 8 min walk; or from Nishiki Market head north toward Sanjō-dōri' },
+    ]},
+  ]},
+};
+
+function openShoppingDetail(key) {
+  const d = SHOPPING_DETAILS[key];
+  if (!d) return;
+  document.getElementById('hotel-modal-name').textContent = d.name;
+  document.getElementById('hotel-modal-sub').textContent = d.price || '';
+  document.getElementById('hotel-modal-badge').innerHTML = '<span class="badge">' + d.badge + '</span>';
+  const noteEl = document.getElementById('hotel-modal-note');
+  noteEl.style.display = 'none';
+  document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
+  const docsTab = document.getElementById('modal-tab-docs');
+  if (docsTab) docsTab.style.display = 'none';
+  switchModalTab('details');
+  document.getElementById('hotel-modal-overlay').classList.add('open');
+  document.getElementById('hotel-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
 function openFoodDetail(key) {
   const d = FOOD_DETAILS[key];
   if (!d) return;
@@ -6611,6 +6803,7 @@ function openFoodDetail(key) {
   const noteEl = document.getElementById('hotel-modal-note');
   noteEl.style.display = 'none';
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
+  const _foodDt = document.getElementById('modal-tab-docs'); if (_foodDt) _foodDt.style.display = '';
   switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
