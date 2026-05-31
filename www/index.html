@@ -1444,7 +1444,7 @@
   .date-filter-select option { background: #1A1A22; color: #E8E8F0; font-weight: 500; }
 
   /* ── Inline city chips ── */
-  .city-chip-row { display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; padding:2px 0 14px; -webkit-overflow-scrolling:touch; }
+  .city-chip-row { display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; padding:2px 0 10px; -webkit-overflow-scrolling:touch; }
   .city-chip-row::-webkit-scrollbar { display:none; }
   .city-chip { padding:6px 14px; border-radius:99px; font-size:13px; font-weight:600; border:1.5px solid; cursor:pointer; white-space:nowrap; flex-shrink:0; background:none; font-family:inherit; transition:background 0.18s; -webkit-tap-highlight-color:transparent; }
   .city-chip[data-city="all"] { border-color:rgba(255,255,255,0.22); color:var(--text-muted); }
@@ -1459,7 +1459,7 @@
   .city-chip[data-city="osaka"].active { background:rgba(124,111,205,0.14); }
 
   /* ── Date segmented + day picker button ── */
-  .date-seg-row { display:flex; gap:10px; align-items:center; padding:0 0 16px; }
+  .date-seg-row { display:flex; gap:10px; align-items:center; padding:0 0 10px; }
   .date-seg-wrap { display:flex; flex:1; background:rgba(255,255,255,0.07); border-radius:12px; padding:3px; gap:2px; }
   .date-seg-btn { flex:1; padding:8px 4px; font-size:13px; font-weight:600; border:none; background:none; border-radius:10px; color:rgba(255,255,255,0.38); font-family:inherit; cursor:pointer; transition:all 0.2s; -webkit-tap-highlight-color:transparent; }
   .date-seg-btn.active { color:var(--text); background:rgba(255,255,255,0.12); box-shadow:0 1px 5px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.1); }
@@ -1969,8 +1969,24 @@
     border-radius: 12px; padding: 3px;
     border: 1px solid rgba(255,255,255,0.05);
   }
-  .logistics-subnav { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-  .logistics-subnav::-webkit-scrollbar { display: none; }
+  /* Overflow popup for subnav More button */
+  .subnav-overflow-popup {
+    display: none; position: absolute; top: calc(var(--nav-h, 56px) + 52px); right: 0;
+    background: rgba(28,28,36,0.96); backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+    padding: 6px; z-index: 100; min-width: 180px;
+  }
+  .subnav-overflow-popup.open { display: block; }
+  .subnav-overflow-item {
+    display: block; width: 100%; padding: 12px 16px; border: none; background: none;
+    color: var(--text); font-family: inherit; font-size: 14px; font-weight: 600;
+    text-align: left; border-radius: 10px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; transition: background 0.15s;
+  }
+  .subnav-overflow-item:active { background: rgba(255,255,255,0.08); }
+  .subnav-overflow-item.active { color: var(--accent); }
   .eatdo-subnav-btn, .transit-subnav-btn {
     flex: 1; padding: 8px 10px; font-size: 13px; font-weight: 600;
     color: rgba(255,255,255,0.38); background: none; border: none;
@@ -2367,20 +2383,22 @@
 
   <!-- ─────────────── ITINERARY ─────────────── -->
   <div id="section-itinerary" class="section visible">
-    <div class="city-chip-row">
-      <button class="city-chip active" data-city="all" onclick="filterCity('all')">All cities</button>
-      <button class="city-chip" data-city="tokyo" onclick="filterCity('tokyo')">🗼 Tokyo</button>
-      <button class="city-chip" data-city="hakone" onclick="filterCity('hakone')">🏔 Hakone</button>
-      <button class="city-chip" data-city="kyoto" onclick="filterCity('kyoto')">⛩ Kyoto</button>
-      <button class="city-chip" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
-    </div>
-    <div class="date-seg-row">
-      <div class="date-seg-wrap">
-        <button class="date-seg-btn" id="date-seg-today" onclick="selectDateSeg('today')">Today</button>
-        <button class="date-seg-btn active" id="date-seg-upcoming" onclick="selectDateSeg('upcoming')">Upcoming</button>
-        <button class="date-seg-btn" id="date-seg-all" onclick="selectDateSeg('all')">All</button>
+    <div class="subnav-sticky">
+      <div class="city-chip-row">
+        <button class="city-chip active" data-city="all" onclick="filterCity('all')">All cities</button>
+        <button class="city-chip" data-city="tokyo" onclick="filterCity('tokyo')">🗼 Tokyo</button>
+        <button class="city-chip" data-city="hakone" onclick="filterCity('hakone')">🏔 Hakone</button>
+        <button class="city-chip" data-city="kyoto" onclick="filterCity('kyoto')">⛩ Kyoto</button>
+        <button class="city-chip" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
       </div>
-      <button class="date-day-btn" id="date-day-btn" onclick="openDayPicker()">Day ↓</button>
+      <div class="date-seg-row">
+        <div class="date-seg-wrap">
+          <button class="date-seg-btn" id="date-seg-today" onclick="selectDateSeg('today')">Today</button>
+          <button class="date-seg-btn active" id="date-seg-upcoming" onclick="selectDateSeg('upcoming')">Upcoming</button>
+          <button class="date-seg-btn" id="date-seg-all" onclick="selectDateSeg('all')">All</button>
+        </div>
+        <button class="date-day-btn" id="date-day-btn" onclick="openDayPicker()">Day ↓</button>
+      </div>
     </div>
     <div id="trip-progress-bar" class="trip-progress-wrap">
       <div class="trip-progress-row">
@@ -3056,28 +3074,28 @@
 
   <!-- ─────────────── ACTIVITIES + FOOD ─────────────── -->
   <div id="section-activities" class="section">
-    <div class="city-chip-row">
-      <button class="city-chip active" data-city="all" onclick="filterCity('all')">All cities</button>
-      <button class="city-chip" data-city="tokyo" onclick="filterCity('tokyo')">🗼 Tokyo</button>
-      <button class="city-chip" data-city="hakone" onclick="filterCity('hakone')">🏔 Hakone</button>
-      <button class="city-chip" data-city="kyoto" onclick="filterCity('kyoto')">⛩ Kyoto</button>
-      <button class="city-chip" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
-    </div>
     <div class="subnav-sticky">
+      <div class="city-chip-row">
+        <button class="city-chip active" data-city="all" onclick="filterCity('all')">All cities</button>
+        <button class="city-chip" data-city="tokyo" onclick="filterCity('tokyo')">🗼 Tokyo</button>
+        <button class="city-chip" data-city="hakone" onclick="filterCity('hakone')">🏔 Hakone</button>
+        <button class="city-chip" data-city="kyoto" onclick="filterCity('kyoto')">⛩ Kyoto</button>
+        <button class="city-chip" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
+      </div>
       <div class="eatdo-subnav">
         <button class="eatdo-subnav-btn active" id="eatdo-btn-all" onclick="filterEatDo('all', this)">All</button>
         <button class="eatdo-subnav-btn" id="eatdo-btn-food" onclick="filterEatDo('food', this)">🍜 Food</button>
         <button class="eatdo-subnav-btn" id="eatdo-btn-activities" onclick="filterEatDo('activities', this)">🎯 Activities</button>
       </div>
-    </div>
-    <div class="tag-filter-row" id="tag-filter-row">
-      <button class="tag-pill active" id="tag-pill-all" onclick="filterEatDoTag('all', this)">All</button>
-      <button class="tag-pill" id="tag-pill-must" onclick="filterEatDoTag('must', this)">⭐ Must-do</button>
-      <button class="tag-pill" id="tag-pill-gf" onclick="filterEatDoTag('gf', this)">✓ Gluten-Free</button>
-      <button class="tag-pill" id="tag-pill-shopping" onclick="filterEatDoTag('shopping', this)">🛍 Shopping</button>
-      <button class="tag-pill" id="tag-pill-cultural" onclick="filterEatDoTag('cultural', this)">🎭 Cultural</button>
-      <button class="tag-pill" id="tag-pill-budget" onclick="filterEatDoTag('budget', this)">💰 Budget</button>
-      <button class="tag-pill" id="tag-pill-optional" onclick="filterEatDoTag('optional', this)">Optional</button>
+      <div class="tag-filter-row" id="tag-filter-row">
+        <button class="tag-pill active" id="tag-pill-all" onclick="filterEatDoTag('all', this)">All</button>
+        <button class="tag-pill" id="tag-pill-must" onclick="filterEatDoTag('must', this)">⭐ Must-do</button>
+        <button class="tag-pill" id="tag-pill-gf" onclick="filterEatDoTag('gf', this)">✓ Gluten-Free</button>
+        <button class="tag-pill" id="tag-pill-shopping" onclick="filterEatDoTag('shopping', this)">🛍 Shopping</button>
+        <button class="tag-pill" id="tag-pill-cultural" onclick="filterEatDoTag('cultural', this)">🎭 Cultural</button>
+        <button class="tag-pill" id="tag-pill-budget" onclick="filterEatDoTag('budget', this)">💰 Budget</button>
+        <button class="tag-pill" id="tag-pill-optional" onclick="filterEatDoTag('optional', this)">Optional</button>
+      </div>
     </div>
     <div id="food-guide-section">
       <div class="section-title" style="margin-top:0">🍜 Food Guide</div>
@@ -3354,16 +3372,20 @@
   </div>
 
   <!-- ─────────────── LOGISTICS ─────────────── -->
-  <div id="section-logistics" class="section">
+  <div id="section-logistics" class="section" style="position:relative">
     <div class="subnav-sticky">
       <div class="logistics-subnav">
         <button class="logistics-subnav-btn active" id="log-btn-all" onclick="filterLogistics('all',this)">All</button>
         <button class="logistics-subnav-btn" id="log-btn-converter" onclick="filterLogistics('converter',this)">💱 Converter</button>
         <button class="logistics-subnav-btn" id="log-btn-essentials" onclick="filterLogistics('essentials',this)">🗒 Essentials</button>
         <button class="logistics-subnav-btn" id="log-btn-reservations" onclick="filterLogistics('reservations',this)">🍽 Reservations</button>
-        <button class="logistics-subnav-btn" id="log-btn-emergency" onclick="filterLogistics('emergency',this)">🆘 Emergency</button>
-        <button class="logistics-subnav-btn" id="log-btn-spend" onclick="filterLogistics('spend',this)">💴 Spend</button>
+        <button class="logistics-subnav-btn" id="log-btn-more-trigger" onclick="toggleLogisticsMore(this)">··· More</button>
       </div>
+    </div>
+    <!-- Logistics overflow popup -->
+    <div class="subnav-overflow-popup" id="log-more-popup">
+      <button class="subnav-overflow-item" id="log-btn-emergency" onclick="filterLogistics('emergency', this)">🆘 Emergency</button>
+      <button class="subnav-overflow-item" id="log-btn-spend" onclick="filterLogistics('spend', this)">💴 Spend</button>
     </div>
 
     <!-- ── Yen Converter ── -->
@@ -5323,14 +5345,27 @@ function _syncTagPillsForView(view) {
 }
 
 function filterLogistics(view, btn) {
-  document.querySelectorAll('.logistics-subnav-btn').forEach(b => b.classList.remove('active'));
+  // Close overflow popup
+  document.getElementById('log-more-popup')?.classList.remove('open');
+  // Sync active state — subnav buttons + overflow items
+  document.querySelectorAll('.logistics-subnav-btn, .subnav-overflow-item').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  // If selection came from overflow, also highlight the More trigger
+  const overflowViews = ['emergency','spend'];
+  const moreTrigger = document.getElementById('log-btn-more-trigger');
+  if (moreTrigger) moreTrigger.classList.toggle('active', overflowViews.includes(view));
+  // Show/hide content sections
   const views = ['converter','essentials','reservations','emergency','spend'];
   views.forEach(v => {
     const el = document.getElementById('log-view-' + v);
     if (el) el.style.display = (view === 'all' || view === v) ? '' : 'none';
   });
   window.scrollTo({ top: document.querySelector('.sticky-header')?.offsetHeight || 0, behavior: 'smooth' });
+}
+
+function toggleLogisticsMore(triggerBtn) {
+  const popup = document.getElementById('log-more-popup');
+  if (popup) popup.classList.toggle('open');
 }
 
 function goMoreSection(id) {
@@ -5344,6 +5379,15 @@ function updateNavHeight() {
 }
 document.addEventListener('DOMContentLoaded', updateNavHeight);
 window.addEventListener('resize', updateNavHeight);
+
+// Close logistics overflow popup when clicking outside
+document.addEventListener('click', e => {
+  const popup = document.getElementById('log-more-popup');
+  if (!popup) return;
+  if (!popup.contains(e.target) && e.target.id !== 'log-btn-more-trigger' && !e.target.closest('#log-btn-more-trigger')) {
+    popup.classList.remove('open');
+  }
+});
 
 // ── City filter (override) ──
 function filterCity(city) {
