@@ -1,6 +1,6 @@
 {
-  "name": "Japan 2026",
-  "short_name": "Japan 2026",
+  "name": "Nomad",
+  "short_name": "Nomad",
   "description": "Japan trip planner — May 25–June 5",
   "start_url": "./index.html",
   "display": "standalone",

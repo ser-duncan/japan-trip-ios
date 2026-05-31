@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<title>Japan 2026 🗾</title>
+<title>Nomad</title>
 <style>
   :root {
     --tokyo: #E8505B;
@@ -138,7 +138,7 @@
   .nav-btn.active { color: var(--text); border-bottom-color: var(--text); }
 
   /* ── Layout ── */
-  .container { max-width: 900px; margin: 0 auto; padding: 0 24px 120px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px 130px; }
 
   /* ── Section ── */
   .section { display: none; padding-top: 20px; overflow-x: clip; }
@@ -1344,7 +1344,7 @@
     padding-top: calc(env(safe-area-inset-top, 0px) + 40px);
   }
   #passcode-gate.hidden { display: none; }
-  .gate-flag { font-size: 56px; margin-bottom: 16px; }
+  .gate-app-icon { width: 80px; height: 80px; border-radius: 20px; margin-bottom: 16px; object-fit: cover; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
   .gate-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
   .gate-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 36px; }
   .gate-input {
@@ -1922,20 +1922,30 @@
     font-family: inherit;
   }
   .food-detail-btn:active { background: rgba(126,176,255,0.2); }
-  .eatdo-subnav, .transit-subnav {
-    display: flex; gap: 8px; margin-bottom: 20px;
+  /* ── Segmented control subnav ── */
+  .subnav-sticky {
     position: sticky; top: var(--nav-h, 56px); z-index: 50;
-    background: var(--bg); padding-bottom: 8px;
+    background: var(--bg); padding: 2px 0 12px;
+  }
+  .eatdo-subnav, .transit-subnav {
+    display: flex; gap: 2px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 12px; padding: 3px;
+    border: 1px solid rgba(255,255,255,0.05);
   }
   .eatdo-subnav-btn, .transit-subnav-btn {
-    flex: 1; padding: 10px 12px; font-size: 13px; font-weight: 600;
-    color: var(--text-muted); background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 10px; cursor: pointer; font-family: inherit; transition: all 0.15s;
+    flex: 1; padding: 8px 10px; font-size: 13px; font-weight: 600;
+    color: rgba(255,255,255,0.38); background: none; border: none;
+    border-radius: 10px; cursor: pointer; font-family: inherit;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    -webkit-tap-highlight-color: transparent;
   }
   .eatdo-subnav-btn.active, .transit-subnav-btn.active {
-    color: var(--text); background: rgba(126,176,255,0.12); border-color: rgba(126,176,255,0.4);
+    color: var(--text);
+    background: rgba(255,255,255,0.12);
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
   }
-  .eatdo-subnav-btn:active, .transit-subnav-btn:active { background: var(--surface3); }
+  .eatdo-subnav-btn:active, .transit-subnav-btn:active { opacity: 0.7; }
   .tag-filter-row { display: flex; gap: 7px; overflow-x: auto; padding: 8px 0 2px; scrollbar-width: none; -ms-overflow-style: none; }
   .tag-filter-row::-webkit-scrollbar { display: none; }
   .tag-pill { flex-shrink: 0; padding: 5px 12px; font-size: 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-muted); cursor: pointer; font-family: inherit; white-space: nowrap; }
@@ -1952,7 +1962,7 @@
   .lang-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
   .lang-no-results { color: var(--text-muted); padding: 16px 0; font-size: 14px; }
   .today-fab {
-    position: fixed; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); right: 20px;
+    position: fixed; bottom: calc(100px + env(safe-area-inset-bottom, 0px)); right: 20px;
     z-index: 201; display: none; align-items: center; gap: 6px; padding: 10px 16px;
     font-size: 13px; font-weight: 700; color: #fff; background: var(--accent);
     border: none; border-radius: 24px; cursor: pointer; font-family: inherit;
@@ -2184,6 +2194,11 @@
     padding: 10px 20px;
     background: rgba(15,15,19,0.92); backdrop-filter: blur(12px);
   }
+  .app-header-brand { display: flex; align-items: center; gap: 9px; }
+  .app-header-icon {
+    width: 28px; height: 28px; border-radius: 7px;
+    object-fit: cover; flex-shrink: 0;
+  }
   .app-header-title { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
   .app-header-actions { display: flex; align-items: center; gap: 10px; }
   .app-header-btn {
@@ -2201,47 +2216,72 @@
   }
   .app-header-edit-btn.active { border-color: rgba(126,176,255,0.5); color: #7EB0FF; background: rgba(126,176,255,0.08); }
 
-  /* ── Bottom tab bar ── */
+  /* ── Liquid Glass bottom tab bar ── */
   .tab-bar {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-    background: rgba(15,15,19,0.94); backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border);
+    position: fixed;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    left: 20px; right: 20px;
+    z-index: 200;
+    max-width: 500px; margin: 0 auto;
+    background: rgba(16,16,22,0.72);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-radius: 28px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow:
+      0 8px 32px rgba(0,0,0,0.55),
+      0 2px 8px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,0.13),
+      inset 0 -1px 0 rgba(0,0,0,0.2);
     display: flex;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding: 6px;
+    gap: 2px;
   }
   .tab-bar-btn {
     flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 8px 0 6px; border: none; background: none; cursor: pointer;
-    color: var(--text-muted); font-family: inherit; transition: color 0.15s;
+    padding: 8px 4px 7px;
+    border: none; background: none; cursor: pointer;
+    color: rgba(255,255,255,0.38);
+    font-family: inherit;
+    border-radius: 22px;
+    transition: color 0.2s, background 0.2s;
     -webkit-tap-highlight-color: transparent;
   }
-  .tab-bar-btn.active { color: var(--accent); }
-  .tab-bar-btn:active { opacity: 0.7; }
+  .tab-bar-btn.active {
+    color: var(--accent);
+    background: rgba(126,176,255,0.15);
+  }
+  .tab-bar-btn:active { opacity: 0.55; }
   .tab-icon { font-size: 22px; line-height: 1.1; }
-  .tab-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1px; }
+  .tab-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1px; }
 
-  /* ── More sheet (popup above tab bar) ── */
+  /* ── More sheet (Liquid Glass, floats above tab bar) ── */
   .more-overlay {
     position: fixed; inset: 0; z-index: 300;
-    background: rgba(0,0,0,0.4); opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    background: rgba(0,0,0,0.35); opacity: 0; pointer-events: none; transition: opacity 0.22s;
   }
   .more-overlay.open { opacity: 1; pointer-events: auto; }
   .more-sheet {
     position: fixed; z-index: 301;
-    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
-    left: 50%; transform: translateX(-50%) translateY(10px);
-    background: var(--surface2); border: 1px solid var(--border); border-radius: 16px;
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    left: 50%; transform: translateX(-50%) translateY(12px);
+    background: rgba(20,20,28,0.78);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.1);
     padding: 6px; min-width: 220px;
-    opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s;
+    opacity: 0; pointer-events: none; transition: opacity 0.22s, transform 0.22s;
   }
   .more-sheet.open { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
   .more-sheet-item {
     display: flex; align-items: center; gap: 12px; width: 100%;
-    padding: 14px 18px; border: none; background: none; color: var(--text);
+    padding: 13px 18px; border: none; background: none; color: var(--text);
     font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer;
-    border-radius: 12px; text-align: left;
+    border-radius: 14px; text-align: left;
   }
-  .more-sheet-item:active { background: var(--surface); }
+  .more-sheet-item:active { background: rgba(255,255,255,0.08); }
   .more-sheet-icon { font-size: 22px; width: 28px; text-align: center; }
 </style>
 </head>
@@ -2249,8 +2289,8 @@
 
 <!-- Passcode Gate -->
 <div id="passcode-gate">
-  <div class="gate-flag">🗾</div>
-  <div class="gate-title">Japan 2026</div>
+  <img src="icons/icon-192.png" class="gate-app-icon" alt="Nomad">
+  <div class="gate-title">Nomad</div>
   <div class="gate-sub">Enter passphrase to continue</div>
   <input id="gate-input" class="gate-input" type="password" placeholder="Passphrase" autocomplete="off" autocorrect="off" spellcheck="false" />
   <button class="gate-btn" onclick="tryUnlock()">Unlock</button>
@@ -2260,7 +2300,10 @@
 <!-- Sticky header: compact app bar + filter bar -->
 <div class="sticky-header">
   <div class="app-header">
-    <span class="app-header-title">Japan 2026 🗾</span>
+    <div class="app-header-brand">
+      <img src="icons/icon-192.png" class="app-header-icon" alt="">
+      <span class="app-header-title">Nomad</span>
+    </div>
     <div class="app-header-actions">
       <div class="sync-dot" id="sync-dot"></div>
       <button class="app-header-edit-btn" id="edit-toggle" onclick="toggleEditMode()" style="display:none">✏️ Edit</button>
@@ -2783,10 +2826,12 @@
 
   <!-- ─────────────── TRANSIT ─────────────── -->
   <div id="section-trains" class="section">
-    <div class="transit-subnav">
-      <button class="transit-subnav-btn active" id="transit-btn-all" onclick="filterTransit('all',this)">All</button>
-      <button class="transit-subnav-btn" id="transit-btn-trains" onclick="filterTransit('trains',this)">🚄 Trains</button>
-      <button class="transit-subnav-btn" id="transit-btn-flights" onclick="filterTransit('flights',this)">✈️ Flights</button>
+    <div class="subnav-sticky">
+      <div class="transit-subnav">
+        <button class="transit-subnav-btn active" id="transit-btn-all" onclick="filterTransit('all',this)">All</button>
+        <button class="transit-subnav-btn" id="transit-btn-trains" onclick="filterTransit('trains',this)">🚄 Trains</button>
+        <button class="transit-subnav-btn" id="transit-btn-flights" onclick="filterTransit('flights',this)">✈️ Flights</button>
+      </div>
     </div>
 
     <!-- ── Trains ── -->
@@ -2976,10 +3021,12 @@
 
   <!-- ─────────────── ACTIVITIES + FOOD ─────────────── -->
   <div id="section-activities" class="section">
-    <div class="eatdo-subnav">
-      <button class="eatdo-subnav-btn active" id="eatdo-btn-all" onclick="filterEatDo('all', this)">All</button>
-      <button class="eatdo-subnav-btn" id="eatdo-btn-food" onclick="filterEatDo('food', this)">🍜 Food</button>
-      <button class="eatdo-subnav-btn" id="eatdo-btn-activities" onclick="filterEatDo('activities', this)">🎯 Activities</button>
+    <div class="subnav-sticky">
+      <div class="eatdo-subnav">
+        <button class="eatdo-subnav-btn active" id="eatdo-btn-all" onclick="filterEatDo('all', this)">All</button>
+        <button class="eatdo-subnav-btn" id="eatdo-btn-food" onclick="filterEatDo('food', this)">🍜 Food</button>
+        <button class="eatdo-subnav-btn" id="eatdo-btn-activities" onclick="filterEatDo('activities', this)">🎯 Activities</button>
+      </div>
     </div>
     <div class="tag-filter-row" id="tag-filter-row">
       <button class="tag-pill active" id="tag-pill-all" onclick="filterEatDoTag('all', this)">All</button>
