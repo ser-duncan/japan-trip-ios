@@ -1978,11 +1978,15 @@
     padding-bottom: 2px;
     height: calc(100svh - var(--nav-h, 56px) - 200px);
     min-height: 380px;
+    /* prevent flex content from pushing swiper wider than viewport */
+    max-width: 100%; min-width: 0;
   }
   .day-swiper::-webkit-scrollbar { display: none; }
 
   .day-card {
-    min-width: 100%; scroll-snap-align: start; flex-shrink: 0;
+    /* width (not min-width) so the card never exceeds the viewport */
+    width: 100%; max-width: 100%; min-width: 0;
+    scroll-snap-align: start; flex-shrink: 0;
     padding: 0 4px 16px; box-sizing: border-box;
   }
   .day-card-inner {
@@ -1991,7 +1995,7 @@
     padding: 20px 20px 0; height: 100%; box-sizing: border-box;
     display: flex; flex-direction: column;
     box-shadow: 0 2px 20px rgba(0,0,0,0.35);
-    overflow: hidden;
+    overflow: hidden; min-width: 0;
   }
   .day-card-top {
     display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px;
@@ -2013,6 +2017,7 @@
   .day-card-title {
     font-size: 24px; font-weight: 700; color: var(--text);
     line-height: 1.15; margin-bottom: 14px; letter-spacing: -0.4px;
+    word-break: break-word; overflow-wrap: break-word;
   }
   .day-card-weather-row {
     display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
@@ -2027,7 +2032,7 @@
     font-size: 12px; font-weight: 600; color: var(--text-muted);
     min-width: 72px; flex-shrink: 0;
   }
-  .day-card-agenda-event { font-size: 14px; color: var(--text); font-weight: 500; line-height: 1.3; }
+  .day-card-agenda-event { font-size: 14px; color: var(--text); font-weight: 500; line-height: 1.3; min-width: 0; overflow-wrap: break-word; }
   .day-card-agenda-event.highlighted { color: var(--accent); font-weight: 600; }
   .day-card-agenda-empty { font-size: 14px; color: var(--text-muted); }
 
