@@ -2830,6 +2830,34 @@
         <div class="day-dot kyoto"></div>
         <div class="day-header" onclick="toggleDay(this)">
           <span class="day-date">Sun · May 31</span>
+          <span class="day-title">Fushimi Inari + Gion</span>
+          <span class="badge badge-kyoto">Kyoto</span>
+          <span class="day-toggle open">▼</span>
+        </div>
+        <div class="day-events">
+          <div class="period-label">🌅 Early Morning</div>
+          <div class="event event-highlight">
+            <span class="event-time">Early AM</span>
+            <div><div class="event-text">⛩ Fushimi Inari-taisha</div><div class="event-note">Go early — before crowds arrive</div></div>
+          </div>
+          <div class="period-label">🌤 Afternoon</div>
+          <div class="event">
+            <span class="event-time">Afternoon</span>
+            <div><div class="event-text">🛒 Nishiki Market — matcha treats &amp; shopping</div></div>
+          </div>
+          <div class="period-label">🌙 Evening</div>
+          <div class="event">
+            <span class="event-time">Sunset</span>
+            <div><div class="event-text">⛩ Gion at sunset</div><div class="event-note">Golden hour — best lighting for photos</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- June 1 -->
+      <div class="day-block" data-city="kyoto">
+        <div class="day-dot kyoto"></div>
+        <div class="day-header" onclick="toggleDay(this)">
+          <span class="day-date">Mon · Jun 1</span>
           <span class="day-title">Nara Park Day Trip ✨</span>
           <span class="badge badge-kyoto">Kyoto</span>
           <span class="day-toggle open">▼</span>
@@ -2855,34 +2883,6 @@
           <div class="event">
             <span class="event-time">Afternoon</span>
             <div><div class="event-text">Wander old Nara streets</div><div class="event-note">Return to Kyoto in the afternoon</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- June 1 -->
-      <div class="day-block" data-city="kyoto">
-        <div class="day-dot kyoto"></div>
-        <div class="day-header" onclick="toggleDay(this)">
-          <span class="day-date">Mon · Jun 1</span>
-          <span class="day-title">Fushimi Inari + Nishiki</span>
-          <span class="badge badge-kyoto">Kyoto</span>
-          <span class="day-toggle open">▼</span>
-        </div>
-        <div class="day-events">
-          <div class="period-label">🌅 Early Morning</div>
-          <div class="event event-highlight">
-            <span class="event-time">Early AM</span>
-            <div><div class="event-text">⛩ Fushimi Inari-taisha</div><div class="event-note">Go early — before crowds arrive</div></div>
-          </div>
-          <div class="period-label">🌤 Afternoon</div>
-          <div class="event">
-            <span class="event-time">Afternoon</span>
-            <div><div class="event-text">🛒 Nishiki Market — matcha treats &amp; shopping</div></div>
-          </div>
-          <div class="period-label">🌙 Evening</div>
-          <div class="event">
-            <span class="event-time">Evening</span>
-            <div><div class="event-text">🍽 Relaxed Kyoto dinner</div></div>
           </div>
         </div>
       </div>
@@ -4244,16 +4244,17 @@
       { label: 'Hakone-Yumoto Station (箱根湯本駅)', query: 'Hakone-Yumoto Station Kanagawa 箱根湯本駅', checked: false },
       { label: 'Kyoto Station (京都駅)', query: 'Kyoto Station Japan 京都駅', checked: false },
     ],
-    // May 31 — Nara Park Day Trip
+    // May 31 — Fushimi Inari + Gion
+    [
+      { label: 'Fushimi Inari Shrine, Kyoto (伏見稲荷大社)', query: 'Fushimi Inari Shrine Kyoto 伏見稲荷大社', checked: true },
+      { label: 'Nishiki Market, Kyoto (錦市場)', query: 'Nishiki Market Kyoto 錦市場', checked: true },
+      { label: 'Gion District, Kyoto (祇園)', query: 'Gion District Kyoto 祇園', checked: true },
+    ],
+    // June 1 — Nara Park Day Trip
     [
       { label: 'Nara Park (奈良公園)', query: 'Nara Park Nara Japan 奈良公園', checked: true },
       { label: 'Todai-ji Temple, Nara (東大寺)', query: 'Todai-ji Temple Nara 東大寺', checked: true },
       { label: 'Naramachi, Nara (奈良町)', query: 'Naramachi Nara Japan 奈良町', checked: true },
-    ],
-    // June 1 — Fushimi Inari + Nishiki
-    [
-      { label: 'Fushimi Inari Shrine, Kyoto (伏見稲荷大社)', query: 'Fushimi Inari Shrine Kyoto 伏見稲荷大社', checked: true },
-      { label: 'Nishiki Market, Kyoto (錦市場)', query: 'Nishiki Market Kyoto 錦市場', checked: true },
     ],
     // June 2 — Arashiyama
     [
@@ -5159,21 +5160,21 @@ const DEFAULT_DAYS = [
     {id:'d5e4',type:'period',text:'🌙 Evening'},
     {id:'d5e5',type:'event',time:'Evening',text:'🏘 Explore neighborhood casually',note:'Settle in, low-key first night in Kyoto',highlight:false,booked:false,done:false},
   ]},
-  {id:'d6',city:'kyoto',date:'2026-05-31',dateLabel:'Sun · May 31',title:'Nara Park Day Trip ✨',events:[
-    {id:'d6e0',type:'callout',icon:'🦌',text:'Great <strong>"slower day"</strong> before the Osaka energy — highly recommended'},
-    {id:'d6e1',type:'period',text:'☀️ Morning'},
-    {id:'d6e2',type:'event',time:'Morning',text:'✨ Train from Kyoto → Nara (~45 min)',note:null,highlight:true,booked:false,done:false},
-    {id:'d6e3',type:'event',time:'Morning',text:'🦌 Bowing deer · Tōdai-ji · Giant Buddha',note:'Mochi pounding shops nearby',highlight:false,booked:false,done:false},
-    {id:'d6e4',type:'period',text:'🌤 Afternoon'},
-    {id:'d6e5',type:'event',time:'Afternoon',text:'Wander old Nara streets',note:'Return to Kyoto in the afternoon',highlight:false,booked:false,done:false},
+  {id:'d6',city:'kyoto',date:'2026-05-31',dateLabel:'Sun · May 31',title:'Fushimi Inari + Gion',events:[
+    {id:'d6e0',type:'period',text:'🌅 Early Morning'},
+    {id:'d6e1',type:'event',time:'Early AM',text:'⛩ Fushimi Inari-taisha',note:'Go early — before crowds arrive',highlight:true,booked:false,done:false,detailKey:'a14',detailType:'activity'},
+    {id:'d6e2',type:'period',text:'🌤 Afternoon'},
+    {id:'d6e3',type:'event',time:'Afternoon',text:'🛒 Nishiki Market — matcha treats & shopping',note:null,highlight:false,booked:false,done:false,detailKey:'a18',detailType:'activity'},
+    {id:'d6e4',type:'period',text:'🌙 Evening'},
+    {id:'d6e5',type:'event',time:'Sunset',text:'⛩ Gion at sunset',note:'Golden hour — best lighting for photos',highlight:false,booked:false,done:false,detailKey:'a17',detailType:'activity'},
   ]},
-  {id:'d7',city:'kyoto',date:'2026-06-01',dateLabel:'Mon · Jun 1',title:'Fushimi Inari + Nishiki',events:[
-    {id:'d7e0',type:'period',text:'🌅 Early Morning'},
-    {id:'d7e1',type:'event',time:'Early AM',text:'⛩ Fushimi Inari-taisha',note:'Go early — before crowds arrive',highlight:true,booked:false,done:false,detailKey:'a14',detailType:'activity'},
-    {id:'d7e2',type:'period',text:'🌤 Afternoon'},
-    {id:'d7e3',type:'event',time:'Afternoon',text:'🛒 Nishiki Market — matcha treats & shopping',note:null,highlight:false,booked:false,done:false,detailKey:'a18',detailType:'activity'},
-    {id:'d7e4',type:'period',text:'🌙 Evening'},
-    {id:'d7e5',type:'event',time:'Evening',text:'🍽 Relaxed Kyoto dinner',note:null,highlight:false,booked:false,done:false},
+  {id:'d7',city:'kyoto',date:'2026-06-01',dateLabel:'Mon · Jun 1',title:'Nara Park Day Trip ✨',events:[
+    {id:'d7e0',type:'callout',icon:'🦌',text:'Great <strong>"slower day"</strong> before the Osaka energy — highly recommended'},
+    {id:'d7e1',type:'period',text:'☀️ Morning'},
+    {id:'d7e2',type:'event',time:'Morning',text:'✨ Train from Kyoto → Nara (~45 min)',note:null,highlight:true,booked:false,done:false},
+    {id:'d7e3',type:'event',time:'Morning',text:'🦌 Bowing deer · Tōdai-ji · Giant Buddha',note:'Mochi pounding shops nearby',highlight:false,booked:false,done:false},
+    {id:'d7e4',type:'period',text:'🌤 Afternoon'},
+    {id:'d7e5',type:'event',time:'Afternoon',text:'Wander old Nara streets',note:'Return to Kyoto in the afternoon',highlight:false,booked:false,done:false},
   ]},
   {id:'d8',city:'kyoto',date:'2026-06-02',dateLabel:'Tue · Jun 2',title:'Arashiyama Day',events:[
     {id:'d8e0',type:'period',text:'☀️ Morning'},
