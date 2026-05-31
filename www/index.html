@@ -1443,6 +1443,42 @@
   .date-filter-select:focus { outline: none; border-color: rgba(126,176,255,0.65); }
   .date-filter-select option { background: #1A1A22; color: #E8E8F0; font-weight: 500; }
 
+  /* ── Inline city chips ── */
+  .city-chip-row { display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; padding:2px 0 14px; -webkit-overflow-scrolling:touch; }
+  .city-chip-row::-webkit-scrollbar { display:none; }
+  .city-chip { padding:6px 14px; border-radius:99px; font-size:13px; font-weight:600; border:1.5px solid; cursor:pointer; white-space:nowrap; flex-shrink:0; background:none; font-family:inherit; transition:background 0.18s; -webkit-tap-highlight-color:transparent; }
+  .city-chip[data-city="all"] { border-color:rgba(255,255,255,0.22); color:var(--text-muted); }
+  .city-chip[data-city="all"].active { border-color:var(--text); color:var(--text); background:rgba(255,255,255,0.07); }
+  .city-chip[data-city="tokyo"] { border-color:var(--tokyo); color:var(--tokyo); }
+  .city-chip[data-city="tokyo"].active { background:rgba(232,80,91,0.14); }
+  .city-chip[data-city="hakone"] { border-color:var(--hakone); color:var(--hakone); }
+  .city-chip[data-city="hakone"].active { background:rgba(76,175,130,0.14); }
+  .city-chip[data-city="kyoto"] { border-color:var(--kyoto); color:var(--kyoto); }
+  .city-chip[data-city="kyoto"].active { background:rgba(232,150,60,0.14); }
+  .city-chip[data-city="osaka"] { border-color:var(--osaka); color:var(--osaka); }
+  .city-chip[data-city="osaka"].active { background:rgba(124,111,205,0.14); }
+
+  /* ── Date segmented + day picker button ── */
+  .date-seg-row { display:flex; gap:10px; align-items:center; padding:0 0 16px; }
+  .date-seg-wrap { display:flex; flex:1; background:rgba(255,255,255,0.07); border-radius:12px; padding:3px; gap:2px; }
+  .date-seg-btn { flex:1; padding:8px 4px; font-size:13px; font-weight:600; border:none; background:none; border-radius:10px; color:rgba(255,255,255,0.38); font-family:inherit; cursor:pointer; transition:all 0.2s; -webkit-tap-highlight-color:transparent; }
+  .date-seg-btn.active { color:var(--text); background:rgba(255,255,255,0.12); box-shadow:0 1px 5px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.1); }
+  .date-day-btn { padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.14); background:none; color:var(--text-muted); font-size:13px; font-weight:600; font-family:inherit; cursor:pointer; white-space:nowrap; flex-shrink:0; -webkit-tap-highlight-color:transparent; transition:all 0.2s; }
+  .date-day-btn.active { border-color:rgba(126,176,255,0.5); color:var(--accent); background:rgba(126,176,255,0.1); }
+
+  /* ── Day picker sheet ── */
+  .day-picker-sheet { max-height:60vh; overflow-y:auto; min-width:260px; }
+  .day-picker-item { display:flex; align-items:center; justify-content:space-between; width:100%; padding:13px 18px; border:none; background:none; color:var(--text); font-family:inherit; font-size:15px; font-weight:500; cursor:pointer; border-radius:14px; text-align:left; }
+  .day-picker-item:active { background:rgba(255,255,255,0.08); }
+  .day-picker-item.active { color:var(--accent); }
+  .day-picker-item-sub { font-size:12px; color:var(--text-muted); font-weight:400; }
+
+  /* ── Logistics jump chips ── */
+  .logistics-chip-row { display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; padding:2px 0 20px; -webkit-overflow-scrolling:touch; }
+  .logistics-chip-row::-webkit-scrollbar { display:none; }
+  .logistics-chip { padding:7px 14px; border-radius:99px; font-size:13px; font-weight:600; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:var(--text-muted); cursor:pointer; white-space:nowrap; flex-shrink:0; font-family:inherit; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; }
+  .logistics-chip:active { opacity:0.6; }
+
   /* ── Edit mode controls ── */
   .edit-mode-toggle {
     margin-left: auto;
@@ -2312,41 +2348,27 @@
       </button>
     </div>
   </div>
-  <div class="filter-bar" id="filter-bar">
-    <select class="date-filter-select" id="city-filter-select" onchange="filterCity(this.value)">
-      <option value="all">All cities</option>
-      <option value="tokyo">🗼 Tokyo</option>
-      <option value="hakone">🏔 Hakone</option>
-      <option value="kyoto">⛩ Kyoto</option>
-      <option value="osaka">🦀 Osaka</option>
-    </select>
-    <div class="filter-divider"></div>
-    <div class="date-filters hidden" id="date-filters">
-      <select class="date-filter-select" id="date-filter-select" onchange="filterDate(this.value)">
-        <option value="all">All days</option>
-        <option value="today">Today</option>
-        <option value="upcoming">Upcoming</option>
-        <option value="d0">Day 1 · May 25</option>
-        <option value="d1">Day 2 · May 26</option>
-        <option value="d2">Day 3 · May 27</option>
-        <option value="d3">Day 4 · May 28</option>
-        <option value="d4">Day 5 · May 29</option>
-        <option value="d5">Day 6 · May 30</option>
-        <option value="d6">Day 7 · May 31</option>
-        <option value="d7">Day 8 · Jun 1</option>
-        <option value="d8">Day 9 · Jun 2</option>
-        <option value="d9">Day 10 · Jun 3</option>
-        <option value="d10">Day 11 · Jun 4</option>
-        <option value="d11">Day 12 · Jun 5</option>
-      </select>
-    </div>
-  </div>
 </div>
 
 <div class="container">
 
   <!-- ─────────────── ITINERARY ─────────────── -->
   <div id="section-itinerary" class="section visible">
+    <div class="city-chip-row">
+      <button class="city-chip active" data-city="all" onclick="filterCity('all')">All cities</button>
+      <button class="city-chip" data-city="tokyo" onclick="filterCity('tokyo')">🗼 Tokyo</button>
+      <button class="city-chip" data-city="hakone" onclick="filterCity('hakone')">🏔 Hakone</button>
+      <button class="city-chip" data-city="kyoto" onclick="filterCity('kyoto')">⛩ Kyoto</button>
+      <button class="city-chip" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
+    </div>
+    <div class="date-seg-row">
+      <div class="date-seg-wrap">
+        <button class="date-seg-btn" id="date-seg-today" onclick="selectDateSeg('today')">Today</button>
+        <button class="date-seg-btn active" id="date-seg-upcoming" onclick="selectDateSeg('upcoming')">Upcoming</button>
+        <button class="date-seg-btn" id="date-seg-all" onclick="selectDateSeg('all')">All</button>
+      </div>
+      <button class="date-day-btn" id="date-day-btn" onclick="openDayPicker()">Day ↓</button>
+    </div>
     <div id="trip-progress-bar" class="trip-progress-wrap">
       <div class="trip-progress-row">
         <span class="trip-progress-label" id="trip-day-label">Day — of 12</span>
@@ -3021,6 +3043,13 @@
 
   <!-- ─────────────── ACTIVITIES + FOOD ─────────────── -->
   <div id="section-activities" class="section">
+    <div class="city-chip-row">
+      <button class="city-chip active" data-city="all" onclick="filterCity('all')">All cities</button>
+      <button class="city-chip" data-city="tokyo" onclick="filterCity('tokyo')">🗼 Tokyo</button>
+      <button class="city-chip" data-city="hakone" onclick="filterCity('hakone')">🏔 Hakone</button>
+      <button class="city-chip" data-city="kyoto" onclick="filterCity('kyoto')">⛩ Kyoto</button>
+      <button class="city-chip" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
+    </div>
     <div class="subnav-sticky">
       <div class="eatdo-subnav">
         <button class="eatdo-subnav-btn active" id="eatdo-btn-all" onclick="filterEatDo('all', this)">All</button>
@@ -3314,9 +3343,16 @@
   <!-- ─────────────── LOGISTICS ─────────────── -->
   <div id="section-logistics" class="section">
     <div class="section-title">📋 Logistics</div>
+    <div class="logistics-chip-row">
+      <button class="logistics-chip" onclick="scrollToLogSection('log-converter')">💱 Converter</button>
+      <button class="logistics-chip" onclick="scrollToLogSection('log-essentials')">🗒 Essentials</button>
+      <button class="logistics-chip" onclick="scrollToLogSection('log-reservations')">🍽 Reservations</button>
+      <button class="logistics-chip" onclick="scrollToLogSection('log-emergency')">🆘 Emergency</button>
+      <button class="logistics-chip" onclick="scrollToLogSection('log-spend')">💴 Spend</button>
+    </div>
 
     <!-- ── Yen Converter ── -->
-    <div class="section-title" style="margin-top:0; font-size:18px;">💱 Quick Converter</div>
+    <div class="section-title" id="log-converter" style="margin-top:0; font-size:18px;">💱 Quick Converter</div>
     <div class="converter-card">
       <div class="converter-row">
         <span class="converter-symbol">¥</span>
@@ -3331,7 +3367,7 @@
       </div>
     </div>
 
-    <div class="section-title" style="margin-top:28px; font-size:18px;">🗒 Essentials</div>
+    <div class="section-title" id="log-essentials" style="margin-top:28px; font-size:18px;">🗒 Essentials</div>
     <div class="logistics-grid">
       <div class="logistics-item">
         <span class="logistics-icon">💳</span>
@@ -3364,7 +3400,7 @@
     </div>
 
     <!-- ── Reservations ── -->
-    <div class="section-title" style="margin-top:32px; font-size:18px;">🍽 Reservations</div>
+    <div class="section-title" id="log-reservations" style="margin-top:32px; font-size:18px;">🍽 Reservations</div>
     <div class="reservation-list">
       <div class="reservation-item">
         <span class="reservation-icon">🎨</span>
@@ -3385,7 +3421,7 @@
     </div>
 
     <!-- ── Emergency Info ── -->
-    <div class="section-title" style="margin-top:32px; font-size:18px;">🆘 Emergency Info</div>
+    <div class="section-title" id="log-emergency" style="margin-top:32px; font-size:18px;">🆘 Emergency Info</div>
     <div class="emergency-grid">
       <div class="emergency-card urgent">
         <span class="e-icon">🚓</span>
@@ -3414,7 +3450,7 @@
     </div>
 
     <!-- ── Spend Tracker ── -->
-    <div class="section-title" style="margin-top:32px; font-size:18px;">💴 Spend Tracker</div>
+    <div class="section-title" id="log-spend" style="margin-top:32px; font-size:18px;">💴 Spend Tracker</div>
     <div class="spend-summary">
       <div>
         <div class="spend-stat-label">Total spent</div>
@@ -5202,28 +5238,20 @@ function showSection(id, btn) {
   const fab = document.getElementById('today-fab');
   if (fab) fab.classList.toggle('visible', id === 'itinerary');
 
-  const dateFilters = document.getElementById('date-filters');
-  const filterBar = document.getElementById('filter-bar');
   const editToggle = document.getElementById('edit-toggle');
   if (id === 'itinerary') {
-    if (filterBar) filterBar.style.display = '';
-    dateFilters.classList.remove('hidden');
     editToggle.style.display = '';
     if (appState.editingMode) document.getElementById('section-itinerary').classList.add('editing-mode');
   } else if (id === 'activities') {
-    if (filterBar) filterBar.style.display = '';
-    dateFilters.classList.add('hidden');
     editToggle.style.display = '';
     if (appState.editingMode) document.getElementById('section-activities').classList.add('editing-mode');
     const allBtn = document.getElementById('eatdo-btn-all');
     if (allBtn) filterEatDo('all', allBtn);
   } else if (id === 'trains') {
-    if (filterBar) filterBar.style.display = 'none';
     editToggle.style.display = 'none';
     const transitAllBtn = document.getElementById('transit-btn-all');
     if (transitAllBtn) filterTransit('all', transitAllBtn);
   } else {
-    if (filterBar) filterBar.style.display = 'none';
     editToggle.style.display = 'none';
     appState.editingMode = false;
     editToggle.classList.remove('active');
@@ -5242,6 +5270,32 @@ function closeMoreSheet() {
   document.getElementById('more-overlay').classList.remove('open');
   document.getElementById('more-sheet').classList.remove('open');
 }
+
+function selectDateSeg(value) { filterDate(value); }
+
+function openDayPicker() {
+  document.getElementById('date-filter-overlay').classList.add('open');
+  document.getElementById('date-filter-sheet').classList.add('open');
+}
+function closeDayPicker() {
+  document.getElementById('date-filter-overlay').classList.remove('open');
+  document.getElementById('date-filter-sheet').classList.remove('open');
+}
+
+function _syncTagPillsForView(view) {
+  const foodOnly = ['tag-pill-gf','tag-pill-budget'];
+  const actOnly  = ['tag-pill-shopping','tag-pill-cultural','tag-pill-optional'];
+  const show = id => { const el=document.getElementById(id); if(el) el.style.display=''; };
+  const hide = id => { const el=document.getElementById(id); if(el) el.style.display='none'; };
+  if (view === 'food')       { foodOnly.forEach(show); actOnly.forEach(hide); }
+  else if (view === 'activities') { foodOnly.forEach(hide); actOnly.forEach(show); }
+  else                       { [...foodOnly,...actOnly].forEach(show); }
+}
+
+function scrollToLogSection(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
 function goMoreSection(id) {
   showSection(id, document.getElementById('tab-more'));
   closeMoreSheet();
@@ -5257,8 +5311,8 @@ window.addEventListener('resize', updateNavHeight);
 // ── City filter (override) ──
 function filterCity(city) {
   appState.cityFilter = city;
-  const sel = document.getElementById('city-filter-select');
-  if (sel && sel.value !== city) sel.value = city;
+  document.querySelectorAll('.city-chip').forEach(c =>
+    c.classList.toggle('active', c.dataset.city === city));
   renderItinerary();
   renderActivities();
   renderFoodGuide();
@@ -5267,8 +5321,21 @@ function filterCity(city) {
 // ── Date filter ──
 function filterDate(date) {
   appState.dateFilter = date;
-  const sel = document.getElementById('date-filter-select');
-  if (sel && sel.value !== date) sel.value = date;
+  ['today','upcoming','all'].forEach(v =>
+    document.getElementById('date-seg-'+v)?.classList.toggle('active', date === v));
+  const isDaySpecific = date.startsWith('d');
+  const dayBtn = document.getElementById('date-day-btn');
+  if (dayBtn) {
+    dayBtn.classList.toggle('active', isDaySpecific);
+    if (isDaySpecific) {
+      const label = document.querySelector(`#date-filter-sheet .day-picker-item[data-day="${date}"] .day-picker-item-label`);
+      dayBtn.textContent = (label ? label.textContent : date) + ' ↓';
+    } else {
+      dayBtn.textContent = 'Day ↓';
+    }
+  }
+  document.querySelectorAll('#date-filter-sheet .day-picker-item').forEach(el =>
+    el.classList.toggle('active', el.dataset.day === date));
   renderItinerary();
 }
 
@@ -5979,12 +6046,8 @@ const YEN_RATE = 0.0065;
 function scrollToToday() {
   const itinBtn = document.getElementById('tab-itinerary');
   if (itinBtn) showSection('itinerary', itinBtn);
-  appState.dateFilter = 'all';
-  appState.cityFilter = 'all';
-  const sel = document.getElementById('city-filter-select');
-  if (sel) sel.value = 'all';
-  const dateEl = document.getElementById('date-filter-select');
-  if (dateEl) dateEl.value = 'all';
+  filterCity('all');
+  filterDate('all');
   renderItinerary();
   setTimeout(() => {
     const el = document.querySelector('.day-block.is-today');
@@ -6120,6 +6183,12 @@ function filterEatDo(view, btn) {
   const actSec = document.getElementById('activities-section');
   if (foodSec) foodSec.style.display = (view === 'activities') ? 'none' : '';
   if (actSec) actSec.style.display = (view === 'food') ? 'none' : '';
+  // Reset tag filter to 'all' when switching views
+  appState.tagFilter = 'all';
+  document.querySelectorAll('.tag-pill').forEach(b => b.classList.remove('active'));
+  const allPill = document.getElementById('tag-pill-all');
+  if (allPill) allPill.classList.add('active');
+  _syncTagPillsForView(view);
   window.scrollTo({ top: document.querySelector('.sticky-header')?.offsetHeight || 0, behavior: 'smooth' });
 }
 
@@ -7822,15 +7891,10 @@ function _goItinerary() {
   if (btn) showSection('itinerary', btn);
 
   // Date filter: always reset to Upcoming
-  const sel = document.getElementById('date-filter-select');
-  if (sel) sel.value = 'upcoming';
-  appState.dateFilter = 'upcoming';
+  filterDate('upcoming');
 
   // City filter: default to whichever city we're in today
-  const smartCity = getSmartCityFilter();
-  appState.cityFilter = smartCity;
-  const csel = document.getElementById('city-filter-select');
-  if (csel) csel.value = smartCity;
+  filterCity(getSmartCityFilter());
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -8382,6 +8446,57 @@ function closeAttachmentViewer() {
 </script>
 
 <!-- More sheet — appears above tab bar when ··· is tapped -->
+<div class="more-overlay" id="date-filter-overlay" onclick="closeDayPicker()"></div>
+<div class="more-sheet day-picker-sheet" id="date-filter-sheet">
+  <button class="day-picker-item" data-day="d0" onclick="filterDate('d0');closeDayPicker()">
+    <span class="day-picker-item-label">Day 1 · May 25</span>
+    <span class="day-picker-item-sub">Mon · Tokyo</span>
+  </button>
+  <button class="day-picker-item" data-day="d1" onclick="filterDate('d1');closeDayPicker()">
+    <span class="day-picker-item-label">Day 2 · May 26</span>
+    <span class="day-picker-item-sub">Tue · Tokyo</span>
+  </button>
+  <button class="day-picker-item" data-day="d2" onclick="filterDate('d2');closeDayPicker()">
+    <span class="day-picker-item-label">Day 3 · May 27</span>
+    <span class="day-picker-item-sub">Wed · Tokyo</span>
+  </button>
+  <button class="day-picker-item" data-day="d3" onclick="filterDate('d3');closeDayPicker()">
+    <span class="day-picker-item-label">Day 4 · May 28</span>
+    <span class="day-picker-item-sub">Thu · Tokyo</span>
+  </button>
+  <button class="day-picker-item" data-day="d4" onclick="filterDate('d4');closeDayPicker()">
+    <span class="day-picker-item-label">Day 5 · May 29</span>
+    <span class="day-picker-item-sub">Fri · Hakone</span>
+  </button>
+  <button class="day-picker-item" data-day="d5" onclick="filterDate('d5');closeDayPicker()">
+    <span class="day-picker-item-label">Day 6 · May 30</span>
+    <span class="day-picker-item-sub">Sat · Kyoto</span>
+  </button>
+  <button class="day-picker-item" data-day="d6" onclick="filterDate('d6');closeDayPicker()">
+    <span class="day-picker-item-label">Day 7 · May 31</span>
+    <span class="day-picker-item-sub">Sun · Kyoto</span>
+  </button>
+  <button class="day-picker-item" data-day="d7" onclick="filterDate('d7');closeDayPicker()">
+    <span class="day-picker-item-label">Day 8 · Jun 1</span>
+    <span class="day-picker-item-sub">Mon · Kyoto</span>
+  </button>
+  <button class="day-picker-item" data-day="d8" onclick="filterDate('d8');closeDayPicker()">
+    <span class="day-picker-item-label">Day 9 · Jun 2</span>
+    <span class="day-picker-item-sub">Tue · Kyoto</span>
+  </button>
+  <button class="day-picker-item" data-day="d9" onclick="filterDate('d9');closeDayPicker()">
+    <span class="day-picker-item-label">Day 10 · Jun 3</span>
+    <span class="day-picker-item-sub">Wed · Osaka</span>
+  </button>
+  <button class="day-picker-item" data-day="d10" onclick="filterDate('d10');closeDayPicker()">
+    <span class="day-picker-item-label">Day 11 · Jun 4</span>
+    <span class="day-picker-item-sub">Thu · Osaka</span>
+  </button>
+  <button class="day-picker-item" data-day="d11" onclick="filterDate('d11');closeDayPicker()">
+    <span class="day-picker-item-label">Day 12 · Jun 5</span>
+    <span class="day-picker-item-sub">Fri · Osaka</span>
+  </button>
+</div>
 <div class="more-overlay" id="more-overlay" onclick="closeMoreSheet()"></div>
 <div class="more-sheet" id="more-sheet">
   <button class="more-sheet-item" onclick="goMoreSection('logistics')">
