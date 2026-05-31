@@ -2140,12 +2140,18 @@
     background: var(--bg); padding: 2px 0 12px;
     -webkit-transform: translateZ(0); transform: translateZ(0);
   }
-  .eatdo-subnav, .transit-subnav, .logistics-subnav {
+  .eatdo-subnav, .transit-subnav {
     display: flex; gap: 2px;
     background: rgba(255,255,255,0.07);
     border-radius: 12px; padding: 3px;
     border: 1px solid rgba(255,255,255,0.05);
   }
+  .logistics-subnav {
+    display: flex; gap: 8px;
+    overflow-x: auto; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch; padding: 2px 0;
+  }
+  .logistics-subnav::-webkit-scrollbar { display: none; }
   /* Overflow popup for subnav More button */
   .subnav-overflow-popup {
     display: none; position: absolute; top: calc(var(--nav-h, 56px) + 52px); right: 0;
@@ -2178,14 +2184,16 @@
   }
   .eatdo-subnav-btn:active, .transit-subnav-btn:active { opacity: 0.7; }
   .logistics-subnav-btn {
-    flex-shrink: 0; padding: 8px 12px; font-size: 13px; font-weight: 600;
-    color: rgba(255,255,255,0.38); background: none; border: none;
-    border-radius: 10px; font-family: inherit; cursor: pointer; white-space: nowrap;
+    flex-shrink: 0; padding: 8px 14px; font-size: 13px; font-weight: 600;
+    color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.12); border-radius: 99px;
+    font-family: inherit; cursor: pointer; white-space: nowrap;
     transition: all 0.2s; -webkit-tap-highlight-color: transparent;
   }
   .logistics-subnav-btn.active {
     color: var(--text); background: rgba(255,255,255,0.12);
-    box-shadow: 0 1px 5px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.35);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
   }
   .logistics-subnav-btn:active { opacity: 0.7; }
   .tag-filter-row { display: flex; gap: 7px; overflow-x: auto; padding: 8px 0 2px; scrollbar-width: none; -ms-overflow-style: none; }
@@ -3542,13 +3550,9 @@
         <button class="logistics-subnav-btn" id="log-btn-converter" onclick="filterLogistics('converter',this)">💱 Converter</button>
         <button class="logistics-subnav-btn" id="log-btn-essentials" onclick="filterLogistics('essentials',this)">🗒 Essentials</button>
         <button class="logistics-subnav-btn" id="log-btn-reservations" onclick="filterLogistics('reservations',this)">🍽 Reservations</button>
-        <button class="logistics-subnav-btn" id="log-btn-more-trigger" onclick="toggleLogisticsMore(this)">··· More</button>
+        <button class="logistics-subnav-btn" id="log-btn-emergency" onclick="filterLogistics('emergency',this)">🆘 Emergency</button>
+        <button class="logistics-subnav-btn" id="log-btn-spend" onclick="filterLogistics('spend',this)">💴 Spend</button>
       </div>
-    </div>
-    <!-- Logistics overflow popup -->
-    <div class="subnav-overflow-popup" id="log-more-popup">
-      <button class="subnav-overflow-item" id="log-btn-emergency" onclick="filterLogistics('emergency', this)">🆘 Emergency</button>
-      <button class="subnav-overflow-item" id="log-btn-spend" onclick="filterLogistics('spend', this)">💴 Spend</button>
     </div>
 
     <!-- ── Yen Converter ── -->
@@ -5510,26 +5514,13 @@ function _syncTagPillsForView(view) {
 }
 
 function filterLogistics(view, btn) {
-  // Close overflow popup
-  document.getElementById('log-more-popup')?.classList.remove('open');
-  // Sync active state — subnav buttons + overflow items
-  document.querySelectorAll('.logistics-subnav-btn, .subnav-overflow-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.logistics-subnav-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  // If selection came from overflow, also highlight the More trigger
-  const overflowViews = ['emergency','spend'];
-  const moreTrigger = document.getElementById('log-btn-more-trigger');
-  if (moreTrigger) moreTrigger.classList.toggle('active', overflowViews.includes(view));
-  // Show/hide content sections
   const views = ['converter','essentials','reservations','emergency','spend'];
   views.forEach(v => {
     const el = document.getElementById('log-view-' + v);
     if (el) el.style.display = (view === 'all' || view === v) ? '' : 'none';
   });
-}
-
-function toggleLogisticsMore(triggerBtn) {
-  const popup = document.getElementById('log-more-popup');
-  if (popup) popup.classList.toggle('open');
 }
 
 function goMoreSection(id) {
@@ -5544,14 +5535,6 @@ function updateNavHeight() {
 document.addEventListener('DOMContentLoaded', updateNavHeight);
 window.addEventListener('resize', updateNavHeight);
 
-// Close logistics overflow popup when clicking outside
-document.addEventListener('click', e => {
-  const popup = document.getElementById('log-more-popup');
-  if (!popup) return;
-  if (!popup.contains(e.target) && e.target.id !== 'log-btn-more-trigger' && !e.target.closest('#log-btn-more-trigger')) {
-    popup.classList.remove('open');
-  }
-});
 
 // ── City filter ──
 function filterCity(city) {
