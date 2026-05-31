@@ -4946,9 +4946,55 @@ async function applyItineraryEvents() {
     }
   });
 }
+// ── Activity overlay (data-driven, written by poller) ────────────────────
+// Fetches rows from `trip_activities` and merges them into appState.activities.
+// Existing IDs: update name/note/type (preserve user's assignedDay).
+// New IDs: append with assignedDay = null.
+async function applyTripActivities() {
+  const ck = 'ta_cache';
+  let rows;
+  try {
+    const s = localStorage.getItem(ck);
+    if (s) { const o = JSON.parse(s); if (Date.now() - o.ts < 5 * 60 * 1000) rows = o.data; }
+  } catch(e) {}
+  if (!rows) {
+    try {
+      const res = await fetch(
+        `${SUPA_URL}/rest/v1/trip_activities?order=sort_order.asc,created_at.asc`,
+        { headers: { 'apikey': SUPA_ANON, 'Authorization': 'Bearer ' + SUPA_ANON } }
+      );
+      if (!res.ok) return;
+      rows = await res.json();
+      try { localStorage.setItem(ck, JSON.stringify({ ts: Date.now(), data: rows })); } catch(e) {}
+    } catch(e) { return; }
+  }
+  if (!rows || !rows.length) return;
+  const existing = new Map((appState.activities || []).map(a => [a.id, a]));
+  rows.forEach(row => {
+    if (existing.has(row.id)) {
+      // Update metadata but preserve user's planning state (assignedDay)
+      const a = existing.get(row.id);
+      a.name = row.name;
+      if (row.note !== null) a.note = row.note;
+      a.type = row.type;
+      a.city = row.city;
+    } else {
+      // New activity from poller — append
+      appState.activities = appState.activities || [];
+      appState.activities.push({
+        id: row.id,
+        name: row.name,
+        note: row.note || null,
+        type: row.type,
+        city: row.city,
+        assignedDay: null,
+      });
+    }
+  });
+}
 // ─────────────────────────────────────────────────────────────────────────
 
-function saveAppState() {
+
   const data = { days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders };
   try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
   if (_syncTimer) clearTimeout(_syncTimer);
@@ -7602,7 +7648,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   await initSupabase();
   await loadAppState();
-  await applyItineraryEvents();
+  await Promise.all([applyItineraryEvents(), applyTripActivities()]);
   renderTripProgress();
   checkHarukaBanner();
   renderTodayCard();
