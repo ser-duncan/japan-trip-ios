@@ -1963,12 +1963,14 @@
     position: sticky; top: var(--nav-h, 56px); z-index: 50;
     background: var(--bg); padding: 2px 0 12px;
   }
-  .eatdo-subnav, .transit-subnav {
+  .eatdo-subnav, .transit-subnav, .logistics-subnav {
     display: flex; gap: 2px;
     background: rgba(255,255,255,0.07);
     border-radius: 12px; padding: 3px;
     border: 1px solid rgba(255,255,255,0.05);
   }
+  .logistics-subnav { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .logistics-subnav::-webkit-scrollbar { display: none; }
   .eatdo-subnav-btn, .transit-subnav-btn {
     flex: 1; padding: 8px 10px; font-size: 13px; font-weight: 600;
     color: rgba(255,255,255,0.38); background: none; border: none;
@@ -1982,6 +1984,17 @@
     box-shadow: 0 1px 5px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
   }
   .eatdo-subnav-btn:active, .transit-subnav-btn:active { opacity: 0.7; }
+  .logistics-subnav-btn {
+    flex-shrink: 0; padding: 8px 12px; font-size: 13px; font-weight: 600;
+    color: rgba(255,255,255,0.38); background: none; border: none;
+    border-radius: 10px; font-family: inherit; cursor: pointer; white-space: nowrap;
+    transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+  }
+  .logistics-subnav-btn.active {
+    color: var(--text); background: rgba(255,255,255,0.12);
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  .logistics-subnav-btn:active { opacity: 0.7; }
   .tag-filter-row { display: flex; gap: 7px; overflow-x: auto; padding: 8px 0 2px; scrollbar-width: none; -ms-overflow-style: none; }
   .tag-filter-row::-webkit-scrollbar { display: none; }
   .tag-pill { flex-shrink: 0; padding: 5px 12px; font-size: 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-muted); cursor: pointer; font-family: inherit; white-space: nowrap; }
@@ -3342,131 +3355,144 @@
 
   <!-- ─────────────── LOGISTICS ─────────────── -->
   <div id="section-logistics" class="section">
-    <div class="section-title">📋 Logistics</div>
-    <div class="logistics-chip-row">
-      <button class="logistics-chip" onclick="scrollToLogSection('log-converter')">💱 Converter</button>
-      <button class="logistics-chip" onclick="scrollToLogSection('log-essentials')">🗒 Essentials</button>
-      <button class="logistics-chip" onclick="scrollToLogSection('log-reservations')">🍽 Reservations</button>
-      <button class="logistics-chip" onclick="scrollToLogSection('log-emergency')">🆘 Emergency</button>
-      <button class="logistics-chip" onclick="scrollToLogSection('log-spend')">💴 Spend</button>
+    <div class="subnav-sticky">
+      <div class="logistics-subnav">
+        <button class="logistics-subnav-btn active" id="log-btn-all" onclick="filterLogistics('all',this)">All</button>
+        <button class="logistics-subnav-btn" id="log-btn-converter" onclick="filterLogistics('converter',this)">💱 Converter</button>
+        <button class="logistics-subnav-btn" id="log-btn-essentials" onclick="filterLogistics('essentials',this)">🗒 Essentials</button>
+        <button class="logistics-subnav-btn" id="log-btn-reservations" onclick="filterLogistics('reservations',this)">🍽 Reservations</button>
+        <button class="logistics-subnav-btn" id="log-btn-emergency" onclick="filterLogistics('emergency',this)">🆘 Emergency</button>
+        <button class="logistics-subnav-btn" id="log-btn-spend" onclick="filterLogistics('spend',this)">💴 Spend</button>
+      </div>
     </div>
 
     <!-- ── Yen Converter ── -->
-    <div class="section-title" id="log-converter" style="margin-top:0; font-size:18px;">💱 Quick Converter</div>
-    <div class="converter-card">
-      <div class="converter-row">
-        <span class="converter-symbol">¥</span>
-        <input class="converter-input" id="conv-yen" type="number" inputmode="decimal" placeholder="0" oninput="convertFromYen()">
-        <span class="converter-result" id="conv-yen-result">= $0</span>
-      </div>
-      <div class="converter-divider">↕</div>
-      <div class="converter-row">
-        <span class="converter-symbol">$</span>
-        <input class="converter-input" id="conv-usd" type="number" inputmode="decimal" placeholder="0" oninput="convertFromUSD()">
-        <span class="converter-result" id="conv-usd-result">= ¥0</span>
+    <div id="log-view-converter">
+      <div class="section-title" style="margin-top:0; font-size:18px;">💱 Quick Converter</div>
+      <div class="converter-card">
+        <div class="converter-row">
+          <span class="converter-symbol">¥</span>
+          <input class="converter-input" id="conv-yen" type="number" inputmode="decimal" placeholder="0" oninput="convertFromYen()">
+          <span class="converter-result" id="conv-yen-result">= $0</span>
+        </div>
+        <div class="converter-divider">↕</div>
+        <div class="converter-row">
+          <span class="converter-symbol">$</span>
+          <input class="converter-input" id="conv-usd" type="number" inputmode="decimal" placeholder="0" oninput="convertFromUSD()">
+          <span class="converter-result" id="conv-usd-result">= ¥0</span>
+        </div>
       </div>
     </div>
 
-    <div class="section-title" id="log-essentials" style="margin-top:28px; font-size:18px;">🗒 Essentials</div>
-    <div class="logistics-grid">
-      <div class="logistics-item">
-        <span class="logistics-icon">💳</span>
-        <div>
-          <div class="logistics-title">Suica Card</div>
-          <div class="logistics-body">Add to Apple Wallet before departure. Load a starting balance — used for trains, buses, and many convenience stores.</div>
+    <!-- ── Essentials ── -->
+    <div id="log-view-essentials">
+      <div class="section-title" style="margin-top:28px; font-size:18px;">🗒 Essentials</div>
+      <div class="logistics-grid">
+        <div class="logistics-item">
+          <span class="logistics-icon">💳</span>
+          <div>
+            <div class="logistics-title">Suica Card</div>
+            <div class="logistics-body">Add to Apple Wallet before departure. Load a starting balance — used for trains, buses, and many convenience stores.</div>
+          </div>
         </div>
-      </div>
-      <div class="logistics-item">
-        <span class="logistics-icon">🗺</span>
-        <div>
-          <div class="logistics-title">Navigation</div>
-          <div class="logistics-body">Google Maps as primary. Use JR West route finder for train connections and regional journeys.</div>
+        <div class="logistics-item">
+          <span class="logistics-icon">🗺</span>
+          <div>
+            <div class="logistics-title">Navigation</div>
+            <div class="logistics-body">Google Maps as primary. Use JR West route finder for train connections and regional journeys.</div>
+          </div>
         </div>
-      </div>
-      <div class="logistics-item">
-        <span class="logistics-icon">🚃</span>
-        <div>
-          <div class="logistics-title">Kyoto → Osaka</div>
-          <div class="logistics-body">IC card day-of, no advance booking needed. Easy regional train ride.</div>
+        <div class="logistics-item">
+          <span class="logistics-icon">🚃</span>
+          <div>
+            <div class="logistics-title">Kyoto → Osaka</div>
+            <div class="logistics-body">IC card day-of, no advance booking needed. Easy regional train ride.</div>
+          </div>
         </div>
-      </div>
-      <div class="logistics-item">
-        <span class="logistics-icon">🧳</span>
-        <div>
-          <div class="logistics-title">Luggage Forwarding</div>
-          <div class="logistics-body">Consider takuhaibin (luggage forwarding) from Tokyo to Kyoto if you want to travel light on the Romancecar + Shinkansen day.</div>
+        <div class="logistics-item">
+          <span class="logistics-icon">🧳</span>
+          <div>
+            <div class="logistics-title">Luggage Forwarding</div>
+            <div class="logistics-body">Consider takuhaibin (luggage forwarding) from Tokyo to Kyoto if you want to travel light on the Romancecar + Shinkansen day.</div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- ── Reservations ── -->
-    <div class="section-title" id="log-reservations" style="margin-top:32px; font-size:18px;">🍽 Reservations</div>
-    <div class="reservation-list">
-      <div class="reservation-item">
-        <span class="reservation-icon">🎨</span>
-        <div class="reservation-info">
-          <div class="reservation-name">teamLab Planets TOKYO</div>
-          <div class="reservation-date">Thu · May 28 · Toyosu · 5 persons</div>
+    <div id="log-view-reservations">
+      <div class="section-title" style="margin-top:32px; font-size:18px;">🍽 Reservations</div>
+      <div class="reservation-list">
+        <div class="reservation-item">
+          <span class="reservation-icon">🎨</span>
+          <div class="reservation-info">
+            <div class="reservation-name">teamLab Planets TOKYO</div>
+            <div class="reservation-date">Thu · May 28 · Toyosu · 5 persons</div>
+          </div>
+          <span class="reservation-code">ABT743615</span>
         </div>
-        <span class="reservation-code">ABT743615</span>
-      </div>
-      <div class="reservation-item">
-        <span class="reservation-icon">🌆</span>
-        <div class="reservation-info">
-          <div class="reservation-name">Shibuya Sky</div>
-          <div class="reservation-date">Thu · May 28 · 19:40 · 7 adults</div>
+        <div class="reservation-item">
+          <span class="reservation-icon">🌆</span>
+          <div class="reservation-info">
+            <div class="reservation-name">Shibuya Sky</div>
+            <div class="reservation-date">Thu · May 28 · 19:40 · 7 adults</div>
+          </div>
+          <span class="reservation-code">RBA473737</span>
         </div>
-        <span class="reservation-code">RBA473737</span>
       </div>
     </div>
 
     <!-- ── Emergency Info ── -->
-    <div class="section-title" id="log-emergency" style="margin-top:32px; font-size:18px;">🆘 Emergency Info</div>
-    <div class="emergency-grid">
-      <div class="emergency-card urgent">
-        <span class="e-icon">🚓</span>
-        <div class="e-label">Police</div>
-        <div class="e-number">110</div>
-        <a class="emergency-call-btn" href="tel:110">Call 110</a>
-      </div>
-      <div class="emergency-card urgent">
-        <span class="e-icon">🚑</span>
-        <div class="e-label">Ambulance / Fire</div>
-        <div class="e-number">119</div>
-        <a class="emergency-call-btn" href="tel:119">Call 119</a>
-      </div>
-      <div class="emergency-card">
-        <span class="e-icon">🇺🇸</span>
-        <div class="e-label">US Embassy Tokyo</div>
-        <div class="e-number" style="font-size:16px">+81-3-3224-5000</div>
-        <a class="emergency-call-btn" href="tel:+81332245000">Call Embassy</a>
-      </div>
-      <div class="emergency-card">
-        <span class="e-icon">🇺🇸</span>
-        <div class="e-label">US Consulate Osaka</div>
-        <div class="e-number" style="font-size:16px">+81-6-6315-5900</div>
-        <a class="emergency-call-btn" href="tel:+81663155900">Call Consulate</a>
+    <div id="log-view-emergency">
+      <div class="section-title" style="margin-top:32px; font-size:18px;">🆘 Emergency Info</div>
+      <div class="emergency-grid">
+        <div class="emergency-card urgent">
+          <span class="e-icon">🚓</span>
+          <div class="e-label">Police</div>
+          <div class="e-number">110</div>
+          <a class="emergency-call-btn" href="tel:110">Call 110</a>
+        </div>
+        <div class="emergency-card urgent">
+          <span class="e-icon">🚑</span>
+          <div class="e-label">Ambulance / Fire</div>
+          <div class="e-number">119</div>
+          <a class="emergency-call-btn" href="tel:119">Call 119</a>
+        </div>
+        <div class="emergency-card">
+          <span class="e-icon">🇺🇸</span>
+          <div class="e-label">US Embassy Tokyo</div>
+          <div class="e-number" style="font-size:16px">+81-3-3224-5000</div>
+          <a class="emergency-call-btn" href="tel:+81332245000">Call Embassy</a>
+        </div>
+        <div class="emergency-card">
+          <span class="e-icon">🇺🇸</span>
+          <div class="e-label">US Consulate Osaka</div>
+          <div class="e-number" style="font-size:16px">+81-6-6315-5900</div>
+          <a class="emergency-call-btn" href="tel:+81663155900">Call Consulate</a>
+        </div>
       </div>
     </div>
 
     <!-- ── Spend Tracker ── -->
-    <div class="section-title" id="log-spend" style="margin-top:32px; font-size:18px;">💴 Spend Tracker</div>
-    <div class="spend-summary">
-      <div>
-        <div class="spend-stat-label">Total spent</div>
-        <div class="spend-stat-value" id="spend-total">¥0</div>
-        <div class="spend-stat-sub" id="spend-usd">~$0 USD</div>
+    <div id="log-view-spend">
+      <div class="section-title" style="margin-top:32px; font-size:18px;">💴 Spend Tracker</div>
+      <div class="spend-summary">
+        <div>
+          <div class="spend-stat-label">Total spent</div>
+          <div class="spend-stat-value" id="spend-total">¥0</div>
+          <div class="spend-stat-sub" id="spend-usd">~$0 USD</div>
+        </div>
+        <div>
+          <div class="spend-stat-label">Per person (÷5)</div>
+          <div class="spend-stat-value" id="spend-per">¥0</div>
+          <div class="spend-stat-sub" id="spend-per-usd">~$0 USD</div>
+        </div>
       </div>
-      <div>
-        <div class="spend-stat-label">Per person (÷5)</div>
-        <div class="spend-stat-value" id="spend-per">¥0</div>
-        <div class="spend-stat-sub" id="spend-per-usd">~$0 USD</div>
+      <div class="expense-list" id="expense-list">
+        <div class="expense-empty">No expenses logged yet.</div>
       </div>
+      <button class="expense-add-btn" onclick="openExpenseSheet()">＋ Log Expense</button>
     </div>
-    <div class="expense-list" id="expense-list">
-      <div class="expense-empty">No expenses logged yet.</div>
-    </div>
-    <button class="expense-add-btn" onclick="openExpenseSheet()">＋ Log Expense</button>
 
   </div>
 
@@ -5251,6 +5277,10 @@ function showSection(id, btn) {
     editToggle.style.display = 'none';
     const transitAllBtn = document.getElementById('transit-btn-all');
     if (transitAllBtn) filterTransit('all', transitAllBtn);
+  } else if (id === 'logistics') {
+    editToggle.style.display = 'none';
+    const logAllBtn = document.getElementById('log-btn-all');
+    if (logAllBtn) filterLogistics('all', logAllBtn);
   } else {
     editToggle.style.display = 'none';
     appState.editingMode = false;
@@ -5292,8 +5322,15 @@ function _syncTagPillsForView(view) {
   else                       { [...foodOnly,...actOnly].forEach(show); }
 }
 
-function scrollToLogSection(id) {
-  document.getElementById(id)?.scrollIntoView({ behavior:'smooth', block:'start' });
+function filterLogistics(view, btn) {
+  document.querySelectorAll('.logistics-subnav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const views = ['converter','essentials','reservations','emergency','spend'];
+  views.forEach(v => {
+    const el = document.getElementById('log-view-' + v);
+    if (el) el.style.display = (view === 'all' || view === v) ? '' : 'none';
+  });
+  window.scrollTo({ top: document.querySelector('.sticky-header')?.offsetHeight || 0, behavior: 'smooth' });
 }
 
 function goMoreSection(id) {
@@ -6047,14 +6084,8 @@ function scrollToToday() {
   const itinBtn = document.getElementById('tab-itinerary');
   if (itinBtn) showSection('itinerary', itinBtn);
   filterCity('all');
-  filterDate('all');
-  renderItinerary();
-  setTimeout(() => {
-    const el = document.querySelector('.day-block.is-today');
-    if (!el) return;
-    const stickyH = document.querySelector('.sticky-header')?.offsetHeight || 60;
-    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - stickyH - 8, behavior: 'smooth' });
-  }, 60);
+  filterDate('today');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function filterTransit(view, btn) {
