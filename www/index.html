@@ -1390,6 +1390,7 @@
     padding-top: env(safe-area-inset-top, 0px);
     background: rgba(15,15,19,0.92); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
+    -webkit-transform: translateZ(0); transform: translateZ(0);
   }
   .sticky-header .nav { position: static; }
 
@@ -1962,6 +1963,7 @@
   .subnav-sticky {
     position: sticky; top: var(--nav-h, 56px); z-index: 50;
     background: var(--bg); padding: 2px 0 12px;
+    -webkit-transform: translateZ(0); transform: translateZ(0);
   }
   .eatdo-subnav, .transit-subnav, .logistics-subnav {
     display: flex; gap: 2px;
@@ -2384,20 +2386,10 @@
   <!-- ─────────────── ITINERARY ─────────────── -->
   <div id="section-itinerary" class="section visible">
     <div class="subnav-sticky">
-      <div class="city-chip-row">
-        <button class="city-chip active" data-city="all" onclick="filterCity('all')">All cities</button>
-        <button class="city-chip" data-city="tokyo" onclick="filterCity('tokyo')">🗼 Tokyo</button>
-        <button class="city-chip" data-city="hakone" onclick="filterCity('hakone')">🏔 Hakone</button>
-        <button class="city-chip" data-city="kyoto" onclick="filterCity('kyoto')">⛩ Kyoto</button>
-        <button class="city-chip" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
-      </div>
-      <div class="date-seg-row">
-        <div class="date-seg-wrap">
-          <button class="date-seg-btn" id="date-seg-today" onclick="selectDateSeg('today')">Today</button>
-          <button class="date-seg-btn active" id="date-seg-upcoming" onclick="selectDateSeg('upcoming')">Upcoming</button>
-          <button class="date-seg-btn" id="date-seg-all" onclick="selectDateSeg('all')">All</button>
-        </div>
-        <button class="date-day-btn" id="date-day-btn" onclick="openDayPicker()">Day ↓</button>
+      <div class="date-seg-wrap">
+        <button class="date-seg-btn" id="date-seg-today" onclick="selectDateSeg('today')">Today</button>
+        <button class="date-seg-btn active" id="date-seg-upcoming" onclick="selectDateSeg('upcoming')">Upcoming</button>
+        <button class="date-seg-btn" id="date-seg-all" onclick="selectDateSeg('all')">All</button>
       </div>
     </div>
     <div id="trip-progress-bar" class="trip-progress-wrap">
@@ -3075,26 +3067,10 @@
   <!-- ─────────────── ACTIVITIES + FOOD ─────────────── -->
   <div id="section-activities" class="section">
     <div class="subnav-sticky">
-      <div class="city-chip-row">
-        <button class="city-chip active" data-city="all" onclick="filterCity('all')">All cities</button>
-        <button class="city-chip" data-city="tokyo" onclick="filterCity('tokyo')">🗼 Tokyo</button>
-        <button class="city-chip" data-city="hakone" onclick="filterCity('hakone')">🏔 Hakone</button>
-        <button class="city-chip" data-city="kyoto" onclick="filterCity('kyoto')">⛩ Kyoto</button>
-        <button class="city-chip" data-city="osaka" onclick="filterCity('osaka')">🦀 Osaka</button>
-      </div>
       <div class="eatdo-subnav">
         <button class="eatdo-subnav-btn active" id="eatdo-btn-all" onclick="filterEatDo('all', this)">All</button>
         <button class="eatdo-subnav-btn" id="eatdo-btn-food" onclick="filterEatDo('food', this)">🍜 Food</button>
         <button class="eatdo-subnav-btn" id="eatdo-btn-activities" onclick="filterEatDo('activities', this)">🎯 Activities</button>
-      </div>
-      <div class="tag-filter-row" id="tag-filter-row">
-        <button class="tag-pill active" id="tag-pill-all" onclick="filterEatDoTag('all', this)">All</button>
-        <button class="tag-pill" id="tag-pill-must" onclick="filterEatDoTag('must', this)">⭐ Must-do</button>
-        <button class="tag-pill" id="tag-pill-gf" onclick="filterEatDoTag('gf', this)">✓ Gluten-Free</button>
-        <button class="tag-pill" id="tag-pill-shopping" onclick="filterEatDoTag('shopping', this)">🛍 Shopping</button>
-        <button class="tag-pill" id="tag-pill-cultural" onclick="filterEatDoTag('cultural', this)">🎭 Cultural</button>
-        <button class="tag-pill" id="tag-pill-budget" onclick="filterEatDoTag('budget', this)">💰 Budget</button>
-        <button class="tag-pill" id="tag-pill-optional" onclick="filterEatDoTag('optional', this)">Optional</button>
       </div>
     </div>
     <div id="food-guide-section">
@@ -5360,7 +5336,6 @@ function filterLogistics(view, btn) {
     const el = document.getElementById('log-view-' + v);
     if (el) el.style.display = (view === 'all' || view === v) ? '' : 'none';
   });
-  window.scrollTo({ top: document.querySelector('.sticky-header')?.offsetHeight || 0, behavior: 'smooth' });
 }
 
 function toggleLogisticsMore(triggerBtn) {
@@ -5375,7 +5350,7 @@ function goMoreSection(id) {
 
 function updateNavHeight() {
   const h = document.querySelector('.sticky-header');
-  if (h) document.documentElement.style.setProperty('--nav-h', h.offsetHeight + 'px');
+  if (h) document.documentElement.style.setProperty('--nav-h', Math.ceil(h.getBoundingClientRect().height) + 'px');
 }
 document.addEventListener('DOMContentLoaded', updateNavHeight);
 window.addEventListener('resize', updateNavHeight);
@@ -5389,11 +5364,9 @@ document.addEventListener('click', e => {
   }
 });
 
-// ── City filter (override) ──
+// ── City filter (state only — no UI chips) ──
 function filterCity(city) {
   appState.cityFilter = city;
-  document.querySelectorAll('.city-chip').forEach(c =>
-    c.classList.toggle('active', c.dataset.city === city));
   renderItinerary();
   renderActivities();
   renderFoodGuide();
@@ -5404,19 +5377,6 @@ function filterDate(date) {
   appState.dateFilter = date;
   ['today','upcoming','all'].forEach(v =>
     document.getElementById('date-seg-'+v)?.classList.toggle('active', date === v));
-  const isDaySpecific = date.startsWith('d');
-  const dayBtn = document.getElementById('date-day-btn');
-  if (dayBtn) {
-    dayBtn.classList.toggle('active', isDaySpecific);
-    if (isDaySpecific) {
-      const label = document.querySelector(`#date-filter-sheet .day-picker-item[data-day="${date}"] .day-picker-item-label`);
-      dayBtn.textContent = (label ? label.textContent : date) + ' ↓';
-    } else {
-      dayBtn.textContent = 'Day ↓';
-    }
-  }
-  document.querySelectorAll('#date-filter-sheet .day-picker-item').forEach(el =>
-    el.classList.toggle('active', el.dataset.day === date));
   renderItinerary();
 }
 
@@ -6127,9 +6087,8 @@ const YEN_RATE = 0.0065;
 function scrollToToday() {
   const itinBtn = document.getElementById('tab-itinerary');
   if (itinBtn) showSection('itinerary', itinBtn);
-  filterCity('all');
+  appState.cityFilter = 'all';
   filterDate('today');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function filterTransit(view, btn) {
@@ -6139,7 +6098,6 @@ function filterTransit(view, btn) {
   const flightsSec = document.getElementById('transit-flights-section');
   if (trainsSec) trainsSec.style.display = (view === 'flights') ? 'none' : '';
   if (flightsSec) flightsSec.style.display = (view === 'trains') ? 'none' : '';
-  window.scrollTo({ top: document.querySelector('.sticky-header')?.offsetHeight || 0, behavior: 'smooth' });
 }
 
 const FLIGHT_DETAILS = {
@@ -6258,13 +6216,6 @@ function filterEatDo(view, btn) {
   const actSec = document.getElementById('activities-section');
   if (foodSec) foodSec.style.display = (view === 'activities') ? 'none' : '';
   if (actSec) actSec.style.display = (view === 'food') ? 'none' : '';
-  // Reset tag filter to 'all' when switching views
-  appState.tagFilter = 'all';
-  document.querySelectorAll('.tag-pill').forEach(b => b.classList.remove('active'));
-  const allPill = document.getElementById('tag-pill-all');
-  if (allPill) allPill.classList.add('active');
-  _syncTagPillsForView(view);
-  window.scrollTo({ top: document.querySelector('.sticky-header')?.offsetHeight || 0, behavior: 'smooth' });
 }
 
 function filterEatDoTag(tag, btn) {
@@ -7964,12 +7915,8 @@ function getSmartCityFilter() {
 function _goItinerary() {
   const btn = document.getElementById('tab-itinerary');
   if (btn) showSection('itinerary', btn);
-
-  // Date filter: always reset to Upcoming
+  appState.cityFilter = 'all';
   filterDate('upcoming');
-
-  // City filter: default to whichever city we're in today
-  filterCity(getSmartCityFilter());
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -8521,57 +8468,6 @@ function closeAttachmentViewer() {
 </script>
 
 <!-- More sheet — appears above tab bar when ··· is tapped -->
-<div class="more-overlay" id="date-filter-overlay" onclick="closeDayPicker()"></div>
-<div class="more-sheet day-picker-sheet" id="date-filter-sheet">
-  <button class="day-picker-item" data-day="d0" onclick="filterDate('d0');closeDayPicker()">
-    <span class="day-picker-item-label">Day 1 · May 25</span>
-    <span class="day-picker-item-sub">Mon · Tokyo</span>
-  </button>
-  <button class="day-picker-item" data-day="d1" onclick="filterDate('d1');closeDayPicker()">
-    <span class="day-picker-item-label">Day 2 · May 26</span>
-    <span class="day-picker-item-sub">Tue · Tokyo</span>
-  </button>
-  <button class="day-picker-item" data-day="d2" onclick="filterDate('d2');closeDayPicker()">
-    <span class="day-picker-item-label">Day 3 · May 27</span>
-    <span class="day-picker-item-sub">Wed · Tokyo</span>
-  </button>
-  <button class="day-picker-item" data-day="d3" onclick="filterDate('d3');closeDayPicker()">
-    <span class="day-picker-item-label">Day 4 · May 28</span>
-    <span class="day-picker-item-sub">Thu · Tokyo</span>
-  </button>
-  <button class="day-picker-item" data-day="d4" onclick="filterDate('d4');closeDayPicker()">
-    <span class="day-picker-item-label">Day 5 · May 29</span>
-    <span class="day-picker-item-sub">Fri · Hakone</span>
-  </button>
-  <button class="day-picker-item" data-day="d5" onclick="filterDate('d5');closeDayPicker()">
-    <span class="day-picker-item-label">Day 6 · May 30</span>
-    <span class="day-picker-item-sub">Sat · Kyoto</span>
-  </button>
-  <button class="day-picker-item" data-day="d6" onclick="filterDate('d6');closeDayPicker()">
-    <span class="day-picker-item-label">Day 7 · May 31</span>
-    <span class="day-picker-item-sub">Sun · Kyoto</span>
-  </button>
-  <button class="day-picker-item" data-day="d7" onclick="filterDate('d7');closeDayPicker()">
-    <span class="day-picker-item-label">Day 8 · Jun 1</span>
-    <span class="day-picker-item-sub">Mon · Kyoto</span>
-  </button>
-  <button class="day-picker-item" data-day="d8" onclick="filterDate('d8');closeDayPicker()">
-    <span class="day-picker-item-label">Day 9 · Jun 2</span>
-    <span class="day-picker-item-sub">Tue · Kyoto</span>
-  </button>
-  <button class="day-picker-item" data-day="d9" onclick="filterDate('d9');closeDayPicker()">
-    <span class="day-picker-item-label">Day 10 · Jun 3</span>
-    <span class="day-picker-item-sub">Wed · Osaka</span>
-  </button>
-  <button class="day-picker-item" data-day="d10" onclick="filterDate('d10');closeDayPicker()">
-    <span class="day-picker-item-label">Day 11 · Jun 4</span>
-    <span class="day-picker-item-sub">Thu · Osaka</span>
-  </button>
-  <button class="day-picker-item" data-day="d11" onclick="filterDate('d11');closeDayPicker()">
-    <span class="day-picker-item-label">Day 12 · Jun 5</span>
-    <span class="day-picker-item-sub">Fri · Osaka</span>
-  </button>
-</div>
 <div class="more-overlay" id="more-overlay" onclick="closeMoreSheet()"></div>
 <div class="more-sheet" id="more-sheet">
   <button class="more-sheet-item" onclick="goMoreSection('logistics')">
