@@ -355,38 +355,36 @@
 
   .activity-list { display: flex; flex-direction: column; gap: 8px; }
   .activity-item {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 16px;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
   }
-  .activity-type {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 2px 8px;
-    border-radius: 99px;
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-top: 1px;
+  .activity-item-icon { font-size: 26px; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+  .activity-item-body { flex: 1; min-width: 0; }
+  .activity-name { font-size: 15px; font-weight: 600; }
+  .activity-note { font-size: 13px; color: var(--text-muted); margin-top: 5px; line-height: 1.45; }
+  .activity-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
+  .activity-tag {
+    font-size: 11px; font-weight: 600; padding: 2px 8px;
+    border-radius: 99px; border: 1px solid; white-space: nowrap;
   }
-  .activity-type.must { background: rgba(232,80,91,0.15); color: var(--tokyo); }
-  .activity-type.optional { background: rgba(136,136,168,0.15); color: var(--text-muted); }
-  .activity-type.food { background: rgba(232,150,60,0.15); color: var(--kyoto); }
-  .activity-type.shopping { background: rgba(124,111,205,0.15); color: var(--osaka); }
-  .activity-type.cultural { background: rgba(76,175,130,0.15); color: var(--hakone); }
-  .activity-type.included { background: rgba(76,175,130,0.15); color: var(--hakone); }
-
-  .activity-main { flex: 1; }
-  .activity-name { font-size: 14px; font-weight: 500; }
-  .activity-note { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-  .activity-item.tappable { cursor: pointer; }
-  .activity-item.tappable:active { opacity: 0.75; }
-  .activity-arrow { font-size: 12px; color: var(--text-muted); flex-shrink: 0; align-self: center; }
+  .activity-tag.must { color: var(--tokyo); border-color: rgba(232,80,91,0.35); background: rgba(232,80,91,0.09); }
+  .activity-tag.optional { color: var(--text-muted); border-color: rgba(136,136,168,0.3); background: rgba(136,136,168,0.07); }
+  .activity-tag.food { color: var(--kyoto); border-color: rgba(232,150,60,0.35); background: rgba(232,150,60,0.09); }
+  .activity-tag.shopping { color: var(--osaka); border-color: rgba(124,111,205,0.35); background: rgba(124,111,205,0.09); }
+  .activity-tag.cultural { color: var(--hakone); border-color: rgba(76,175,130,0.35); background: rgba(76,175,130,0.09); }
+  .activity-tag.included { color: var(--hakone); border-color: rgba(76,175,130,0.35); background: rgba(76,175,130,0.09); }
+  .activity-item-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .activity-detail-btn {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600;
+    color: var(--accent); background: rgba(126,176,255,0.1); border: 1px solid rgba(126,176,255,0.25);
+    border-radius: 6px; padding: 3px 8px; cursor: pointer; font-family: inherit;
+  }
+  .activity-detail-btn:active { background: rgba(126,176,255,0.2); }
   .modal-tab.addday { color: #34d399; }
   .modal-tab.addday.active { color: #34d399; border-bottom-color: #34d399; }
   .day-picker-list { display: flex; flex-direction: column; gap: 8px; padding: 4px 0; }
@@ -1537,14 +1535,14 @@
 
   /* ── Activity controls ── */
   .activity-plan-btn {
-    flex-shrink: 0; padding: 4px 10px; font-size: 12px; font-weight: 600;
-    font-family: inherit; background: rgba(76,175,130,0.1);
-    border: 1.5px solid rgba(76,175,130,0.3); border-radius: 99px;
-    color: var(--hakone); cursor: pointer; white-space: nowrap;
-    transition: all 0.2s; align-self: flex-start; margin-top: 1px;
+    display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600;
+    font-family: inherit; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text-muted); cursor: pointer; padding: 3px 8px; white-space: nowrap;
+    transition: all 0.2s;
   }
-  .activity-plan-btn:hover { background: rgba(76,175,130,0.2); border-color: rgba(76,175,130,0.5); }
-  .activity-plan-btn.planned { background: rgba(126,176,255,0.1); border-color: rgba(126,176,255,0.3); color: #7EB0FF; }
+  .activity-plan-btn:active { background: rgba(126,176,255,0.12); }
+  .activity-plan-btn.planned { background: rgba(126,176,255,0.1); border-color: rgba(126,176,255,0.25); color: var(--accent); }
   .activity-edit-btn {
     flex-shrink: 0; background: none; border: none; color: var(--text-muted);
     font-size: 18px; cursor: pointer; padding: 0 2px; line-height: 1;
@@ -5773,18 +5771,27 @@ function buildActivityHTML(a, typeLabels) {
   var hasShoppingDetail = !!(typeof SHOPPING_DETAILS !== 'undefined' && SHOPPING_DETAILS[a.id]);
   var hasDetail = hasActivityDetail || hasShoppingDetail;
   var detailOnclick = hasActivityDetail
-    ? ' onclick="openActivityDetail(\'' + a.id + '\');event.stopPropagation()"'
+    ? 'openActivityDetail(\'' + a.id + '\');event.stopPropagation()'
     : hasShoppingDetail
-    ? ' onclick="openShoppingDetail(\'' + a.id + '\');event.stopPropagation()"'
+    ? 'openShoppingDetail(\'' + a.id + '\');event.stopPropagation()'
     : '';
-  var mainClass = hasDetail ? ' activity-main tappable' : ' activity-main';
-  var detailArrow = hasDetail ? '<span class="activity-arrow" style="margin-left:auto;padding-left:8px">›</span>' : '';
+  var detailBtn = hasDetail
+    ? '<button class="activity-detail-btn" onclick="' + detailOnclick + '">Details + map →</button>'
+    : '';
+  var typeIcons = {must:'⭐',optional:'📌',shopping:'🛍️',cultural:'⛩️',food:'🍜',included:'✅'};
+  var icon = typeIcons[a.type] || '📍';
   return '<div class="activity-item" data-activity-id="' + a.id + '">'
-    + '<span class="activity-type ' + a.type + '">' + (typeLabels[a.type]||a.type) + '</span>'
-    + '<div class="' + mainClass + '"' + detailOnclick + '><div class="activity-name">' + a.name + '</div>' + noteHtml + '</div>'
-    + detailArrow
-    + '<button class="' + planClass + '" onclick="openAssignModal(\'' + a.id + '\')">' + planLabel + '</button>'
+    + '<span class="activity-item-icon">' + icon + '</span>'
+    + '<div class="activity-item-body">'
+    + '<div class="activity-name">' + a.name + '</div>'
+    + noteHtml
+    + '<div class="activity-tags"><span class="activity-tag ' + a.type + '">' + (typeLabels[a.type]||a.type) + '</span></div>'
+    + '<div class="activity-item-actions">'
+    + '<button class="' + planClass + '" onclick="openAssignModal(\'' + a.id + '\');event.stopPropagation()">' + planLabel + '</button>'
+    + detailBtn
     + '<button class="activity-edit-btn" onclick="openActivityModal(\'' + a.id + '\',null);event.stopPropagation()">⋯</button>'
+    + '</div>'
+    + '</div>'
     + '</div>';
 }
 
