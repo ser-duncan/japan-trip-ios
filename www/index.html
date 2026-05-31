@@ -2040,6 +2040,28 @@
   }
   .day-card-expand-handle:active { color: rgba(255,255,255,0.5); }
 
+  /* Hourly weather strip inside each card */
+  .day-card-hourly {
+    display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -20px; padding: 10px 20px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .day-card-hourly::-webkit-scrollbar { display: none; }
+  .day-card-hour-pill {
+    flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+    gap: 3px; padding: 6px 9px; border-radius: 10px; min-width: 42px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+  }
+  .day-card-hour-pill.now {
+    background: rgba(126,176,255,0.12); border-color: rgba(126,176,255,0.3);
+  }
+  .day-card-hour-time { font-size: 10px; font-weight: 600; color: var(--text-muted); }
+  .day-card-hour-icon { font-size: 15px; line-height: 1; }
+  .day-card-hour-temp { font-size: 12px; font-weight: 700; color: var(--text); }
+  .day-card-hour-pill.now .day-card-hour-time,
+  .day-card-hour-pill.now .day-card-hour-temp { color: var(--accent); }
+
   /* Floating edit pencil */
   .day-edit-fab {
     position: fixed; bottom: calc(104px + env(safe-area-inset-bottom, 0px)); right: 20px;
@@ -5969,22 +5991,24 @@ function jstHour() {
 
 async function initWeather() {
   const today = jstDateStr();
-  const todayDay = appState.days && appState.days.find(d => d.date === today);
-  const city = (todayDay && todayDay.city) || 'tokyo';
-  const c = CITY_COORDS[city];
-  if (!c) return;
-  try {
-    const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + c.lat + '&longitude=' + c.lon
-      + '&current=temperature_2m,weathercode'
-      + '&daily=temperature_2m_max,temperature_2m_min,weathercode'
-      + '&hourly=temperature_2m,weathercode'
-      + '&temperature_unit=fahrenheit'
-      + '&timezone=Asia%2FTokyo&forecast_days=7';
-    const r = await fetch(url);
-    const json = await r.json();
-    renderWeatherBar(json, today);
-    updateTodayWeather(json, today);
-  } catch(e) {}
+  // Fetch all four cities in parallel so every card has weather data.
+  // past_days=7 covers the already-visited trip days.
+  await Promise.all(Object.entries(CITY_COORDS).map(async ([city, c]) => {
+    try {
+      const url = 'https://api.open-meteo.com/v1/forecast'
+        + '?latitude=' + c.lat + '&longitude=' + c.lon
+        + '&current=temperature_2m,weathercode'
+        + '&daily=temperature_2m_max,temperature_2m_min,weathercode'
+        + '&hourly=temperature_2m,weathercode'
+        + '&temperature_unit=fahrenheit'
+        + '&timezone=Asia%2FTokyo&past_days=7&forecast_days=16';
+      const r = await fetch(url);
+      _wxCache[city] = await r.json();
+    } catch(e) {}
+  }));
+  renderDayCards();
+  const todayCity = (appState.days?.find(d => d.date === today)?.city) || 'tokyo';
+  if (_wxCache[todayCity]) renderWeatherBar(_wxCache[todayCity], today);
 }
 
 function renderWeatherBar(data, today) {
@@ -6010,13 +6034,7 @@ function renderWeatherBar(data, today) {
 }
 
 function updateTodayWeather(data, today) {
-  if (!data || !data.current) return;
-  const temp = Math.round(data.current.temperature_2m);
-  const icon = WX_ICONS[data.current.weathercode] || '🌡';
-  const todayDay = appState.days && appState.days.find(d => d.date === today);
-  if (!todayDay) return;
-  const wxEl = document.getElementById('day-card-wx-' + todayDay.id);
-  if (wxEl) wxEl.innerHTML = '<span class="day-card-wx-badge">' + icon + ' ' + temp + '°F</span>';
+  // Weather is now fetched for all cities in initWeather(); this is a no-op shim.
 }
 
 // ── Today Card (no-op — today is shown in the day card swiper) ──
@@ -6191,6 +6209,7 @@ function scrollToToday() {
 let _openDetailDayId = null;
 let _currentSwiperDayId = null;
 let _swiperScrollTimer = null;
+const _wxCache = {};
 
 function renderDayCards() {
   const swiper = document.getElementById('day-swiper');
@@ -6223,7 +6242,7 @@ function renderDayCards() {
 
 function buildDayCardHTML(day, idx, today) {
   const isToday = day.date === today;
-  const events = day.events.filter(e => e.type === 'event').slice(0, 5);
+  const events = day.events.filter(e => e.type === 'event').slice(0, 3);
   const agendaRows = events.map(ev =>
     '<div class="day-card-agenda-row">'
     + '<span class="day-card-agenda-time">' + (ev.time || '') + '</span>'
@@ -6232,6 +6251,47 @@ function buildDayCardHTML(day, idx, today) {
   ).join('');
   const cityEmojis = {tokyo:'🗼',hakone:'🏔',kyoto:'⛩',osaka:'🦀'};
   const cityNames  = {tokyo:'Tokyo',hakone:'Hakone',kyoto:'Kyoto',osaka:'Osaka'};
+
+  // Build weather badge and hourly strip from cache
+  const wxData = _wxCache[day.city];
+  let wxBadge = '—';
+  let hourlyHtml = '';
+  if (wxData) {
+    // Daily hi / lo badge
+    if (wxData.daily && wxData.daily.time) {
+      const di = wxData.daily.time.indexOf(day.date);
+      if (di >= 0) {
+        const icon = WX_ICONS[wxData.daily.weathercode[di]] || '🌡';
+        const hi = Math.round(wxData.daily.temperature_2m_max[di]);
+        const lo = Math.round(wxData.daily.temperature_2m_min[di]);
+        wxBadge = icon + ' ' + hi + '° / ' + lo + '°';
+      }
+    }
+    // Hourly strip
+    if (wxData.hourly && wxData.hourly.time) {
+      const { hourly } = wxData;
+      const curHour = isToday ? jstHour() : -1;
+      let pills = '';
+      for (let i = 0; i < hourly.time.length; i++) {
+        const t = hourly.time[i];
+        if (!t.startsWith(day.date)) continue;
+        const hour = parseInt(t.slice(11, 13), 10);
+        if (hour < 8 || hour > 21) continue;
+        if (isToday && hour < curHour - 1) continue; // skip past hours on today
+        const icon = WX_ICONS[hourly.weathercode[i]] || '🌡';
+        const temp = Math.round(hourly.temperature_2m[i]);
+        const label = hour < 12 ? hour + 'a' : hour === 12 ? '12p' : (hour - 12) + 'p';
+        const isNow = isToday && hour === curHour;
+        pills += '<div class="day-card-hour-pill' + (isNow ? ' now' : '') + '">'
+          + '<span class="day-card-hour-time">' + label + '</span>'
+          + '<span class="day-card-hour-icon">' + icon + '</span>'
+          + '<span class="day-card-hour-temp">' + temp + '°</span>'
+          + '</div>';
+      }
+      if (pills) hourlyHtml = '<div class="day-card-hourly">' + pills + '</div>';
+    }
+  }
+
   return '<div class="day-card" data-idx="' + idx + '" data-day-id="' + day.id + '">'
     + '<div class="day-card-inner" onclick="openDayDetail(\'' + day.id + '\')">'
     + '<div class="day-card-top">'
@@ -6245,8 +6305,9 @@ function buildDayCardHTML(day, idx, today) {
     + '</div>'
     + '<div class="day-card-title">' + day.title + '</div>'
     + '<div class="day-card-weather-row" id="day-card-wx-' + day.id + '">'
-    + '<span class="day-card-wx-badge">—°F</span>'
+    + '<span class="day-card-wx-badge">' + wxBadge + '</span>'
     + '</div>'
+    + hourlyHtml
     + '<div class="day-card-agenda">'
     + (agendaRows || '<div class="day-card-agenda-empty">Nothing scheduled yet</div>')
     + '</div>'
