@@ -1933,6 +1933,11 @@
     color: var(--text); background: rgba(126,176,255,0.12); border-color: rgba(126,176,255,0.4);
   }
   .eatdo-subnav-btn:active, .transit-subnav-btn:active { background: var(--surface3); }
+  .tag-filter-row { display: flex; gap: 7px; overflow-x: auto; padding: 8px 0 2px; scrollbar-width: none; -ms-overflow-style: none; }
+  .tag-filter-row::-webkit-scrollbar { display: none; }
+  .tag-pill { flex-shrink: 0; padding: 5px 12px; font-size: 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-muted); cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .tag-pill.active { background: rgba(126,176,255,0.15); border-color: rgba(126,176,255,0.5); color: var(--text); font-weight: 600; }
+  .tag-pill:active { opacity: 0.7; }
   .lang-search-wrap { position: relative; margin-bottom: 20px; }
   .lang-search-input {
     width: 100%; padding: 11px 14px 11px 38px; font-size: 14px; color: var(--text);
@@ -2898,6 +2903,15 @@
       <button class="eatdo-subnav-btn active" id="eatdo-btn-all" onclick="filterEatDo('all', this)">All</button>
       <button class="eatdo-subnav-btn" id="eatdo-btn-food" onclick="filterEatDo('food', this)">🍜 Food</button>
       <button class="eatdo-subnav-btn" id="eatdo-btn-activities" onclick="filterEatDo('activities', this)">🎯 Activities</button>
+    </div>
+    <div class="tag-filter-row" id="tag-filter-row">
+      <button class="tag-pill active" id="tag-pill-all" onclick="filterEatDoTag('all', this)">All</button>
+      <button class="tag-pill" id="tag-pill-must" onclick="filterEatDoTag('must', this)">⭐ Must-do</button>
+      <button class="tag-pill" id="tag-pill-gf" onclick="filterEatDoTag('gf', this)">✓ Gluten-Free</button>
+      <button class="tag-pill" id="tag-pill-shopping" onclick="filterEatDoTag('shopping', this)">🛍 Shopping</button>
+      <button class="tag-pill" id="tag-pill-cultural" onclick="filterEatDoTag('cultural', this)">🎭 Cultural</button>
+      <button class="tag-pill" id="tag-pill-budget" onclick="filterEatDoTag('budget', this)">💰 Budget</button>
+      <button class="tag-pill" id="tag-pill-optional" onclick="filterEatDoTag('optional', this)">Optional</button>
     </div>
     <div id="food-guide-section">
       <div class="section-title" style="margin-top:0">🍜 Food Guide</div>
@@ -4786,6 +4800,7 @@ const appState = {
   dismissedMapReminders: [],
   cityFilter: 'all',
   dateFilter: 'upcoming',
+  tagFilter: 'all',
   editingMode: false,
   _movingEvent: null,
   _assigningActivity: null,
@@ -4806,6 +4821,14 @@ function getDefaultData() {
   };
 }
 
+// Merges any DEFAULT_ACTIVITIES entries not yet present in appState.activities.
+// Ensures new items added to DEFAULT_ACTIVITIES appear for returning users.
+function _mergeDefaultActivities() {
+  if (!appState.activities) return;
+  const existing = new Set(appState.activities.map(a => a.id));
+  DEFAULT_ACTIVITIES.forEach(a => { if (!existing.has(a.id)) appState.activities.push(a); });
+}
+
 async function loadAppState() {
   if (_sb) {
     try {
@@ -4818,6 +4841,7 @@ async function loadAppState() {
         appState.harukaBooked = d.harukaBooked || false;
         appState.checklists = d.checklists || {};
         appState.dismissedMapReminders = d.dismissedMapReminders || [];
+        _mergeDefaultActivities();
         try { localStorage.setItem(LS_KEY, JSON.stringify({days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders})); } catch(e) {}
         return;
       }
@@ -4833,6 +4857,7 @@ async function loadAppState() {
       appState.harukaBooked = p.harukaBooked || false;
       appState.checklists = p.checklists || {};
       appState.dismissedMapReminders = p.dismissedMapReminders || [];
+      _mergeDefaultActivities();
       return;
     }
   } catch(e) {}
@@ -5103,9 +5128,11 @@ function renderActivities() {
   const typeLabels = {must:'Must-do',optional:'Optional',food:'Food',shopping:'Shopping',cultural:'Cultural',included:'Included'};
   let html = '';
 
+  const tagFilter = appState.tagFilter || 'all';
   cities.forEach(city => {
     if (cityFilter !== 'all' && cityFilter !== city) return;
-    const items = appState.activities.filter(a => a.city === city);
+    let items = appState.activities.filter(a => a.city === city);
+    if (tagFilter !== 'all') items = items.filter(a => a.type === tagFilter);
     if (!items.length) return;
     const m = cityMeta[city];
     html += '<div class="activity-group">'
@@ -5797,6 +5824,14 @@ function filterEatDo(view, btn) {
   if (foodSec) foodSec.style.display = (view === 'activities') ? 'none' : '';
   if (actSec) actSec.style.display = (view === 'food') ? 'none' : '';
   window.scrollTo({ top: document.querySelector('.sticky-header')?.offsetHeight || 0, behavior: 'smooth' });
+}
+
+function filterEatDoTag(tag, btn) {
+  document.querySelectorAll('.tag-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  appState.tagFilter = tag;
+  renderActivities();
+  renderFoodGuide();
 }
 
 function filterPhrases(query) {
@@ -7436,15 +7471,24 @@ function renderFoodGuide() {
   const container = document.getElementById('food-guide-container');
   if (!container) return;
   const cityFilter = appState.cityFilter || 'all';
+  const tagFilter = appState.tagFilter || 'all';
+  const foodTagFilters = new Set(['gf','must','budget','splurge','quick']);
   const cities = ['tokyo','hakone','kyoto','osaka'];
   let html = '';
   cities.forEach(city => {
     if (cityFilter !== 'all' && cityFilter !== city) return;
     const c = FOOD_GUIDE[city];
+    // When tag is an activity-only type, hide all food items; when it's a food tag, filter normally
+    let items = c.items;
+    if (tagFilter !== 'all') {
+      if (!foodTagFilters.has(tagFilter)) { items = []; }
+      else { items = items.filter(item => (item.tags || []).includes(tagFilter)); }
+    }
+    if (!items.length) return;
     html += '<div class="food-city-section">'
       + '<div class="food-city-title">' + c.emoji + ' ' + c.label + '</div>'
       + '<div class="food-items-list">'
-      + c.items.map(item => {
+      + items.map(item => {
           const tagLabels = { must:'must', budget:'budget', splurge:'splurge', quick:'quick', gf:'✓ Gluten Free' };
           const tags = (item.tags || []).map(t => '<span class="food-tag ' + t + '">' + (tagLabels[t]||t) + '</span>').join('');
           const staffBtn = item.jp ? '<button class="food-staff-btn" onclick="openStaffCard(\'' + item.jp.replace(/'/g,"\\'") + '\',\'' + (item.en||'').replace(/'/g,"\\'") + '\');event.stopPropagation()">📱 Show to staff</button>' : '';
