@@ -2148,6 +2148,11 @@
   .poller-run-summary { font-size: 13px; color: var(--text); line-height: 1.45; margin-bottom: 4px; }
   .poller-run-notes { font-size: 12px; color: var(--text-muted); line-height: 1.45; font-style: italic; }
   .poller-run-sha { font-size: 10px; color: var(--text-muted); margin-top: 6px; font-family: monospace; }
+  .poller-trigger-row { display: flex; align-items: center; gap: 10px; padding: 12px 0 4px; }
+  .poller-trigger-btn { background: rgba(126,176,255,0.15); border: 1px solid rgba(126,176,255,0.4); color: #7EB0FF; font-size: 13px; font-weight: 600; border-radius: 8px; padding: 8px 16px; cursor: pointer; font-family: inherit; flex-shrink: 0; }
+  .poller-trigger-btn:active { opacity: 0.7; }
+  .poller-trigger-btn:disabled { opacity: 0.5; cursor: default; }
+  .poller-trigger-status { font-size: 12px; color: var(--text-muted); }
   .inbox-run-group { margin-bottom: 8px; }
   .inbox-run-header {
     font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;
@@ -5062,7 +5067,7 @@ async function applyTripActivities() {
 }
 // ─────────────────────────────────────────────────────────────────────────
 
-
+function saveAppState() {
   const data = { days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders };
   try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
   if (_syncTimer) clearTimeout(_syncTimer);
@@ -8303,27 +8308,33 @@ function _showUpdateUI() {
 async function applyAppUpdate() {
   const banner = document.getElementById('app-update-banner');
   const btn = document.getElementById('app-update-btn');
-  if (btn) { btn.textContent = '⟳ Updating…'; btn.disabled = true; }
-  if (banner) banner.querySelector('span').textContent = '⟳ Updating…';
 
-  // When the new SW takes control, reload to serve fresh cached files
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
-  }, { once: true });
+  // Dismiss UI immediately — don't leave a stale banner
+  if (banner) banner.classList.remove('visible');
+  if (btn) btn.style.display = 'none';
 
-  if (_swReg) {
-    // Activate a waiting SW that already installed
+  if (!_swReg) return;
+
+  if (_swReg.waiting) {
+    // SW already installed and waiting — activate it, then reload on takeover
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    }, { once: true });
+    _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    // Fallback reload if controllerchange doesn't fire within 4s
+    setTimeout(() => window.location.reload(), 4000);
+  } else {
+    // No waiting SW — force a check; reload only if a new one installs
+    await _swReg.update();
     if (_swReg.waiting) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+      }, { once: true });
       _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
-    } else {
-      // Force fetch of sw.js to pick up a new version
-      await _swReg.update();
-      if (_swReg.waiting) _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      setTimeout(() => window.location.reload(), 4000);
     }
+    // If still no waiting SW, nothing to do — banner already dismissed
   }
-
-  // Fallback: if SW doesn't fire controllerchange within 4s, hard-reload
-  setTimeout(() => window.location.reload(), 4000);
 }
 
 if ('serviceWorker' in navigator) {
@@ -8551,14 +8562,42 @@ function renderRunLog() {
   }).join('');
 }
 
+async function triggerPoller() {
+  const btn = document.getElementById('poller-trigger-btn');
+  const status = document.getElementById('poller-trigger-status');
+  if (btn) { btn.disabled = true; btn.textContent = '⟳ Running…'; }
+  if (status) status.textContent = '';
+  try {
+    const res = await fetch(`${SUPA_URL}/functions/v1/trigger-poller`, {
+      method: 'POST',
+      headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` },
+    });
+    if (res.ok) {
+      if (status) { status.style.color = '#34d399'; status.textContent = '✓ Poller triggered — check back in ~2 min'; }
+    } else {
+      const err = await res.json().catch(() => ({}));
+      if (status) { status.style.color = '#f87171'; status.textContent = '✗ ' + (err.error || `Error ${res.status}`); }
+    }
+  } catch(e) {
+    if (status) { status.style.color = '#f87171'; status.textContent = '✗ Network error'; }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '⚡ Run Now'; }
+  }
+}
+
 function renderPollerRuns() {
   const body = document.getElementById('inbox-sheet-body');
+  const triggerRow = `<div class="poller-trigger-row">
+    <button class="poller-trigger-btn" id="poller-trigger-btn" onclick="triggerPoller()">⚡ Run Now</button>
+    <span class="poller-trigger-status" id="poller-trigger-status"></span>
+  </div>`;
+
   if (!pollerRunItems.length) {
-    body.innerHTML = '<div class="inbox-empty">No poller runs recorded yet.</div>';
+    body.innerHTML = triggerRow + '<div class="inbox-empty" style="margin-top:8px;">No poller runs recorded yet.</div>';
     return;
   }
 
-  body.innerHTML = pollerRunItems.map(run => {
+  const listHtml = pollerRunItems.map(run => {
     const dt = new Date(run.run_at);
     const dateStr = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     const timeStr = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -8595,6 +8634,8 @@ function renderPollerRuns() {
       ${summary}${notes}${sha}
     </div>`;
   }).join('');
+
+  body.innerHTML = triggerRow + listHtml;
 }
 
 // Swipe-to-close for inbox sheet
