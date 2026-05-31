@@ -6237,6 +6237,31 @@ function renderDayCards() {
     if (cards[targetIdx]) swiper.scrollLeft = cards[targetIdx].offsetLeft;
   });
   swiper.onscroll = _onSwiperScroll;
+  // Tap + swipe-up gesture on each card (onclick on the inner div is unreliable when
+  // a horizontally-scrollable child is present — iOS eats the click in that case).
+  swiper.querySelectorAll('.day-card').forEach(card => {
+    const inner = card.querySelector('.day-card-inner');
+    if (!inner) return;
+    const dayId = card.dataset.dayId;
+    let sx = 0, sy = 0, st = 0;
+    inner.addEventListener('touchstart', e => {
+      sx = e.touches[0].clientX;
+      sy = e.touches[0].clientY;
+      st = Date.now();
+    }, { passive: true });
+    inner.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - sx;
+      const dy = e.changedTouches[0].clientY - sy;
+      const dt = Date.now() - st;
+      if (dy < -40 && Math.abs(dx) < Math.abs(dy)) {
+        e.preventDefault();
+        openDayDetail(dayId);
+      } else if (dt < 250 && Math.abs(dx) < 15 && Math.abs(dy) < 15) {
+        e.preventDefault();
+        openDayDetail(dayId);
+      }
+    });
+  });
   if (_openDetailDayId) openDayDetail(_openDetailDayId);
 }
 
@@ -6277,6 +6302,7 @@ function buildDayCardHTML(day, idx, today) {
         if (!t.startsWith(day.date)) continue;
         const hour = parseInt(t.slice(11, 13), 10);
         if (hour < 8 || hour > 21) continue;
+        if (hour % 2 !== 0) continue; // every-2-hours to fit on screen without scrolling
         if (isToday && hour < curHour - 1) continue; // skip past hours on today
         const icon = WX_ICONS[hourly.weathercode[i]] || '🌡';
         const temp = Math.round(hourly.temperature_2m[i]);
@@ -6293,7 +6319,7 @@ function buildDayCardHTML(day, idx, today) {
   }
 
   return '<div class="day-card" data-idx="' + idx + '" data-day-id="' + day.id + '">'
-    + '<div class="day-card-inner" onclick="openDayDetail(\'' + day.id + '\')">'
+    + '<div class="day-card-inner">'
     + '<div class="day-card-top">'
     + '<div class="day-card-meta">'
     + (isToday ? '<span class="today-chip">TODAY · </span>' : '')
