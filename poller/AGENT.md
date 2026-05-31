@@ -49,7 +49,8 @@ email contains **new or changed information** beyond the original confirmation.
 4. **Extract** — pull structured data per the schemas below
 5. **Write Supabase** — **CRITICAL: insert into `email_processing_log` for EVERY email processed, regardless of category or outcome (including skips and actionable items alike).** This is how deduplication works — if you skip this step, the same email will be re-processed on the next run. Then insert into `travel_updates` for actionable items only (confidence ≥ 0.50).
 6. **Write booking_updates** — for high-confidence changes (≥ 0.85), upsert rows into `booking_updates` (see schema below). The app reads this table live — no HTML editing needed.
-7. **Write itinerary_events** — for new activities, reservations, or experiences not yet in the itinerary, upsert rows into `itinerary_events` (see schema below). The app merges these into the day view on load — no HTML editing needed.
+7. **Write itinerary_events** — for dated reservations/experiences (specific day + time), upsert rows into `itinerary_events`. The app merges these into the day view on load — no HTML editing needed.
+7b. **Write trip_activities** — for new activity recommendations or corrections without a specific date (e.g. a newly booked tour with no confirmed slot yet, or an update to an existing activity card), upsert rows into `trip_activities` (see schema below). Appears in the Eat + Do → Activities tab.
 8. **Process poller_tasks** — check for pending one-off tasks (see schema below). On each run, query for `status = 'pending'` tasks, process up to 3 per run (to avoid timeout), mark each `done` or `failed`. Common tasks: `upload_food_photos` — download a restaurant photo and upload to Supabase Storage.
 9. **Commit & push** — almost never needed now; only if something genuinely can't be expressed via `booking_updates` or `itinerary_events`.
 10. **Log the run** — INSERT one row into `poller_runs` (see schema below). This is what drives the Poller tab and "Last checked" timestamp in the app UI. Do this even if nothing actionable was found.
@@ -295,6 +296,83 @@ ON CONFLICT (event_id) DO UPDATE SET
 - Use `sort_order: 99` (append) unless the email clearly implies a specific time that places it before another event
 - The app preserves the user's `done` checkbox state when updating existing events
 - Existing hardcoded events (e.g. `d3e1`, `d3e5`) will be updated in-place if you use their exact `event_id`
+
+---
+
+## trip_activities — dynamic activity list (poller-managed)
+
+Activities in the app's **Eat + Do → Activities** tab come from two sources, merged on load:
+1. `DEFAULT_ACTIVITIES` — hardcoded JS array (baseline, always available offline)
+2. `trip_activities` table — poller-written rows that **override or supplement** the defaults
+
+Use this table to: add newly booked activities, correct an existing activity's name/note/type, or add a new recommendation discovered in an email (e.g. a restaurant booking that includes an activity add-on).
+
+### Table: `trip_activities`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | text PK | Stable ID — use existing IDs to update defaults (e.g. `a4`, `komehyo`) or a new slug for new items (e.g. `2026-05-28-teamlab-extra`) |
+| `name` | text | Activity name as shown in the card |
+| `note` | text | Sub-label — hours, price, short tip. Null = clear existing note |
+| `type` | text | `must`, `optional`, `food`, `shopping`, `cultural`, `included` |
+| `city` | text | `tokyo`, `hakone`, `kyoto`, `osaka` |
+| `assigned_day` | text | Day ID the user has planned this to (e.g. `d6`). Poller should leave this null — it's user-controlled. |
+| `sort_order` | int | Within-city display order. Use 100+ for new items (append after defaults). |
+| `source` | text | Always `'poller'` |
+| `created_at` | timestamptz | Auto-set |
+| `updated_at` | timestamptz | Auto-updated on every UPDATE |
+
+### Merge behaviour in the app
+
+- **Existing ID** (e.g. `a4`, `komehyo`): updates `name`, `note`, `type`. Preserves the user's `assignedDay` planning state.
+- **New ID**: appends as a new activity card at the bottom of the city's list (ordered by `sort_order`).
+
+### Upsert SQL template
+
+```sql
+INSERT INTO trip_activities (id, name, note, type, city, sort_order, source)
+VALUES ($id, $name, $note, $type, $city, $sort_order, 'poller')
+ON CONFLICT (id) DO UPDATE SET
+  name       = EXCLUDED.name,
+  note       = EXCLUDED.note,
+  type       = EXCLUDED.type,
+  city       = EXCLUDED.city,
+  sort_order = EXCLUDED.sort_order,
+  updated_at = now();
+```
+
+### Examples
+
+**New activity booking from email (Klook/Viator confirmation):**
+```sql
+-- New Kyoto tea ceremony booked via Viator
+INSERT INTO trip_activities (id, name, note, type, city, sort_order, source)
+VALUES ('2026-05-31-tea-ceremony', 'Tea Ceremony at Urasenke', 'Booked via Viator · May 31 2:00 PM · 5 persons', 'cultural', 'kyoto', 50, 'poller')
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, note = EXCLUDED.note, updated_at = now();
+```
+
+**Update an existing default activity:**
+```sql
+-- Correct the teamLab booking note with confirmed time
+INSERT INTO trip_activities (id, name, note, type, city, sort_order, source)
+VALUES ('a4', 'teamLab Planets TOKYO', 'Klook ABT743615 · May 28 10:00 AM · 5 persons · Barefoot required', 'optional', 'tokyo', 4, 'poller')
+ON CONFLICT (id) DO UPDATE SET note = EXCLUDED.note, updated_at = now();
+```
+
+**New food experience (not in food guide):**
+```sql
+INSERT INTO trip_activities (id, name, note, type, city, sort_order, source)
+VALUES ('2026-06-03-kuromon-market', 'Kuromon Ichiba Market', 'Osaka''s kitchen · fresh seafood · open 9 AM–6 PM', 'food', 'osaka', 110, 'poller')
+ON CONFLICT (id) DO UPDATE SET note = EXCLUDED.note, updated_at = now();
+```
+
+### Rules for trip_activities writes
+
+- Only write when you have a confirmed booking or high-confidence (≥ 0.85) new information
+- Never set `assigned_day` — that's user-controlled state
+- Use existing DEFAULT_ACTIVITIES IDs (`a0`–`a29`, `komehyo`, `brandoff`, `2ndstreet`, `decouverte`, `naramonocho`) when updating defaults
+- Use `{YYYY-MM-DD}-{slug}` IDs for new poller-added activities
+- Update the run checklist counter: count trip_activities upserts in `supabase_rows_written`
 
 ---
 
