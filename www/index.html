@@ -6417,6 +6417,63 @@ function closeDayDetail() {
   document.getElementById('day-detail-sheet')?.classList.remove('open');
 }
 
+// Swipe-to-close for day detail sheet
+document.addEventListener('DOMContentLoaded', () => {
+  const sheet = document.getElementById('day-detail-sheet');
+  const overlay = document.getElementById('day-detail-overlay');
+  if (!sheet || !overlay) return;
+  const EASING = 'cubic-bezier(0.32, 0.72, 0, 1)';
+  let startY = 0, isDragging = false;
+
+  sheet.addEventListener('touchstart', function(e) {
+    startY = e.touches[0].clientY;
+    isDragging = false;
+  }, { passive: true });
+
+  sheet.addEventListener('touchmove', function(e) {
+    const dy = e.touches[0].clientY - startY;
+    const body = sheet.querySelector('.day-detail-body');
+    const atTop = !body || body.scrollTop <= 0;
+    if (atTop && dy > 0) {
+      isDragging = true;
+      sheet.style.transition = 'none';
+      sheet.style.transform = 'translateY(' + dy + 'px)';
+      overlay.style.opacity = String(Math.max(0, 1 - dy / 350));
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  sheet.addEventListener('touchend', function(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (dy > 120) {
+      sheet.style.transition = 'transform 0.28s ' + EASING;
+      sheet.style.transform = 'translateY(100%)';
+      overlay.style.transition = 'opacity 0.28s';
+      overlay.style.opacity = '0';
+      setTimeout(function() {
+        closeDayDetail();
+        sheet.style.transform = '';
+        sheet.style.transition = '';
+        overlay.style.opacity = '';
+        overlay.style.transition = '';
+      }, 280);
+    } else {
+      sheet.style.transition = 'transform 0.3s ' + EASING;
+      sheet.style.transform = 'translateY(0)';
+      overlay.style.transition = 'opacity 0.3s';
+      overlay.style.opacity = '1';
+      setTimeout(function() {
+        sheet.style.transform = '';
+        sheet.style.transition = '';
+        overlay.style.opacity = '';
+        overlay.style.transition = '';
+      }, 300);
+    }
+  });
+});
+
 function openCurrentDayEdit() {
   if (!appState.editingMode) toggleEditMode();
   const dayId = _currentSwiperDayId || (appState.days && appState.days[0] && appState.days[0].id);
