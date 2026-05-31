@@ -3883,6 +3883,45 @@
     ],
   ];
 
+  // Maps search queries for activities/shopping that can be added to any day.
+  // Keyed by ACTIVITY_DETAILS id or SHOPPING_DETAILS id.
+  const ACTIVITY_MAP_QUERIES = {
+    a0:  'Shibuya Crossing Tokyo 渋谷スクランブル交差点',
+    a1:  'Omoide Yokocho Shinjuku Tokyo 思い出横丁',
+    a2:  'Meiji Shrine Tokyo 明治神宮',
+    a3:  'Takeshita Street Harajuku Tokyo 竹下通り',
+    a4:  'teamLab Planets TOKYO Toyosu チームラボプラネッツ TOKYO',
+    a5:  'Tokyo Skytree 東京スカイツリー',
+    a6:  'Tsukiji Outer Market Tokyo 築地場外市場',
+    a7:  'Pokemon Center Skytree Town Tokyo',
+    a9:  'Hakone Ropeway 箱根ロープウェイ',
+    a10: 'Owakudani 大涌谷 Hakone',
+    a11: 'Hakone Lake Ashi Pirate Ship 芦ノ湖海賊船',
+    a12: 'Hakone Kanagawa Japan 箱根',
+    a13: 'Hakone Kanagawa Japan 箱根',
+    a14: 'Fushimi Inari Shrine Kyoto 伏見稲荷大社',
+    a15: 'Arashiyama Bamboo Grove Kyoto 嵐山竹林',
+    a16: 'Kinkakuji Temple Kyoto 金閣寺',
+    a17: 'Gion District Kyoto 祇園',
+    a18: 'Nishiki Market Kyoto 錦市場',
+    a19: 'tea ceremony Kyoto 茶道 京都',
+    a20: 'kimono rental Kyoto 着物レンタル 京都 東山',
+    a21: "Philosopher's Path Kyoto 哲学の道",
+    a22: 'Nijo Castle Kyoto 二条城',
+    a23: 'Dotonbori Osaka 道頓堀',
+    a24: 'Osaka Castle 大阪城',
+    a25: 'Shinsekai Osaka 新世界',
+    a26: 'Dotonbori Osaka 道頓堀',
+    a27: 'okonomiyaki Osaka お好み焼き 大阪',
+    a28: 'Universal Studios Japan Osaka ユニバーサル・スタジオ・ジャパン',
+    a29: 'Pokemon Cafe Osaka Shinsaibashi ポケモンカフェ 大阪',
+    komehyo:    'KOMEHYO 新京極 京都',
+    brandoff:   'BRAND OFF Kyoto Shijo 京都四条',
+    '2ndstreet':'2nd Street Shijo-Kawaramachi Kyoto',
+    decouverte: 'Decouverte vintage 京都',
+    naramonocho:'奈良物町 錦市場 京都 中京区',
+  };
+
   function buildMapURL(dayIndex) {
     const panel = document.querySelector('.route-builder[data-day="' + dayIndex + '"]');
     const checked = panel.querySelectorAll('input[type="checkbox"]:checked');
@@ -3945,8 +3984,23 @@
       mapBtn.onclick = function(e) { e.stopPropagation(); toggleRouteBuilder(this, idx); };
       header.insertBefore(mapBtn, toggle);
 
-      // Build checklist HTML
-      var locsHtml = DAY_LOCATIONS[idx].map(function(loc) {
+      // Build checklist: static stops + any dynamically-added events with known map queries
+      var staticLocs = DAY_LOCATIONS[idx] || [];
+      var staticQueries = new Set(staticLocs.map(function(l) { return l.query; }));
+      var day = appState.days && appState.days[idx];
+      var extraLocs = [];
+      if (day && day.events) {
+        day.events.forEach(function(ev) {
+          if (!ev.detailKey) return;
+          var q = ACTIVITY_MAP_QUERIES[ev.detailKey];
+          if (q && !staticQueries.has(q)) {
+            extraLocs.push({ label: ev.text, query: q, checked: true });
+            staticQueries.add(q);
+          }
+        });
+      }
+      var allLocs = staticLocs.concat(extraLocs);
+      var locsHtml = allLocs.map(function(loc) {
         var safeQuery = loc.query.replace(/"/g, '&quot;');
         return '<label class="route-location">' +
           '<input type="checkbox" data-query="' + safeQuery + '"' + (loc.checked ? ' checked' : '') + '>' +
