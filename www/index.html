@@ -2226,7 +2226,7 @@
   .lang-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
   .lang-no-results { color: var(--text-muted); padding: 16px 0; font-size: 14px; }
   .today-fab {
-    position: fixed; bottom: calc(100px + env(safe-area-inset-bottom, 0px)); right: 20px;
+    position: fixed; bottom: calc(100px + env(safe-area-inset-bottom, 0px)); left: 20px;
     z-index: 201; display: none; align-items: center; gap: 6px; padding: 10px 16px;
     font-size: 13px; font-weight: 700; color: #fff; background: var(--accent);
     border: none; border-radius: 24px; cursor: pointer; font-family: inherit;
@@ -8616,7 +8616,7 @@ document.addEventListener('visibilitychange', () => {
   <div class="staff-overlay-en" id="staff-overlay-en"></div>
 </div>
 
-<button class="today-fab" id="today-fab" onclick="scrollToToday()">⬇ Today</button>
+<button class="today-fab" id="today-fab" onclick="scrollToToday()">📅 Today</button>
 <button class="day-edit-fab" id="day-edit-fab" onclick="openCurrentDayEdit()" title="Edit day">✏</button>
 
 <!-- Trip Inbox FAB -->
