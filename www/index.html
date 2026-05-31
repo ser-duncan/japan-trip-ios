@@ -2031,6 +2031,20 @@
   .inbox-refresh-btn:active { opacity: 0.4; }
   .inbox-refresh-btn.spinning { animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  .app-update-btn {
+    background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.4);
+    color: #34d399; font-size: 12px; font-weight: 600; border-radius: 6px;
+    padding: 3px 8px; cursor: pointer; font-family: inherit; display: none;
+  }
+  .app-update-btn:active { opacity: 0.7; }
+  .app-update-banner {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+    background: #34d399; color: #0f172a; font-size: 13px; font-weight: 600;
+    padding: 10px 16px; display: flex; align-items: center; justify-content: space-between;
+    transform: translateY(-100%); transition: transform 0.3s ease; cursor: pointer;
+  }
+  .app-update-banner.visible { transform: translateY(0); }
+  .app-update-banner-close { font-size: 16px; opacity: 0.6; padding: 0 4px; }
   .inbox-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; }
   .inbox-tab {
     flex: 1; padding: 10px 0; font-size: 13px; font-weight: 600; text-align: center;
@@ -8250,6 +8264,10 @@ function closeAttachmentViewer() {
 <!-- Trip Inbox Sheet -->
 <div class="inbox-overlay" id="inbox-overlay" onclick="closeInbox()"></div>
 <div class="inbox-sheet" id="inbox-sheet">
+  <div id="app-update-banner" class="app-update-banner" onclick="applyAppUpdate()">
+    <span>⬆ App update available — tap to refresh</span>
+    <span class="app-update-banner-close" onclick="event.stopPropagation();document.getElementById('app-update-banner').classList.remove('visible')">✕</span>
+  </div>
   <div class="inbox-sheet-handle"></div>
   <div class="inbox-sheet-header">
     <div>
@@ -8257,6 +8275,7 @@ function closeAttachmentViewer() {
       <div style="display:flex;align-items:center;gap:4px;">
         <div class="inbox-last-checked" id="inbox-last-checked"></div>
         <button class="inbox-refresh-btn" id="inbox-refresh-btn" onclick="refreshItinerary()" title="Refresh itinerary">↻</button>
+        <button class="app-update-btn" id="app-update-btn" onclick="applyAppUpdate()" title="New version available">⬆ Update</button>
       </div>
     </div>
     <button class="inbox-sheet-close" onclick="closeInbox()">×</button>
@@ -8272,9 +8291,59 @@ function closeAttachmentViewer() {
 </div>
 
 <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js');
+let _swReg = null;
+
+function _showUpdateUI() {
+  const banner = document.getElementById('app-update-banner');
+  const btn = document.getElementById('app-update-btn');
+  if (banner) banner.classList.add('visible');
+  if (btn) btn.style.display = '';
+}
+
+async function applyAppUpdate() {
+  const banner = document.getElementById('app-update-banner');
+  const btn = document.getElementById('app-update-btn');
+  if (btn) { btn.textContent = '⟳ Updating…'; btn.disabled = true; }
+  if (banner) banner.querySelector('span').textContent = '⟳ Updating…';
+
+  // When the new SW takes control, reload to serve fresh cached files
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload();
+  }, { once: true });
+
+  if (_swReg) {
+    // Activate a waiting SW that already installed
+    if (_swReg.waiting) {
+      _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    } else {
+      // Force fetch of sw.js to pick up a new version
+      await _swReg.update();
+      if (_swReg.waiting) _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
   }
+
+  // Fallback: if SW doesn't fire controllerchange within 4s, hard-reload
+  setTimeout(() => window.location.reload(), 4000);
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    _swReg = reg;
+
+    // New SW already waiting (e.g. page was kept open across a deploy)
+    if (reg.waiting) _showUpdateUI();
+
+    // New SW found during this page load
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          _showUpdateUI();
+        }
+      });
+    });
+  });
+}
 </script>
 
 <script>

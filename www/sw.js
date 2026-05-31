@@ -1,4 +1,4 @@
-const CACHE = 'japan2026-v37';
+const CACHE = 'japan2026-v38';
 const ASSETS = [
   './',
   './index.html',
@@ -25,4 +25,10 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
+});
+
+// Allow the page to manually trigger SW activation (belt-and-suspenders
+// alongside the skipWaiting() call in install).
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
