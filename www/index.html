@@ -1871,6 +1871,7 @@
   .food-tag.budget { color: #4ade80; border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.07); }
   .food-tag.splurge { color: #a78bfa; border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.07); }
   .food-tag.quick { color: #fb923c; border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.07); }
+  .food-tag.gf { color: #34d399; border-color: rgba(52,211,153,0.45); background: rgba(52,211,153,0.10); font-weight: 700; letter-spacing: 0.02em; }
   .food-staff-btn {
     margin-top: 7px;
     display: inline-flex;
@@ -5877,6 +5878,18 @@ const FOOD_GUIDE = {
       { key:'kyoto-ramen', icon: '🍜', name: 'Musoshin Ramen', dish: 'Tori paitan (chicken) ramen', note: 'Different from Tokyo — lighter chicken broth, unique to Kyoto. Near Kyoto Station, excellent value.', tags: ['must','budget'] },
       { key:'obanzai', icon: '🍱', name: 'Obanzai lunch set', dish: 'Traditional Kyoto small dishes', note: 'Vegetable-forward, beautifully presented. Many lunch spots in Gion offer ¥1,200–2,000 sets. Worth experiencing once.', tags: ['splurge'] },
       { key:'nara-mochi', icon: '🦌', name: 'Nara snacks (Day 8)', dish: 'Mochi pounding street food', note: 'On your Nara day trip — look for shops pounding fresh mochi by hand. Also: deer crackers (shika senbei) to feed the bowing deer.', tags: ['must','quick'] },
+      // ── Gluten Free picks ──────────────────────────────────────────────
+      { key:'toshoan', icon: '🥞', name: 'Toshoan (登志庵)', dish: '100% GF soufflé pancakes + sweets', note: 'One of the only places in Japan serving fully GF soufflé pancakes. Entire menu is gluten-free — pancakes, cream puffs, matcha sweets. 30-min wait but worth it. Nakagyo Ward.', tags: ['gf','must'] },
+      { key:'waco-crepes', icon: '🫔', name: 'waco crepes', dish: '100% GF + vegan rice flour crepes', note: 'Tiny 6-seat creperie near Kiyomizudera — all crepes made with rice flour. Try salmon + cream cheese or azuki soy milk cream. Kids love it. #45 Dessert Spots in Kyoto.', tags: ['gf','quick'] },
+      { key:'teuchi-soba', icon: '🍜', name: 'Teuchi Toru Soba (手打ちとおる)', dish: '100% buckwheat soba — celiac safe', note: 'Owner mills his own buckwheat on-site — zero cross-contact possible. 7 counter seats, cash only, lunch only. Called "a must for celiacs" in every GF Japan guide. ¥1,000.', tags: ['gf','budget'] },
+      { key:'gion-ramen', icon: '🍜', name: 'Gion Soy Milk Ramen', dish: "Japan's only 100% GF ramen", note: 'The only dedicated GF ramen restaurant in Japan — rich soy milk broth, rice noodles, GF gyoza. TripAdvisor 4.6/5. In Gion near Shijo Station. A celiac landmark.', tags: ['gf','must'] },
+      { key:'choice-kyoto', icon: '🌿', name: 'CHOICE (チョイス)', dish: 'GF + vegan all-day cafe', note: 'Doctor-run cafe where nearly the whole menu is GF and vegan — pancakes, brown rice risotto, fermented vegan cheese, raw cakes. English menu. 1 min from Sanjo Keihan.', tags: ['gf'] },
+      { key:'ikkakuju', icon: '🥞', name: 'Ikkakuju Karasuma (いっかくじゅう)', dish: '100% GF okonomiyaki + teppanyaki', note: 'Entire menu is GF — standout yuba okonomiyaki in private sunken kotatsu rooms. Perfect family dinner. Kid plastic plates, tatami seating. Reserve ahead.', tags: ['gf','must'] },
+      { key:'sugarhill', icon: '🍽', name: 'Sugarhill Kyoto', dish: 'Japanese-Western fusion, GF menu labeled', note: 'Ranked #44 of 16,000+ Kyoto restaurants overall. GF dishes labeled on menu, celiac-aware kitchen and staff. Best splurge dinner in Kyoto for GF travelers. Dinner only.', tags: ['gf','splurge'] },
+      { key:'kappa-italian', icon: '🍝', name: 'Oshokuya Kappa (5Kappa)', dish: "Kyoto's only 100% GF Italian", note: 'Every dish is GF — handmade rice flour focaccia, fresh rice pasta, Kameoka wagyu, seasonal Kyoto vegetables. Certified GF by Japan Vegetable Sommelier Assoc.', tags: ['gf','splurge'] },
+      { key:'musubi-sweets', icon: '🍰', name: 'Musubi Sweets Factory', dish: '100% GF + vegan matcha desserts', note: 'Hidden gem in Arashiyama — matcha tofu cheesecake, hojicha cheesecake, GF ice cream sandwich, home-roasted coffee. Air-conditioned. Perfect post-bamboo-grove stop.', tags: ['gf','quick'] },
+      { key:'maccha-house', icon: '🍵', name: 'MACCHA HOUSE (抹茶館)', dish: 'Matcha cafe — GF options (not dedicated)', note: "Kyoto's most famous matcha cafe — order soft serve in a CUP (not cone) and lattes for GF. Sannenzaka location is beautiful. Not a dedicated GF kitchen — heads up for celiacs.", tags: ['gf'] },
+      { key:'gen-kyoto', icon: '🥡', name: 'Gen (玄gen) Takeout', dish: '100% GF + vegan bento + curry', note: 'Takeout shop in Nishijin — GF vegan bento boxes, spice curry, quiche, rice flour roll cake. Also on Uber Eats. Great for a temple garden picnic lunch. Budget-friendly.', tags: ['gf','budget','quick'] },
     ]
   },
   osaka: {
@@ -6259,6 +6272,334 @@ const FOOD_DETAILS = {
       { label:'📍 Location', value:'A short walk from Dotonbori and Namba — combine with a day in that area' },
     ]},
   ]},
+
+  // ── Kyoto Gluten Free ─────────────────────────────────────────────────────
+
+  toshoan: { name:'Toshoan (登志庵)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥1,500–2,500 · Breakfast / Snack', sections:[
+    { title:'Gluten Free Status', rows:[
+      { label:'✓ 100% Dedicated GF Kitchen', value:'Every item on the menu is gluten-free — pancakes, cream puffs, choux pastry, cookies, anko sweets, sponge cake. No wheat on the premises.' },
+    ]},
+    { title:'Overview', rows:[
+      { label:'Description', value:'Beloved confectionery shop established 1950 — one of the only places in Japan offering truly GF soufflé pancakes. A celiac landmark in Kyoto.' },
+      { label:'Neighborhood', value:'Nakagyo Ward, central Kyoto (near Nijo Castle)' },
+      { label:'Hours', value:'10:00 AM – 6:30 PM · Pancake orders stop 4:30 PM · Closed some weekdays — verify before visiting' },
+      { label:'Price', value:'Approx. ¥2,000/person for pancakes + drink' },
+      { label:'Rating', value:'TripAdvisor #1,312 of 16,601 Kyoto restaurants · #1 on Find Me Gluten Free Kyoto' },
+    ]},
+    { title:'Must Order', rows:[
+      { label:'🥞 Soufflé pancakes', value:'米粉パンケーキ — fluffy GF pancakes. 30-min wait, worth every minute. Order immediately on arrival.' },
+      { label:'🍮 GF cream puffs', value:'Choux pastry completely gluten-free — extremely rare in Japan.' },
+      { label:'🍵 Matcha + strawberry sweets', value:'Seasonal matcha and strawberry An de sweets.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'709 Shimohachimonjicho, Nakagyo Ward, Kyoto 604-8333' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=登志庵+中京区+京都" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Photos + Reviews', value:'<a href="https://www.tripadvisor.com/Restaurant_Review-g298564-d3828636-Reviews-Toshoan-Kyoto_Kyoto_Prefecture_Kinki.html" target="_blank" rel="noopener" style="color:#7EB0FF">TripAdvisor ↗</a>' },
+      { label:'Find Me GF', value:'<a href="https://www.findmeglutenfree.com/jp/kyoto" target="_blank" rel="noopener" style="color:#7EB0FF">Find Me Gluten Free — Kyoto ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'💴 Cash', value:'Cash-friendly — bring yen.' },
+      { label:'⏰ Arrive early', value:'Small cafe — arrive early on weekdays to secure a seat and get pancake order in before 4:30 PM cutoff.' },
+      { label:'👨‍👩‍👧 Family', value:'No large group seating — best enjoyed in groups of 2–4.' },
+    ]},
+  ]},
+
+  'waco-crepes': { name:'waco crepes', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥800–1,500 · Snack / Breakfast', sections:[
+    { title:'Gluten Free Status', rows:[
+      { label:'✓ 100% GF + Vegan', value:'All crepes made with rice flour — fully gluten-free and vegan. No wheat on the premises.' },
+    ]},
+    { title:'Overview', rows:[
+      { label:'Description', value:'Tiny 6-seat creperie in Higashiyama. Every crepe is GF and vegan — perfect mid-sightseeing stop near Ninenzaka and Sannenzaka.' },
+      { label:'Neighborhood', value:'Higashiyama Ward — 15-min walk from Kiyomizudera, near Ninenzaka' },
+      { label:'Hours', value:'Opens 10:00 AM · Check @waco.crepes on Instagram for current hours and days off' },
+      { label:'Price', value:'Higher-end for crepes — worth it for safety and quality' },
+      { label:'Rating', value:'TripAdvisor #45 of 971 Dessert Spots in Kyoto · Consistently 5-star reviews' },
+    ]},
+    { title:'Must Order', rows:[
+      { label:'🐟 Salmon + cream cheese', value:'Savory GF crepe — so good multiple reviewers ordered a second immediately.' },
+      { label:'🫘 Azuki soy milk cream', value:'Sweet GF crepe with red bean and soy milk cream — a Japanese classic made safe.' },
+      { label:'☕ Black sesame latte', value:'With coconut cream — warming and beautiful.' },
+      { label:'🍓 Kyoto strawberry', value:'Seasonal — fresh organic Kyoto strawberry crepe when in season (late spring).' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'6-355-1F Miyagawasuji, Higashiyama-ku, Kyoto 605-0801' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=waco+crepes+東山区+京都" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Instagram', value:'<a href="https://www.instagram.com/waco.crepes/" target="_blank" rel="noopener" style="color:#7EB0FF">@waco.crepes — check current hours ↗</a>' },
+      { label:'Photos + Reviews', value:'<a href="https://www.tripadvisor.com/Restaurant_Review-g298564-d24170094-Reviews-Waco_crepes-Kyoto_Kyoto_Prefecture_Kinki.html" target="_blank" rel="noopener" style="color:#7EB0FF">TripAdvisor ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🪑 Only 6 seats', value:'Arrive right at 10 AM to guarantee a spot.' },
+      { label:'📍 Perfect pairing', value:'Combine with a Kiyomizudera morning — 10–15 min walk.' },
+      { label:'👧 Kids', value:'Unique colorful flavors kids love — and totally safe.' },
+    ]},
+  ]},
+
+  'teuchi-soba': { name:'Teuchi Toru Soba (手打ちとおる)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥1,000 · Lunch Only', sections:[
+    { title:'Gluten Free Status', rows:[
+      { label:'✓ 100% GF — Celiac Safe', value:'Owner mills his own buckwheat flour on-site — eliminates shared-mill cross-contamination. GF soy sauce available on request. The safest soba for celiacs in Kyoto.' },
+    ]},
+    { title:'Overview', rows:[
+      { label:'Description', value:'One-man, 7-seat counter restaurant. Owner Toru buys the buckwheat, mills it, makes the noodles, cooks, and serves — complete quality control. Rated 5-star on every GF Japan guide.' },
+      { label:'Neighborhood', value:'Nakagyo Ward, central Kyoto' },
+      { label:'Hours', value:'11:30 AM – 3:00 PM (lunch only) · Closed some days — verify ahead' },
+      { label:'Price', value:'Approx. ¥1,000/person — extraordinary value for the quality' },
+      { label:'Rating', value:'Uniformly 5-star across Find Me Gluten Free, Atly, and Wanderlog' },
+    ]},
+    { title:'Must Order', rows:[
+      { label:'🍜 Cold zaru soba', value:'100% buckwheat cold noodles with dipping sauce — purest version, order this first time.' },
+      { label:'🍜 Hot soba', value:'Same noodles in warm broth — equally excellent in cooler weather.' },
+      { label:'🥢 GF dipping sauce', value:'Request GF soy sauce on arrival — Toru accommodates and is highly celiac-aware.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'35-1 Matsuyacho, Nakagyo Ward, Kyoto 604-0831' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=手打ちとおる+中京区+京都" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Find Me GF', value:'<a href="https://www.findmeglutenfree.com/biz/teuchi-toru-soba/6459858956713984" target="_blank" rel="noopener" style="color:#7EB0FF">Find Me Gluten Free listing ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'💴 Cash only', value:'No cards — bring yen.' },
+      { label:'⏰ 7 seats', value:'Arrive at 11:30 AM sharp or expect a wait.' },
+      { label:'🍽 Lunch only', value:'Closes at 3 PM — plan sightseeing around it.' },
+    ]},
+  ]},
+
+  'gion-ramen': { name:'Gion Soy Milk Ramen', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥1,200–2,000 · Lunch / Dinner', sections:[
+    { title:'Gluten Free Status', rows:[
+      { label:'✓ 100% GF + Vegan', value:"The only dedicated gluten-free ramen restaurant in Japan. All ramen, gyoza, croquettes, curries, and desserts are GF and plant-based. Run by the world's only soymilk patissier." },
+    ]},
+    { title:'Overview', rows:[
+      { label:'Description', value:'Rich soy milk broth with rice noodles — a celiac landmark. Also has GF gyoza, okara croquettes, and vegan chocolate crème brûlée. English-speaking staff.' },
+      { label:'Neighborhood', value:'Gion / Higashiyama — near Gion Shijo Station' },
+      { label:'Hours', value:'11:00 AM – 8:30 PM (last order) · Open daily — verify closures' },
+      { label:'Price', value:'Higher-end for ramen; large portions' },
+      { label:'Rating', value:'TripAdvisor 4.6/5 · #472 of 9,963 Kyoto restaurants · Top-rated on HappyCow' },
+    ]},
+    { title:'Must Order', rows:[
+      { label:'🍜 Soy milk ramen', value:'豆乳らーめん — rich soy milk broth, rice noodles. The signature. Choose your spice level.' },
+      { label:'🥟 GF gyoza', value:'Fully GF gyoza — almost impossible to find elsewhere in Japan.' },
+      { label:'🥐 Okara croquettes', value:'Tofu pulp croquettes — crispy outside, silky inside.' },
+      { label:'🍮 Vegan crème brûlée', value:'Chocolate vegan crème brûlée — save room for dessert.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'40 Kamei-cho, Higashiyama-ku, Kyoto 605-0803' },
+      { label:'Website', value:'<a href="https://en.soymilkramen.com/" target="_blank" rel="noopener" style="color:#7EB0FF">en.soymilkramen.com ↗</a>' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=ぎをん豆乳らーめん+東山区+京都" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Photos + Reviews', value:'<a href="https://www.tripadvisor.com/Restaurant_Review-g298564-d27423834-Reviews-Gion_Soy_Milk_Ramen_Uno_Yokiko-Kyoto_Kyoto_Prefecture_Kinki.html" target="_blank" rel="noopener" style="color:#7EB0FF">TripAdvisor 4.6/5 ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🗣 English', value:'English-speaking staff — easy to communicate dietary needs.' },
+      { label:'⏰ No reservations', value:'Arrive early — waitlist fills fast at peak lunch/dinner hours.' },
+      { label:'👧 Family', value:'Kids love the ramen. Large portions. Great for any meal.' },
+    ]},
+  ]},
+
+  'choice-kyoto': { name:'CHOICE (チョイス)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥1,200–2,500 · All Day', sections:[
+    { title:'Gluten Free Status', rows:[
+      { label:'✓ ~100% GF + Vegan', value:'Almost entire menu is GF and vegan. Uses tamari (GF soy sauce) throughout. Fish-free broth. Run by a medical doctor with deep understanding of celiac disease.' },
+    ]},
+    { title:'Overview', rows:[
+      { label:'Description', value:'All-day cafe opened by a Japanese MD — everything made from scratch with organic, plant-based whole-food ingredients. English menu. One of the most-recommended GF spots in Kyoto.' },
+      { label:'Neighborhood', value:'Northern Higashiyama / Sanjo Keihan — 1-min walk from Sanjo Keihan Station' },
+      { label:'Hours', value:'Mon–Tue, Thu–Sat 9:30 AM–8:00 PM · Sun 9:30 AM–3:00 PM + 5:00–8:00 PM · Closed Wednesday' },
+      { label:'Price', value:'¥1,200–2,500 — portions lean small but premium ingredients' },
+      { label:'Rating', value:'TripAdvisor 4.2/5 · 119 reviews · #444 of 9,954 Kyoto restaurants' },
+    ]},
+    { title:'Must Order', rows:[
+      { label:'🥞 GF pancakes', value:'Fluffy GF breakfast pancakes — organic, beautifully presented.' },
+      { label:'🫙 Fermented vegan cheese', value:'House-made — unusual, delicious, and completely GF.' },
+      { label:'🍚 Brown rice risotto', value:'Hearty GF lunch option.' },
+      { label:'🎂 Raw cakes', value:'Rotating seasonal GF raw dessert cakes.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'1F Suzuki Keiseigeka Bldg., 89-1 Ohashi-cho, Higashiyama-ku, Kyoto' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=CHOICE+チョイス+三条+東山+京都" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Tabelog', value:'<a href="https://tabelog.com/en/kyoto/A2601/A260202/26022682/" target="_blank" rel="noopener" style="color:#7EB0FF">Tabelog listing + photos ↗</a>' },
+      { label:'Photos + Reviews', value:'<a href="https://www.tripadvisor.com/Restaurant_Review-g298564-d6839340-Reviews-Choice-Kyoto_Kyoto_Prefecture_Kinki.html" target="_blank" rel="noopener" style="color:#7EB0FF">TripAdvisor ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🗣 English menu', value:'English menu — no Japanese reading required.' },
+      { label:'👨‍⚕️ Doctor-run', value:'Staff understand celiac disease medically — communicate needs freely.' },
+      { label:'📅 Closed Wed', value:'Note Wednesday closure — plan accordingly.' },
+    ]},
+  ]},
+
+  ikkakuju: { name:'Ikkakuju Karasuma (いっかくじゅう)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥3,000–6,000 · Lunch (wknd) / Dinner', sections:[
+    { title:'Gluten Free Status', rows:[
+      { label:'✓ 100% GF Kitchen', value:'Entire menu is gluten-free including soy sauce. Uses Nikkomaru rice flour for okonomiyaki. Private rooms reduce any cross-contact risk further.' },
+    ]},
+    { title:'Overview', rows:[
+      { label:'Description', value:'Underground okonomiyaki and teppanyaki restaurant with private sunken kotatsu rooms. Yuba (tofu skin) okonomiyaki made with Kyoto\'s famous Yuba Sho shop. Intimate, family-perfect setting.' },
+      { label:'Neighborhood', value:'Shimogyo Ward — 3-min walk from Karasuma + Shijo Stations (basement, look for white unicorn sign above stairs)' },
+      { label:'Hours', value:'Mon–Fri 5:00 PM–11:00 PM · Sat/Sun/Holidays: Lunch 11:30 AM–3:00 PM + Dinner 5:00 PM–11:00 PM (L.O. 10:00 PM)' },
+      { label:'Price', value:'Dinner from ¥5,000/person with drinks · ¥330 table charge for dinner' },
+      { label:'Rating', value:'Excellent across TripAdvisor, Find Me Gluten Free, and Atly' },
+    ]},
+    { title:'Must Order', rows:[
+      { label:'🥞 Yuba okonomiyaki', value:'Kyoto tofu skin in a GF savory pancake — unique to this restaurant and extraordinary.' },
+      { label:'🍗 GF karaage', value:'GF fried chicken — reviewers rave about the enormous portions.' },
+      { label:'🔥 Teppanyaki', value:'Cook on the hot plate at your table — interactive and fun for families.' },
+      { label:'🍺 All-you-can-drink course', value:'From ¥5,000 — great value for a group dinner. Choose this.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'248 Shinmeicho, Shimogyo Ward, Kyoto (Gran Jour Ayakoji B1F)' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=いっかくじゅう+烏丸+下京区+京都" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Reservations (KKday)', value:'<a href="https://www.kkday.com/en/product/228358" target="_blank" rel="noopener" style="color:#7EB0FF">Book on KKday ↗</a>' },
+      { label:'Photos + Reviews', value:'<a href="https://www.tripadvisor.com/Restaurant_Review-g298564-d8088585-Reviews-Ikkakuju_Karasuma-Kyoto_Kyoto_Prefecture_Kinki.html" target="_blank" rel="noopener" style="color:#7EB0FF">TripAdvisor ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'📋 Reserve', value:'Reservations essential for a group of 5 — use KKday link above.' },
+      { label:'👧 Kid-friendly', value:'Plastic plates + cups for kids · Baby food welcome · Tatami seating available.' },
+      { label:'🎉 Best use', value:'Make this your big group dinner night in Kyoto — private room, tableside cooking, all-GF.' },
+    ]},
+  ]},
+
+  sugarhill: { name:'Sugarhill Kyoto', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥2,000–4,000 · Dinner', sections:[
+    { title:'Gluten Free Status', rows:[
+      { label:'✓ GF Menu + Celiac-Aware Kitchen', value:'GF dishes clearly labeled on menu. Owner extensively trained on celiac disease and cross-contact protocols. Separate cooking equipment for GF preparations.' },
+    ]},
+    { title:'Overview', rows:[
+      { label:'Description', value:'Japanese-Western fusion restaurant ranked #44 of 16,315 Kyoto restaurants overall on TripAdvisor. The highest-rated restaurant on this entire GF list. Intimate atmosphere, exceptional quality.' },
+      { label:'Neighborhood', value:'Shimogyo Ward — 8 min from Kyoto Station, near Kiyomizu Gojo' },
+      { label:'Hours', value:'Mon–Sat 5:00 PM–10:30 PM · Closed Sunday' },
+      { label:'Price', value:'Approx. ¥3,000–4,000/person — remarkable value for the ranking' },
+      { label:'Rating', value:'TripAdvisor 4.5+/5 · 672+ reviews · #44 of 16,315 Kyoto restaurants' },
+    ]},
+    { title:'Must Order (GF)', rows:[
+      { label:'🐔 GF teriyaki chicken', value:'グルテンフリーテリヤキチキン — the signature GF dish, widely praised. Clearly labeled GF on menu.' },
+      { label:'🥩 Wagyu', value:'Ask about GF wagyu preparations — chef accommodates with dedicated equipment.' },
+      { label:'🐟 Sashimi', value:'Naturally GF — fresh and beautifully presented.' },
+      { label:'🥡 Fried taro', value:'Crispy GF-friendly taro appetizer — a great starter.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'725 Uematsucho, Kataoka Bldg. 1F, Shimogyo-ku, Kyoto 600-8028' },
+      { label:'Phone', value:'+81 75-351-3913' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Sugarhill+Kyoto+下京区" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Photos + Reviews', value:'<a href="https://www.tripadvisor.com/Restaurant_Review-g298564-d4081495-Reviews-Sugarhill_Kyoto-Kyoto_Kyoto_Prefecture_Kinki.html" target="_blank" rel="noopener" style="color:#7EB0FF">TripAdvisor — #44 Kyoto ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'📋 Reserve', value:'Book ahead — small restaurant, fills up quickly.' },
+      { label:'🗣 English', value:'English-speaking staff — communicate GF needs at time of booking.' },
+      { label:'🌟 Best use', value:'The one special dinner in Kyoto. #44 out of 16k restaurants — this is a genuine find.' },
+    ]},
+  ]},
+
+  'kappa-italian': { name:'Oshokuya Kappa (5Kappa)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥3,000–8,000 · Lunch / Dinner', sections:[
+    { title:'Gluten Free Status', rows:[
+      { label:'✓ 100% GF — Certified', value:'Kyoto\'s only certified GF Italian restaurant. Certified by the Japan Vegetable Sommelier Association. Every dish is GF: focaccia, fresh pasta, all sauces, all desserts.' },
+    ]},
+    { title:'Overview', rows:[
+      { label:'Description', value:'Chef uses 50+ seasonal Kyoto vegetables selected by a certified Sommelier, Kameoka wagyu beef, and fresh Kochi Prefecture seafood. The most upscale dedicated GF experience in Kyoto.' },
+      { label:'Neighborhood', value:'Shimogyo Ward — 3-min walk from Shijo Station Exit 5 (2F Mizuki Building)' },
+      { label:'Hours', value:'Lunch 12:00 PM–3:00 PM · Dinner 5:00 PM–10:00 PM' },
+      { label:'Price', value:'Dinner ¥5,000–8,000 · Lunch ¥3,000–4,000 · Special occasion worthy' },
+      { label:'Rating', value:'TripAdvisor 4.5/5 · #144 of 616 restaurants in Shimogyo Ward' },
+    ]},
+    { title:'Must Order', rows:[
+      { label:'🥖 Rice flour focaccia', value:'Handmade GF focaccia — order extra. A revelation.' },
+      { label:'🍝 Fresh rice pasta', value:'Handmade rice flour pasta with seasonal Kyoto vegetable sauces — the centrepiece.' },
+      { label:'🥩 Kameoka wagyu', value:'Local wagyu prepared GF — an elevated Kyoto dining experience.' },
+      { label:'🍮 GF tiramisu', value:'Desserts are as good as the mains — save room.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'2F Mizuki Bldg., 352 Nishimachi, Higashinotoin-dori, Shimogyo-ku, Kyoto 600-8094' },
+      { label:'English website + menu', value:'<a href="https://www.5kappa.com/english.html" target="_blank" rel="noopener" style="color:#7EB0FF">5kappa.com/english ↗</a>' },
+      { label:'Reservations', value:'<a href="https://www.tablecheck.com/en/5kappa" target="_blank" rel="noopener" style="color:#7EB0FF">Book on TableCheck ↗</a>' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=おしょくやかっぱ+下京区+京都" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Photos + Reviews', value:'<a href="https://www.tripadvisor.com/Restaurant_Review-g298564-d10766488-Reviews-Oshokuya_Kappa-Kyoto_Kyoto_Prefecture_Kinki.html" target="_blank" rel="noopener" style="color:#7EB0FF">TripAdvisor ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'📋 Reserve essential', value:'Small restaurant — book via TableCheck before your trip.' },
+      { label:'🗣 English menu', value:'Full English menu on their website — browse before visiting.' },
+      { label:'🎉 Best use', value:'Special occasion dinner — the most upscale GF experience in Kyoto.' },
+    ]},
+  ]},
+
+  'musubi-sweets': { name:'Musubi Sweets Factory', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥500–1,200 · Snack / Dessert', sections:[
+    { title:'Gluten Free Status', rows:[
+      { label:'✓ 100% GF + Vegan', value:'All desserts and coffee drinks are gluten-free and vegan. Home-roasted specialty coffee. No wheat on premises.' },
+    ]},
+    { title:'Overview', rows:[
+      { label:'Description', value:'Hidden gem cafe in Arashiyama with home-roasted coffee and vegan GF desserts. Spacious, air-conditioned interior with large windows overlooking the area. Perfect post-bamboo-grove stop.' },
+      { label:'Neighborhood', value:'Arashiyama — 6-min walk from Arashiyama Station (quiet side of river, near Tenryuji)' },
+      { label:'Hours', value:'11:00 AM–6:00 PM (L.O. 5:00 PM) · Sometimes closed Tuesdays — verify on social media' },
+      { label:'Price', value:'¥500–1,200 per item' },
+      { label:'Rating', value:'Top-rated GF bakery/cafe in Kyoto across multiple platforms' },
+    ]},
+    { title:'Must Order', rows:[
+      { label:'🍵 Matcha tofu cheesecake', value:'Strong matcha flavor, creamy tofu base — the signature. Multiple reviewers say best dessert of their trip.' },
+      { label:'🍵 Hojicha cheesecake', value:'Roasted tea version — bold tea flavor, equally excellent.' },
+      { label:'🍦 GF ice cream sandwich', value:'Seasonal flavors — ask what\'s available that day.' },
+      { label:'☕ Home-roasted coffee', value:'Specialty coffee roasted in-house — pairs perfectly with the matcha sweets.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'51 Arashiyama Nakaoshitacho, Nishikyo Ward, Kyoto 616-0004' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=musubi+sweets+factory+嵐山+京都" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Tabelog + photos', value:'<a href="https://tabelog.com/en/kyoto/A2601/A260403/26038453/" target="_blank" rel="noopener" style="color:#7EB0FF">Tabelog listing ↗</a>' },
+      { label:'Find Me GF', value:'<a href="https://www.findmeglutenfree.com/biz/musubi-an/5843573758623744" target="_blank" rel="noopener" style="color:#7EB0FF">Find Me Gluten Free ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🌿 Perfect pairing', value:'Bamboo forest → Tenryuji garden → Musubi Sweets — a natural circuit.' },
+      { label:'❄️ Air-conditioned', value:'A cool relief in late May/June heat — plan a rest stop here.' },
+      { label:'👧 Kids', value:'Matcha sweets kids enjoy — a fun and safe treat.' },
+    ]},
+  ]},
+
+  'maccha-house': { name:'MACCHA HOUSE (抹茶館)', city:'kyoto', badge:'⛩ Kyoto · GF options', price:'¥600–1,800 · Snack / Matcha', sections:[
+    { title:'Gluten Free Status', rows:[
+      { label:'⚠ GF Options — Not Dedicated Kitchen', value:'Many items are naturally GF but this is not a dedicated GF facility. Suitable for gluten-sensitive travelers. Celiacs: inform staff and stick to the safe items listed below.' },
+      { label:'✓ Safe GF Items', value:'Matcha soft serve (order in a CUP not cone) · Matcha latte (hot or iced) · Matcha caramel affogato latte · Ask staff to confirm before ordering anything else.' },
+    ]},
+    { title:'Overview', rows:[
+      { label:'Description', value:"Kyoto's most famous matcha specialty cafe. The Sannenzaka location near Kiyomizudera is one of the most beautiful cafe settings in Japan." },
+      { label:'Locations', value:'Kawaramachi (central Nakagyo) · Sannenzaka (Higashiyama, near Kiyomizudera)' },
+      { label:'Hours', value:'9:00 AM – 8:00 PM (both locations)' },
+      { label:'Price', value:'¥600–1,800 per item' },
+    ]},
+    { title:'GF-Safe Orders', rows:[
+      { label:'🍦 Soft serve IN A CUP', value:'Order in a cup — NOT a wafer cone. The cup is GF; the cone is not. This is the best item anyway.' },
+      { label:'☕ Matcha latte', value:'Hot or iced — naturally GF.' },
+      { label:'☕ Matcha affogato latte', value:'Matcha caramel affogato — beautiful presentation, GF-friendly.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Sannenzaka address', value:'3-337 Kiyomizu, Higashiyama-ku, Kyoto · Tel: (075) 532-5630' },
+      { label:'Kawaramachi address', value:'382-2 Komeyacho, Nakagyo-ku, Kyoto · Tel: (075) 253-1540' },
+      { label:'Maps (Sannenzaka)', value:'<a href="https://maps.google.com/?q=MACCHA+HOUSE+清水+東山+京都" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Photos + Reviews', value:'<a href="https://www.tripadvisor.com/Restaurant_Review-g298564-d8359062-Reviews-Maccha_House_Kyoto_Kawaramachi-Kyoto_Kyoto_Prefecture_Kinki.html" target="_blank" rel="noopener" style="color:#7EB0FF">TripAdvisor ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⚠ Celiac caution', value:'Not a dedicated GF kitchen — always inform staff if celiac. Always order soft serve in a cup.' },
+      { label:'📍 Best location', value:'Sannenzaka branch — walk through Ninenzaka and Sannenzaka after visiting Kiyomizudera.' },
+      { label:'👧 Kids', value:'Colorful matcha drinks are a huge hit. Fun, visual, and memorable.' },
+    ]},
+  ]},
+
+  'gen-kyoto': { name:'Gen (玄gen) Takeout', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥800–1,500 · Lunch / Snack', sections:[
+    { title:'Gluten Free Status', rows:[
+      { label:'✓ 100% GF + Vegan', value:'Entire menu is GF and vegan — no wheat, dairy, meat, fish, eggs, white sugar, or chemical additives.' },
+    ]},
+    { title:'Overview', rows:[
+      { label:'Description', value:'Beloved local takeout shop in Nishijin — GF vegan bento boxes, curry, quiche, and rice flour roll cake. Also on Uber Eats. Perfect for a temple garden picnic.' },
+      { label:'Neighborhood', value:'Nishijin / Omiya area — near Imadegawa Omiya bus stop (Kyoto City Bus 101 from Kyoto Station)' },
+      { label:'Hours', value:'11:00 AM – 8:00 PM' },
+      { label:'Price', value:'¥800–1,500 — excellent value for GF quality' },
+    ]},
+    { title:'Must Order', rows:[
+      { label:'🍱 Vegan bento', value:'玄genのハンバーグ弁当 — vegan hamburger with germinated brown rice. Filling and satisfying.' },
+      { label:'🍛 Spice curry', value:'GF spiced vegetable curry — rich, warming, fragrant.' },
+      { label:'🥧 Quiche', value:'GF vegan quiche (キッシュ) — great light lunch.' },
+      { label:'🎂 Rice flour roll cake', value:'米粉のロールケーキ — fluffy GF roll cake, great for dessert or snack.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Neighborhood', value:'Kyoto Omiya / Nishijin — verify current address on website below' },
+      { label:'Website', value:'<a href="https://takeout-gen.com/" target="_blank" rel="noopener" style="color:#7EB0FF">takeout-gen.com ↗</a>' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=玄gen+京都大宮" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Uber Eats', value:'Search "玄gen" in the Uber Eats app for delivery.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🧺 Picnic', value:'Order ahead — take to Nijo Castle garden, Kinkaku-ji, or Ryoan-ji for a perfect picnic lunch.' },
+      { label:'📱 Delivery', value:'Available on Uber Eats if staying in Nakagyo / Shimogyo area.' },
+      { label:'💴 Budget-friendly', value:'Best value GF meal in Kyoto.' },
+    ]},
+  ]},
 };
 
 function openFoodDetail(key) {
@@ -6288,7 +6629,8 @@ function renderFoodGuide() {
       + '<div class="food-city-title">' + c.emoji + ' ' + c.label + '</div>'
       + '<div class="food-items-list">'
       + c.items.map(item => {
-          const tags = (item.tags || []).map(t => '<span class="food-tag ' + t + '">' + t + '</span>').join('');
+          const tagLabels = { must:'must', budget:'budget', splurge:'splurge', quick:'quick', gf:'✓ Gluten Free' };
+          const tags = (item.tags || []).map(t => '<span class="food-tag ' + t + '">' + (tagLabels[t]||t) + '</span>').join('');
           const staffBtn = item.jp ? '<button class="food-staff-btn" onclick="openStaffCard(\'' + item.jp.replace(/'/g,"\\'") + '\',\'' + (item.en||'').replace(/'/g,"\\'") + '\');event.stopPropagation()">📱 Show to staff</button>' : '';
           const detailBtn = item.key && FOOD_DETAILS[item.key] ? '<button class="food-detail-btn" onclick="openFoodDetail(\'' + item.key + '\');event.stopPropagation()">Details + map →</button>' : '';
           return '<div class="food-item">'
