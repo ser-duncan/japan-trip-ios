@@ -387,6 +387,18 @@
   .activity-item.tappable { cursor: pointer; }
   .activity-item.tappable:active { opacity: 0.75; }
   .activity-arrow { font-size: 12px; color: var(--text-muted); flex-shrink: 0; align-self: center; }
+  .modal-tab.addday { color: #34d399; }
+  .modal-tab.addday.active { color: #34d399; border-bottom-color: #34d399; }
+  .day-picker-list { display: flex; flex-direction: column; gap: 8px; padding: 4px 0; }
+  .day-picker-btn { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; text-align: left; width: 100%; color: var(--text); font-family: inherit; }
+  .day-picker-btn:active { opacity: 0.7; }
+  .day-picker-btn.past { opacity: 0.4; }
+  .day-picker-emoji { font-size: 20px; flex-shrink: 0; }
+  .day-picker-date { font-size: 13px; font-weight: 600; }
+  .day-picker-title { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .addday-confirm { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 32px 16px; }
+  .addday-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+  .event-detail-arrow { font-size: 13px; color: var(--text-muted); margin-left: 4px; opacity: 0.7; }
 
   /* ── Logistics ── */
   .logistics-grid { display: grid; gap: 12px; }
@@ -4521,6 +4533,7 @@
     else { noteEl.style.display = 'none'; }
     document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(train.sections);
     const _tdt = document.getElementById('modal-tab-docs'); if (_tdt) _tdt.style.display = '';
+    const _tadTab = document.getElementById('modal-tab-addday'); if (_tadTab) _tadTab.style.display = 'none'; _currentModalContext = null;
     switchModalTab('details');
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
@@ -4540,6 +4553,7 @@
     else { noteEl.style.display = 'none'; }
     document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(hotel.sections);
     const _hdt = document.getElementById('modal-tab-docs'); if (_hdt) _hdt.style.display = '';
+    const _hadTab = document.getElementById('modal-tab-addday'); if (_hadTab) _hadTab.style.display = 'none'; _currentModalContext = null;
     switchModalTab('details');
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
@@ -4636,13 +4650,13 @@ const DEFAULT_DAYS = [
     {id:'d0e1',type:'period',text:'🛬 Arrival'},
     {id:'d0e2',type:'event',time:'~3:00 PM',text:'✈️ Land at airport',note:'Transit + check into Shibuya hotel',highlight:true,booked:false,done:false},
     {id:'d0e3',type:'period',text:'🌙 Evening'},
-    {id:'d0e4',type:'event',time:'Evening',text:'🚦 Shibuya Crossing',note:'Dinner nearby',highlight:false,booked:false,done:false},
+    {id:'d0e4',type:'event',time:'Evening',text:'🚦 Shibuya Crossing',note:'Dinner nearby',highlight:false,booked:false,done:false,detailKey:'a0',detailType:'activity'},
     {id:'d0e5',type:'event',time:'Later',text:'🏪 Don Quijote + convenience store snack run',note:null,highlight:false,booked:false,done:false},
   ]},
   {id:'d1',city:'tokyo',date:'2026-05-26',dateLabel:'Tue · May 26',title:'Shibuya / Harajuku Day',events:[
     {id:'d1e0',type:'period',text:'☀️ Morning'},
-    {id:'d1e1',type:'event',time:'7:00 AM',text:'⛩ Meiji Shrine',note:'Go early — peaceful before crowds',highlight:false,booked:false,done:false},
-    {id:'d1e2',type:'event',time:'9:30 AM',text:'🛍 Harajuku + Takeshita Street',note:null,highlight:false,booked:false,done:false},
+    {id:'d1e1',type:'event',time:'7:00 AM',text:'⛩ Meiji Shrine',note:'Go early — peaceful before crowds',highlight:false,booked:false,done:false,detailKey:'a2',detailType:'activity'},
+    {id:'d1e2',type:'event',time:'9:30 AM',text:'🛍 Harajuku + Takeshita Street',note:null,highlight:false,booked:false,done:false,detailKey:'a3',detailType:'activity'},
     {id:'d1e3',type:'period',text:'🌤 Afternoon'},
     {id:'d1e4',type:'event',time:'Afternoon',text:'Cat Street, shopping, arcades & gachapon',note:null,highlight:false,booked:false,done:false},
     {id:'d1e5',type:'period',text:'🌙 Evening'},
@@ -4658,7 +4672,7 @@ const DEFAULT_DAYS = [
   ]},
   {id:'d3',city:'tokyo',date:'2026-05-28',dateLabel:'Thu · May 28',title:'teamLab + Shibuya Sky ✨',events:[
     {id:'d3e0',type:'period',text:'☀️ Morning'},
-    {id:'d3e1',type:'event',time:'Morning',text:'🎨 teamLab Planets TOKYO',note:'Ref: ABT743615 (Klook) · 5 persons · Toyosu',highlight:true,booked:true,done:false},
+    {id:'d3e1',type:'event',time:'Morning',text:'🎨 teamLab Planets TOKYO',note:'Ref: ABT743615 (Klook) · 5 persons · Toyosu',highlight:true,booked:true,done:false,detailKey:'a4',detailType:'activity'},
     {id:'d3e2',type:'period',text:'🌤 Afternoon'},
     {id:'d3e3',type:'event',time:'Afternoon',text:'🏝 Odaiba OR free shopping time',note:null,highlight:false,booked:false,done:false},
     {id:'d3e4',type:'period',text:'🌙 Evening'},
@@ -4682,15 +4696,15 @@ const DEFAULT_DAYS = [
   ]},
   {id:'d6',city:'kyoto',date:'2026-05-31',dateLabel:'Sun · May 31',title:'Fushimi Inari + Gion',events:[
     {id:'d6e0',type:'period',text:'🌅 Early Morning'},
-    {id:'d6e1',type:'event',time:'Early AM',text:'⛩ Fushimi Inari-taisha',note:'Go early — before crowds arrive',highlight:true,booked:false,done:false},
+    {id:'d6e1',type:'event',time:'Early AM',text:'⛩ Fushimi Inari-taisha',note:'Go early — before crowds arrive',highlight:true,booked:false,done:false,detailKey:'a14',detailType:'activity'},
     {id:'d6e2',type:'period',text:'🌤 Afternoon'},
-    {id:'d6e3',type:'event',time:'Afternoon',text:'🛒 Nishiki Market — matcha treats & shopping',note:null,highlight:false,booked:false,done:false},
+    {id:'d6e3',type:'event',time:'Afternoon',text:'🛒 Nishiki Market — matcha treats & shopping',note:null,highlight:false,booked:false,done:false,detailKey:'a18',detailType:'activity'},
     {id:'d6e4',type:'period',text:'🌙 Evening'},
-    {id:'d6e5',type:'event',time:'Sunset',text:'⛩ Gion at sunset',note:'Golden hour — best lighting for photos',highlight:false,booked:false,done:false},
+    {id:'d6e5',type:'event',time:'Sunset',text:'⛩ Gion at sunset',note:'Golden hour — best lighting for photos',highlight:false,booked:false,done:false,detailKey:'a17',detailType:'activity'},
   ]},
   {id:'d7',city:'kyoto',date:'2026-06-01',dateLabel:'Mon · Jun 1',title:'Arashiyama Day',events:[
     {id:'d7e0',type:'period',text:'☀️ Morning'},
-    {id:'d7e1',type:'event',time:'Morning',text:'🎋 Bamboo Grove + river area',note:null,highlight:false,booked:false,done:false},
+    {id:'d7e1',type:'event',time:'Morning',text:'🎋 Bamboo Grove + river area',note:null,highlight:false,booked:false,done:false,detailKey:'a15',detailType:'activity'},
     {id:'d7e2',type:'event',time:'Optional',text:'🐒 Monkey Park OR scenic train',note:null,highlight:false,booked:false,done:false},
     {id:'d7e3',type:'period',text:'🌙 Evening'},
     {id:'d7e4',type:'event',time:'Evening',text:'🍽 Relaxed Kyoto dinner',note:null,highlight:false,booked:false,done:false},
@@ -4709,7 +4723,7 @@ const DEFAULT_DAYS = [
     {id:'d9e2',type:'event',time:'Afternoon',text:'Check into Airbnb, explore Dotonbori',note:null,highlight:false,booked:false,done:false},
     {id:'d9e3',type:'period',text:'🌙 Evening'},
     {id:'d9e4',type:'event',time:'Evening',text:'✨ Pokémon Cafe Osaka',note:'Fun energy, great for teens, near shopping',highlight:true,booked:true,done:false},
-    {id:'d9e5',type:'event',time:'Night',text:'🌃 Dotonbori at night + street food',note:null,highlight:false,booked:false,done:false},
+    {id:'d9e5',type:'event',time:'Night',text:'🌃 Dotonbori at night + street food',note:null,highlight:false,booked:false,done:false,detailKey:'a23',detailType:'activity'},
   ]},
   {id:'d10',city:'osaka',date:'2026-06-04',dateLabel:'Thu · Jun 4',title:'Osaka Aquarium',events:[
     {id:'d10e0',type:'period',text:'🌤 Afternoon'},
@@ -5038,10 +5052,18 @@ function buildEventHTML(ev, dayId) {
   var booked = ev.booked ? ' <span class="badge badge-success" style="font-size:11px;padding:2px 7px;">✓ Booked</span>' : '';
   var note = ev.note ? '<div class="event-note">' + ev.note + '</div>' : '';
   var chk = ev.done ? ' checked' : '';
-  return '<div class="event' + hc + dc + '" data-event-id="' + ev.id + '">'
+  var hasDetail = !!(ev.detailKey && (
+    (typeof ACTIVITY_DETAILS !== 'undefined' && ACTIVITY_DETAILS[ev.detailKey]) ||
+    (typeof FOOD_DETAILS !== 'undefined' && FOOD_DETAILS[ev.detailKey]) ||
+    (typeof SHOPPING_DETAILS !== 'undefined' && SHOPPING_DETAILS[ev.detailKey])
+  ));
+  var evStyle = hasDetail ? ' style="cursor:pointer"' : '';
+  var evClick = hasDetail ? ' onclick="openDetailFromEvent(\'' + ev.detailKey + '\',\'' + (ev.detailType||'activity') + '\')"' : '';
+  var detailArrow = hasDetail ? '<span class="event-detail-arrow">›</span>' : '';
+  return '<div class="event' + hc + dc + '"' + evStyle + evClick + ' data-event-id="' + ev.id + '">'
     + '<input type="checkbox" class="event-done-cb"' + chk + ' onclick="toggleEventDone(\'' + dayId + '\',\'' + ev.id + '\');event.stopPropagation()">'
     + '<span class="event-time">' + (ev.time||'') + '</span>'
-    + '<div style="flex:1;min-width:0"><div class="event-text">' + ev.text + booked + '</div>' + note + '</div>'
+    + '<div style="flex:1;min-width:0"><div class="event-text">' + ev.text + booked + detailArrow + '</div>' + note + '</div>'
     + '<button class="event-edit-btn" onclick="openEventModal(\'' + dayId + '\',\'' + ev.id + '\');event.stopPropagation()">⋯</button>'
     + '</div>';
 }
@@ -5100,9 +5122,14 @@ function buildActivityHTML(a, typeLabels) {
   var planLabel = planDay ? ('Day ' + getDayNum(a.assignedDay) + ': ' + planDay.dateLabel) : 'Plan it →';
   var planClass = isPlanned ? 'activity-plan-btn planned' : 'activity-plan-btn';
   var noteHtml = a.note ? '<div class="activity-note">' + a.note + '</div>' : '';
+  var hasDetail = !!(ACTIVITY_DETAILS && ACTIVITY_DETAILS[a.id]);
+  var detailOnclick = hasDetail ? ' onclick="openActivityDetail(\'' + a.id + '\');event.stopPropagation()"' : '';
+  var mainClass = hasDetail ? ' activity-main tappable' : ' activity-main';
+  var detailArrow = hasDetail ? '<span class="activity-arrow" style="margin-left:auto;padding-left:8px">›</span>' : '';
   return '<div class="activity-item" data-activity-id="' + a.id + '">'
     + '<span class="activity-type ' + a.type + '">' + (typeLabels[a.type]||a.type) + '</span>'
-    + '<div class="activity-main"><div class="activity-name">' + a.name + '</div>' + noteHtml + '</div>'
+    + '<div class="' + mainClass + '"' + detailOnclick + '><div class="activity-name">' + a.name + '</div>' + noteHtml + '</div>'
+    + detailArrow
     + '<button class="' + planClass + '" onclick="openAssignModal(\'' + a.id + '\')">' + planLabel + '</button>'
     + '<button class="activity-edit-btn" onclick="openActivityModal(\'' + a.id + '\',null);event.stopPropagation()">⋯</button>'
     + '</div>';
@@ -5742,6 +5769,7 @@ function openFlightDetail(key) {
   noteEl.style.display = 'none';
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
   const _fltdt = document.getElementById('modal-tab-docs'); if (_fltdt) _fltdt.style.display = '';
+  const _fltAdTab = document.getElementById('modal-tab-addday'); if (_fltAdTab) _fltAdTab.style.display = 'none'; _currentModalContext = null;
   switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
@@ -6648,6 +6676,501 @@ const FOOD_DETAILS = {
   ]},
 };
 
+const ACTIVITY_DETAILS = {
+  a0: { name:'Shibuya Crossing', badge:'🗼 Tokyo · Must-do', price:'Free', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"The world's busiest intersection — thousands of people cross from all directions simultaneously on the green light. Best at evening rush hour (5–8 PM) or Saturday night." },
+      { label:'Hours', value:'Open 24/7. Best: 5–8 PM weekdays or Saturday evening.' },
+      { label:'Price', value:'Free' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'📍 Best view', value:"Starbucks overlooking the crossing has a famous 2nd-floor window view — arrive early to grab a seat. Shibuya Scramble Square rooftop is the best elevated view (¥2,000)." },
+      { label:'📸 Photos', value:'Cross with the crowd for the immersive experience. Shoot from the Starbucks window or Scramble Square roof for overhead shots.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Location', value:'Shibuya Station east side — Hachiko exit. The crossing is right in front as you exit.' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Shibuya+Scramble+Crossing+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+
+  a1: { name:'Shinjuku Neon District + Omoide Yokocho', badge:'🗼 Tokyo · Must-do', price:'Free + ¥1,500–3,000 food', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Shinjuku at night is quintessential Tokyo neon-and-chaos. Omoide Yokocho ('Memory Lane') is a tiny alley of yakitori stalls under the train tracks — paper lanterns, grilled chicken, beer." },
+      { label:'Best time', value:'After 7 PM — Omoide Yokocho is dinner only; neon district is best after dark.' },
+    ]},
+    { title:'What to Do', rows:[
+      { label:'🍢 Omoide Yokocho', value:"Pick any tiny stall with open stools, order yakitori (grilled skewers) and a beer. About 20 stalls, 6 seats each — squeeze in and enjoy the atmosphere." },
+      { label:'🌆 Kabukicho', value:"Tokyo's entertainment district — massive neon signs, arcades, the Toho Godzilla building with Godzilla head on the roof." },
+      { label:'🎮 Don Quijote Shinjuku', value:'6-floor 24hr variety store — snacks, souvenirs, costumes, electronics. Pure sensory overload.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Location', value:"West exit of Shinjuku Station for Omoide Yokocho. East exit for Kabukicho." },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Omoide+Yokocho+Shinjuku+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+
+  a2: { name:'Meiji Shrine', badge:'🗼 Tokyo · Must-do', price:'Free', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Serene forested Shinto shrine dedicated to Emperor Meiji and Empress Shoken. A 10-min walk from Harajuku Station takes you from Tokyo's fashion district into 170 acres of quiet cedar forest." },
+      { label:'Hours', value:'Sunrise to sunset (~5:00 AM – 6:00 PM, varies by season)' },
+      { label:'Price', value:'Free to enter grounds. Inner garden ¥500 (optional).' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Timing', value:'Early morning (before 9 AM) for peaceful atmosphere. Busiest on weekends and public holidays.' },
+      { label:'🙏 Etiquette', value:"Bow slightly before passing each torii gate. Walk to the left or right of the gravel path center — the center is reserved for the gods." },
+      { label:'🪵 Ema boards', value:'Buy a wooden wish plaque (¥500) and write your wish to hang — great kids activity.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'1-1 Yoyogikamizonocho, Shibuya, Tokyo' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Meiji+Shrine+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Harajuku Station (JR Yamanote) — north exit; 2 min walk to shrine entrance' },
+    ]},
+  ]},
+
+  a3: { name:'Harajuku Takeshita Street', badge:'🗼 Tokyo · Must-do', price:'Free to browse', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Narrow pedestrian street packed with youth fashion boutiques, kawaii shops, crepe stands, and cosplay stores. The birthplace of Harajuku street fashion — colorful, chaotic, fun for all ages." },
+      { label:'Hours', value:'Most shops 10 AM – 8 PM daily. Busiest on weekends.' },
+      { label:'Price', value:'Free to walk. Crepes ¥600–900. Clothing and accessories ¥500–5,000.' },
+    ]},
+    { title:'What to See', rows:[
+      { label:'🍦 Crepes', value:"Marion Crepes is the original — sweet and savory in thin cones, always a line. Totally worth it." },
+      { label:'👗 Fashion', value:'Harajuku-style boutiques: vintage, streetwear, lolita fashion, cosplay, K-pop inspired looks.' },
+      { label:'🧸 Kiddy Land', value:'6-floor toy and character goods store nearby — one of the best in Japan for Sanrio, Ghibli, and Pokémon merch.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'Takeshita Street (竹下通り), Jingumae, Shibuya-ku, Tokyo' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Takeshita+Street+Harajuku+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'JR Harajuku Station (Takeshita exit) — street starts immediately in front of the exit' },
+    ]},
+  ]},
+
+  a4: { name:'teamLab Planets TOKYO', badge:'🗼 Tokyo · Booked ✓', price:'¥3,200/adult · BOOKED', sections:[
+    { title:'Your Booking', rows:[
+      { label:'✓ Confirmed', value:'Klook booking ABT743615 · 5 persons' },
+      { label:'Date', value:'Thu · May 28 · teamLab Planets, Toyosu' },
+    ]},
+    { title:'Overview', rows:[
+      { label:'Description', value:"Immersive digital art — walk barefoot through mirror rooms, floor-to-ceiling projections, and interactive art. One room has water you wade through. Extraordinary and emotional." },
+      { label:'Duration', value:'60–90 minutes for the full experience.' },
+      { label:'What to wear', value:'Skirts/dresses: changing rooms provided. Shoes come off at the entrance — bring socks.' },
+    ]},
+    { title:'On the Day', rows:[
+      { label:'🧦 What to bring', value:'Leave shoes in lockers. Small bags only (lockers provided). Phone is all you need.' },
+      { label:'📸 Photos', value:'Photography encouraged. Long exposure mode produces magical shots in the mirror rooms.' },
+      { label:'👦 Kids', value:'Recommended ages 5+. The wading room has ~20 cm of water — kids love it.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'6-1-16 Toyosu, Koto City, Tokyo' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=teamLab+Planets+TOKYO+Toyosu" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Shin-Toyosu Station (Yurikamome line) — 3 min walk' },
+    ]},
+  ]},
+
+  a5: { name:'Tokyo Skytree', badge:'🗼 Tokyo · Optional', price:'¥2,100–3,400/person', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"World's tallest tower at 634 m. Two observation decks: Tembo Deck at 350 m and Tembo Galleria at 450 m. On a clear day, Mt. Fuji is visible. Solamachi mall in the base has great food." },
+      { label:'Hours', value:'10 AM – 10 PM daily (last entry 9 PM)' },
+      { label:'Price', value:'350 m deck: ¥2,100 weekdays / ¥2,300 weekends. 450 m add-on: ¥1,000. Book online for 10% off.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'☁ Weather', value:'Check the forecast — only worth going on clear days. Mt. Fuji view requires exceptional visibility (winter mornings best).' },
+      { label:'⏰ Best time', value:'Sunset (45 min before dark) to see the city transition from golden hour to full neon.' },
+      { label:'🛍 Solamachi', value:"The base mall's food hall has excellent food — try the Skytree egg tarts or the Japanese deli." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'1-1-2 Oshiage, Sumida City, Tokyo' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Tokyo+Skytree+Oshiage" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Oshiage 〈SKYTREE〉Station — direct access through Solamachi' },
+    ]},
+  ]},
+
+  a6: { name:'Tsukiji Outer Market', badge:'🗼 Tokyo · Optional', price:'Free to browse', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"The old Tsukiji fish market's outer section — best place in Tokyo for fresh seafood breakfast or brunch. Hundreds of stalls: tamagoyaki, sea urchin, tuna sashimi, grilled oysters." },
+      { label:'Hours', value:'Most stalls 5 AM – 2 PM. Arrive before 11 AM for the best selection.' },
+    ]},
+    { title:'What to Eat', rows:[
+      { label:'🥚 Tamagoyaki', value:'Rolled egg omelette — try Marutake or Yamamoto for the best.' },
+      { label:'🦪 Grilled oysters', value:'Multiple stalls serve fresh grilled oysters on the half shell — ¥200–400 each.' },
+      { label:'🐟 Tuna sashimi', value:'Buy a cup of tuna or salmon and eat with soy sauce packets — the freshest you will ever have.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'4-16-2 Tsukiji, Chuo City, Tokyo' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Tsukiji+Outer+Market+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Tsukijishijo Station (Toei Oedo line) — 3 min walk' },
+    ]},
+  ]},
+
+  a7: { name:'Pokémon Center', badge:'🗼 Tokyo · Shopping', price:'Free entry', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:"Official Pokémon merchandise — plush, trading cards, clothing, accessories, stationery, Japan-exclusive items. Multiple Tokyo locations. Shibuya and Ikebukuro are most convenient." },
+      { label:'Hours', value:'11 AM – 8 PM daily' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🛍 Best location', value:"Pokémon Center Mega Tokyo (Ikebukuro Sunshine 60) has the largest selection. Pokémon Center Shibuya (Parco B1) is most convenient." },
+      { label:'🎴 Trading cards', value:"Japanese Pokémon cards have different art than US releases and are cheaper. Great souvenir." },
+      { label:'🧸 Plush', value:"Regional Pokémon plush sell out on weekends — arrive early if targeting specific characters." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Shibuya', value:'Pokémon Center Shibuya · Shibuya PARCO B1, 15-1 Udagawacho, Shibuya-ku' },
+      { label:'Maps (Shibuya)', value:'<a href="https://maps.google.com/?q=Pokemon+Center+Shibuya+Parco" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+
+  a9: { name:'Hakone Ropeway', badge:'🏔 Hakone · Must-do', price:'¥1,000–1,600/person', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Aerial ropeway passing over Owakudani volcanic valley — dramatic views of steam vents and on clear days Mt. Fuji. Part of the circular Hakone sightseeing route." },
+      { label:'Hours', value:'9 AM – 5 PM (last car 4:45 PM)' },
+      { label:'Price', value:'One-way ¥800. Round-trip ¥1,600. Included with Hakone Freepass.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⚠ Check closures', value:"Ropeway closes frequently due to volcanic activity — check the night before. Buses substitute during closures." },
+      { label:'🥚 Owakudani stop', value:"Get off at Owakudani to try the black eggs boiled in volcanic spring water (kuro-tamago). Legend says each egg adds 7 years to your life." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Route', value:'Hakone Tozan Cable Car from Gora → Sounzan, then board the ropeway toward Togendai' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Hakone+Ropeway+Sounzan+Station" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+
+  a10: { name:'Owakudani Valley', badge:'🏔 Hakone · Must-do', price:'¥500 eggs', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Active volcanic valley with billowing sulphur vents and bubbling ponds. Famous for kuro-tamago (black eggs). Dramatic moonscape quality with excellent mountain views." },
+      { label:'Note', value:'Strong sulphur smell. Walking path may close during elevated volcanic activity — check conditions.' },
+    ]},
+    { title:'Must Do', rows:[
+      { label:'🥚 Kuro-tamago', value:'¥500/bag of 5 eggs boiled in volcanic water (shells turn black). They taste like regular hard-boiled eggs — the legend is the draw.' },
+      { label:'🗻 Fuji views', value:"One of the best accessible views of Mt. Fuji on clear days — bring a camera with decent zoom." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Access', value:'Owakudani Station — middle stop on the Hakone Ropeway' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Owakudani+Hakone" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+
+  a11: { name:'Lake Ashi Pirate Ship Cruise', badge:'🏔 Hakone · Must-do', price:'¥1,000–1,200/person', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Pleasure cruise on scenic Lake Ashi aboard elaborately designed pirate-ship boats. The lake sits in Hakone's ancient volcanic caldera — Mt. Fuji views on clear days." },
+      { label:'Hours', value:'Boats run 9:30 AM – 4:30 PM, every 25–30 minutes' },
+      { label:'Price', value:'¥1,000 one-way, ¥1,200 round-trip. Included with Hakone Freepass.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⛵ Route', value:'Hakone-Machi Port ↔ Togendai Port (20 min). Stop at Motohakone for the lakeside torii gate photo.' },
+      { label:'🧸 Kids', value:"The pirate ship theming is a huge hit with young kids. Go to the outdoor deck for best views." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Main port', value:'Hakone-machi Port — bus from Hakone-Yumoto or part of the Hakone round-trip route' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Hakone+Pirate+Ship+Hakonemachi+Port" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+
+  a12: { name:'Onsen at Villa', badge:'🏔 Hakone · Included', price:'Included in booking', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Private onsen (natural hot spring) at 箱根 Villa. Thermal mineral waters drawn from Hakone's geothermal springs. Your villa booking includes private onsen access — check with host for hours." },
+    ]},
+    { title:'Onsen Etiquette', rows:[
+      { label:'🚿 Shower first', value:"Always wash thoroughly at the shower station before entering the onsen bath." },
+      { label:'💧 No soap in tub', value:"The onsen bath is for soaking, not washing. All washing happens at the shower stations." },
+      { label:'⏰ Temperature', value:"Typical onsen is 40–43°C (104–109°F). Limit sessions to 10–15 min, then cool off before re-entering." },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🌙 Best time', value:"Evening under the stars is the classic onsen experience. Try the outdoor rotenburo after dark if available." },
+      { label:'💧 Hydration', value:"Drink water before and after — hot springs are dehydrating." },
+    ]},
+  ]},
+
+  a13: { name:'Kaiseki Dinner', badge:'🏔 Hakone · Must-do', price:'¥8,000–20,000/person', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Traditional Japanese multi-course haute cuisine. Each of 7–12 courses is small and precisely prepared, showcasing seasonal ingredients. One of Japan's great food experiences — artistic, refined, deeply satisfying." },
+      { label:'Duration', value:'90–120 minutes for the full experience.' },
+    ]},
+    { title:'What to Expect', rows:[
+      { label:'🍽 Courses', value:'Sakizuke (amuse-bouche) → hassun (seasonal platter) → yakimono (grilled) → mushimono (steamed) → rice + miso + pickles → dessert.' },
+      { label:'🌾 Dietary', value:'Notify the restaurant of any dietary restrictions when reserving. GF is possible with advance notice.' },
+    ]},
+  ]},
+
+  a14: { name:'Fushimi Inari Shrine', badge:'⛩ Kyoto · Must-do', price:'Free', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Famous for thousands of vermilion torii gates winding up Mt. Inari. The full hike to the summit is 4 km and takes 2–3 hours. Most visitors hike to the halfway point (Yotsutsuji intersection, ~45 min) for great views." },
+      { label:'Hours', value:'Open 24/7 — the shrine is always accessible.' },
+      { label:'Price', value:'Free' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Go early', value:"Arrive before 7:30 AM to have the lower gates nearly to yourself. By 9 AM it's busy; by 10 AM extremely crowded." },
+      { label:'🥿 Footwear', value:"Wear comfortable walking shoes — the path is stone steps the whole way up, steep in parts." },
+      { label:'🦊 Fox symbolism', value:"Inari is the Shinto god of foxes, rice, and prosperity. Look for fox statues holding keys, jewels, and sheaves of rice." },
+      { label:'🕐 Time needed', value:'1 hr for lower gates + Okusha. 2–3 hrs for full mountain hike to summit.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'68 Fukakusa Yabunouchicho, Fushimi Ward, Kyoto' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Fushimi+Inari+Shrine+Kyoto" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'JR Inari Station (JR Nara line) — directly in front of the shrine. 5 min from Kyoto Station.' },
+    ]},
+  ]},
+
+  a15: { name:'Arashiyama Bamboo Grove', badge:'⛩ Kyoto · Must-do', price:'Free', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"A narrow path through towering bamboo stalks that creak and sway. The filtered light creates an otherworldly atmosphere. One of Kyoto's most photographed spots — and it earns it." },
+      { label:'Hours', value:'Open 24/7 — accessible at all times.' },
+      { label:'Price', value:'Free. Nearby Tenryu-ji garden ¥1,000.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Timing', value:"Arrive before 7:30 AM or after 5:30 PM for the fewest crowds. The bamboo path is short (~200 m) and extremely congested midday." },
+      { label:'📸 Photos', value:"Golden hour morning light through bamboo is magical. Try long exposure shots for dreamy motion blur in the swaying stalks." },
+      { label:'🚃 Combine with', value:"Tenryu-ji garden, Jojakko-ji temple, Sagano Scenic Railway (book ahead — sells out), Rakushisha hermitage." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'Sagaogurayama Tabuchiyamacho, Ukyo Ward, Kyoto' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Arashiyama+Bamboo+Grove+Kyoto" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Arashiyama Station (Keifuku Randen tram) or JR Saga-Arashiyama (Sagano line)' },
+    ]},
+  ]},
+
+  a16: { name:'Kinkaku-ji (Golden Pavilion)', badge:'⛩ Kyoto · Must-do', price:'¥500/person', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Iconic 3-story pavilion covered in gold leaf, reflected in Kyōkochi Pond. Originally a 14th-century Ashikaga shogun's villa, converted to a Zen temple. One of Japan's most recognizable images." },
+      { label:'Hours', value:'9 AM – 5 PM daily (last entry 4:30 PM)' },
+      { label:'Price', value:'¥500/person. Children ¥300. Includes a small tea ceremony admission ticket.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'📸 The shot', value:"The first viewing area (after the gate) has the iconic reflection pond view. Arrive at 9 AM opening for manageable crowds." },
+      { label:'⏰ Crowds', value:"One of Kyoto's most visited spots. Extremely crowded 10 AM–3 PM — come first thing or late afternoon." },
+      { label:'🍵 Matcha stop', value:'Tea house at the exit sells matcha + wagashi (¥600) — a nice way to end the visit.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'1 Kinkakujicho, Kita Ward, Kyoto' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Kinkakuji+Temple+Kyoto" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Bus 101 or 205 from Kyoto Station to Kinkakuji-michi (30 min).' },
+    ]},
+  ]},
+
+  a17: { name:'Gion District', badge:'⛩ Kyoto · Must-do', price:'Free to explore', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Kyoto's most famous geisha district — preserved Edo-period streets lined with traditional machiya townhouses, tea houses (ochaya), and restaurants. Hanamikoji Street is the main promenade." },
+      { label:'Best time', value:'Evening 5–9 PM for the highest chance of seeing geiko and maiko walking to appointments.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'📸 Photography etiquette', value:"Do NOT block geiko/maiko for photos, grab them, or step in their path. Observe respectfully from a distance — a photo ban was nearly implemented in Hanamikoji due to tourist behavior." },
+      { label:'🕯 Hanamikoji Street', value:'The main street — beautifully preserved, lantern-lit in the evening. Walk south from Shijo-dori for the best stretch.' },
+      { label:'🌸 Shirakawa Canal', value:'The small canal running through Gion is especially beautiful in the evening light.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'Gion, Higashiyama Ward, Kyoto (Hanamikoji starts at Shijo-dori)' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Gion+Hanamikoji+Street+Kyoto" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Gion-Shijō Station (Keihan line) — 3 min walk' },
+    ]},
+  ]},
+
+  a18: { name:'Nishiki Market', badge:'⛩ Kyoto · Must-do', price:'Free to browse', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Narrow 400-m covered market with 100+ stalls selling Kyoto specialties: pickled vegetables, tofu, fresh produce, street snacks, and local condiments. Called 'Kyoto's Kitchen.'" },
+      { label:'Hours', value:'Most shops 9 AM – 6 PM. Some close Wednesdays.' },
+    ]},
+    { title:'What to Try', rows:[
+      { label:'🥚 Tamagoyaki on a stick', value:"Sweet rolled omelette on a stick — a Nishiki signature snack." },
+      { label:'🫙 Tsukemono', value:"Kyoto-style pickled vegetables — try samples. Great take-home souvenirs." },
+      { label:'🍡 Yatsuhashi', value:"Kyoto's signature cinnamon-and-rice-flour sweet — get the raw (namagashi) version filled with red bean." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'Nishiki-koji Street (錦小路通), between Teramachi and Takakura, Nakagyo-ku, Kyoto' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Nishiki+Market+Kyoto" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Shijō station (Karasuma line) — 5 min walk east' },
+    ]},
+  ]},
+
+  a19: { name:'Tea Ceremony', badge:'⛩ Kyoto · Cultural', price:'¥1,500–4,000/person', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Traditional Japanese tea ceremony (chado) — meditative, ritualized preparation and serving of matcha. An intimate cultural experience, 45–90 min. Multiple English-friendly venues in Higashiyama." },
+      { label:'Price', value:'¥1,500–2,000 for basic experience. ¥3,000–4,000 for private or kimono-included sessions.' },
+    ]},
+    { title:'Where to Book', rows:[
+      { label:'En tea ceremony', value:'Popular and English-friendly — Higashiyama location near Kiyomizudera. Book on GetYourGuide or direct.' },
+      { label:'Camellia Tea Experience', value:'Well-regarded tea house in a historic machiya. Private room options.' },
+      { label:'MAIKOYA Kyoto', value:'Tea ceremony + optional kimono. Book 24+ hrs in advance.' },
+    ]},
+    { title:'What to Expect', rows:[
+      { label:'🍵 Process', value:"Watch or participate in matcha preparation: scooping, whisking to a froth, drinking in 3 sips. You'll receive a wagashi sweet beforehand." },
+      { label:'👧 Kids', value:"Children enjoy the sweet and the whisk demo. Ages 5+ manage well." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Neighborhood', value:'Higashiyama, near Kiyomizudera — most tea ceremony venues cluster here' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=tea+ceremony+Higashiyama+Kyoto" target="_blank" rel="noopener" style="color:#7EB0FF">Search tea ceremonies near Higashiyama ↗</a>' },
+    ]},
+  ]},
+
+  a20: { name:'Kimono Rental', badge:'⛩ Kyoto · Cultural', price:'¥3,000–6,000/person', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Rent a kimono or yukata and explore Kyoto in traditional dress. Staff choose and fully dress you. Many studios in Gion and Higashiyama — perfect for photos in temple districts." },
+      { label:'Price', value:'¥3,000–4,000 for basic yukata. ¥5,000–8,000 for formal kimono including hair styling.' },
+      { label:'Duration', value:'Rental typically 9 AM – 5 PM (return before close).' },
+    ]},
+    { title:'Where to Book', rows:[
+      { label:'Yumeyakata', value:'Large studio in Higashiyama — good selection, English-friendly. Book online 1 week ahead.' },
+      { label:'Okamoto Kimono', value:'Well-reviewed, near Kiyomizudera, multiple Gion/Higashiyama locations.' },
+      { label:'Vasara Kimono', value:'Good value, large selection, central location. Easy walk-in on weekdays.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Morning slot', value:"Book the 9–10 AM slot to maximize wearing time." },
+      { label:'📸 Best backdrops', value:"Ninen-zaka and Sannen-zaka lanes near Kiyomizudera, and Hanamikoji in Gion." },
+      { label:'🌂 Weather', value:"Studios provide paper parasols for sun or light rain — use them." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Studio area', value:'Most studios cluster in Higashiyama and Gion, near Kiyomizudera' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=kimono+rental+Gion+Kyoto" target="_blank" rel="noopener" style="color:#7EB0FF">Search kimono studios near Gion ↗</a>' },
+    ]},
+  ]},
+
+  a21: { name:"Philosopher's Path", badge:'⛩ Kyoto · Optional', price:'Free', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"A 2 km stone path alongside a cherry-tree-lined canal, from Ginkaku-ji (Silver Pavilion) to Nanzen-ji temple. Named after philosopher Nishida Kitaro who meditated here daily. One of Kyoto's most pleasant walks." },
+      { label:'Hours', value:'Open at all times — no entrance gate.' },
+      { label:'Price', value:'Free. Ginkaku-ji ¥500. Some Nanzen-ji sub-temples ¥500.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🗺 Direction', value:"Walk south (Ginkaku-ji → Nanzen-ji) to end at the impressive aqueduct. 45–60 min walk with casual stops." },
+      { label:'☕ Cafés', value:"Several charming small cafés and galleries line the path. Omen near the north end is excellent for udon." },
+      { label:'🌸 Seasons', value:"Most famous in cherry blossom season (late March–April). Also beautiful in November for autumn leaves." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'North start (Ginkaku-ji)', value:'Ginkakuji-michi bus stop — Bus 5 or 17 from Kyoto Station' },
+      { label:'Maps', value:"<a href=\"https://maps.google.com/?q=Philosopher's+Path+Kyoto\" target=\"_blank\" rel=\"noopener\" style=\"color:#7EB0FF\">Open in Google Maps ↗</a>" },
+    ]},
+  ]},
+
+  a22: { name:'Nijo Castle', badge:'⛩ Kyoto · Optional', price:'¥1,030/person', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"1603 Tokugawa shogunate castle with UNESCO World Heritage status. Famous for 'nightingale floors' (uguisubari) — corridors that squeak to detect intruders. Magnificent kara-mon gate and Ninomaru Palace." },
+      { label:'Hours', value:'8:45 AM – 5 PM (last entry 4 PM). Closed Tue in Dec–Feb.' },
+      { label:'Price', value:'¥1,030 (castle + garden). Children ¥350.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🐦 Nightingale floors', value:"Walk slowly through Ninomaru Palace corridors to hear the chirping — nails rubbing metal clamps under the floorboards." },
+      { label:'🌿 Gardens', value:"Ninomaru garden (designed by Kobori Enshu) is excellent. Honmaru garden is more recent but pleasant." },
+      { label:'🧠 History', value:"This is where Shogun Tokugawa Yoshinobu returned power to Emperor Meiji in 1867, ending 265 years of Tokugawa rule." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'541 Nijo-jo-cho, Nakagyo Ward, Kyoto' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Nijo+Castle+Kyoto" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Nijojo-mae Station (Tozai subway line) — 1 min walk' },
+    ]},
+  ]},
+
+  a23: { name:'Dotonbori', badge:'🦀 Osaka · Must-do', price:'Free to explore', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Osaka's famous entertainment and street food district — neon-lit canal promenade with giant moving ad signs, dozens of restaurants, and the iconic Glico Running Man billboard. Evening is best." },
+      { label:'Best time', value:'From 6 PM when all the neon is lit. Busy until midnight on weekends.' },
+    ]},
+    { title:'What to Eat', rows:[
+      { label:'🐙 Takoyaki', value:"The original Osaka street food — octopus balls. Wanaka and Kukuru are the classic vendors." },
+      { label:'🥞 Okonomiyaki', value:"Savory pancake cooked on a teppan griddle. Mizuno in Dotonbori is famous but always has a long line." },
+      { label:'🦀 Kani Doraku', value:"The iconic giant moving crab sign — it's an actual crab restaurant. Famous for the photo." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'Dotonbori canal area, Chuo Ward, Osaka (Namba area)' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Dotonbori+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Namba Station (multiple lines) — 3 min walk to canal' },
+    ]},
+  ]},
+
+  a24: { name:'Osaka Castle', badge:'🦀 Osaka · Must-do', price:'¥600/person', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Iconic 16th-century castle rebuilt in 1931 with a modern museum inside. The castle park is one of Osaka's best green spaces. Famous for cherry blossoms in spring." },
+      { label:'Hours', value:'9 AM – 5 PM (last entry 4:30 PM). Castle park is free and open at all times.' },
+      { label:'Price', value:'Castle tower museum: ¥600. Park: free.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🏯 Museum', value:"8 floors on the castle's history and the Azuchi-Momoyama period. English audio guide available." },
+      { label:'🗼 Views', value:"Top observation deck has 360° views of Osaka — on clear days Mt. Ikoma is visible." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'1-1 Osakajo, Chuo Ward, Osaka' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Osaka+Castle+Park" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Osakajokoen Station (JR Loop Line) — 10 min walk to main gate' },
+    ]},
+  ]},
+
+  a25: { name:'Shinsekai District', badge:'🦀 Osaka · Must-do', price:'Free to explore', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Retro 1920s entertainment district built to evoke New York and Paris. Now wonderfully gritty and nostalgic — full of kushikatsu restaurants, old-school arcades, and Tsutenkaku Tower." },
+      { label:'Best time', value:'Afternoon into evening — restaurants open for lunch, lively until 10 PM.' },
+    ]},
+    { title:'What to Do', rows:[
+      { label:'🍢 Kushikatsu', value:"Deep-fried skewers on bamboo sticks — meat, vegetables, seafood. THE iconic Shinsekai food. Daruma is the most famous chain. IMPORTANT: NO double-dipping the communal sauce — serious faux pas." },
+      { label:'🗼 Tsutenkaku Tower', value:"The retro 1956 iron observation tower — worth going up for the kitschy interior and city views (¥700)." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'Shinsekai, Naniwa Ward, Osaka (near Tsutenkaku Tower)' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Shinsekai+Tsutenkaku+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'Ebisu-cho Station (Sakaisuji line) — 5 min walk' },
+    ]},
+  ]},
+
+  a26: { name:'Takoyaki', badge:'🦀 Osaka · Food', price:'¥400–600 per 6–8 pieces', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:"Round fried dough balls filled with octopus, pickled ginger, and green onion — topped with takoyaki sauce, Japanese mayo, and bonito flakes. Osaka's most iconic street food." },
+    ]},
+    { title:'Where to Get It', rows:[
+      { label:'Wanaka (Dotonbori)', value:'The classic — always a line but moves fast. Crispy outside, gooey inside.' },
+      { label:'Kukuru (Dotonbori)', value:'Giant octopus pieces inside — more substantial than most.' },
+      { label:'Konamon Museum', value:'¥500 and you make your own — great with kids. In Dotonbori basement.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🍡 Temperature', value:"They come extremely hot — let them rest 60 seconds or you will burn your mouth (experience speaking)." },
+      { label:'🥢 Eat technique', value:"Cut in half with the provided toothpick to let steam out and check the inside is cooked through." },
+    ]},
+  ]},
+
+  a27: { name:'Okonomiyaki', badge:'🦀 Osaka · Food', price:'¥800–1,500 per pancake', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:"Thick savory pancake made with batter, shredded cabbage, pork belly, seafood, and egg — cooked on a teppan griddle and topped with okonomiyaki sauce, mayo, aonori, and bonito flakes." },
+    ]},
+    { title:'Where to Go', rows:[
+      { label:'Mizuno (Dotonbori)', value:"The most famous okonomiyaki restaurant in Osaka — 80+ years old. Always a long line (30–60 min). Worth it for the experience." },
+      { label:'Chibo (Dotonbori)', value:'Famous chain, reliable quality, shorter wait. Good for first-timers.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⚠ GF note', value:"Traditional okonomiyaki batter contains wheat flour — NOT gluten-free. Ask specifically for rice flour alternatives (rare but possible)." },
+      { label:'🍳 DIY option', value:"Some restaurants give you the raw mix to cook yourself on your table griddle. Chaotic and fun." },
+    ]},
+  ]},
+
+  a28: { name:'Universal Studios Japan', badge:'🦀 Osaka · Optional', price:'¥8,600+ day ticket', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Full-scale theme park with The Wizarding World of Harry Potter, Super Nintendo World, Minions Land, and more. A full day is needed." },
+      { label:'Hours', value:'9 AM – 9 PM (varies by season — check usj.co.jp)' },
+      { label:'Price', value:'Day ticket from ¥8,600 adult. Express Pass ¥4,500–22,000 (highly recommended).' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⚡ Express Pass', value:"Without it, wait times for Harry Potter and Super Nintendo World are 60–120 min. With Express Pass: 10–20 min. Worth every yen." },
+      { label:'🧙 Harry Potter world', value:"Queue before park opening. Butterbeer (¥900) is thick, sweet, and great." },
+      { label:'🍄 Super Nintendo World', value:"Requires a timed entry ticket even with park admission — grab it immediately upon entering via the USJ app." },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'2-1-33 Sakurajima, Konohana Ward, Osaka' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Universal+Studios+Japan+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'JR Universal City Station (JR Yumesaki line) — direct shuttle from Osaka Station, 15 min' },
+    ]},
+  ]},
+
+  a29: { name:'Pokémon Café Osaka', badge:'🦀 Osaka · Optional', price:'¥500 cover + food', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:"Backup since the Tokyo café is closed during your trip dates. Located in Grand Front Osaka — themed food, limited merchandise, and Pokémon décor throughout." },
+      { label:'Hours', value:'10:30 AM – 9:30 PM (last orders 8:30 PM).' },
+      { label:'Price', value:'¥500 system fee + food (¥1,200–2,000/person).' },
+    ]},
+    { title:'Booking', rows:[
+      { label:'📅 Reservation required', value:"Book exactly 1 month ahead at 10 AM Japan time — spots fill in minutes. pokemon.co.jp/cafe" },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'Grand Front Osaka North Building 7F, 4-20 Ofukacho, Kita Ward, Osaka' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Pokemon+Cafe+Grand+Front+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+      { label:'Nearest stop', value:'JR Osaka Station or Umeda Station — Grand Front Osaka is directly connected' },
+    ]},
+  ]},
+};
+
 const SHOPPING_DETAILS = {
   komehyo: { name:'KOMEHYO Kyoto Shinkyogoku', badge:'⛩ Kyoto · 👜 Luxury Resale', price:'¥20,000–800,000+', sections:[
     { title:'Overview', rows:[
@@ -6788,10 +7311,95 @@ function openShoppingDetail(key) {
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
   const docsTab = document.getElementById('modal-tab-docs');
   if (docsTab) docsTab.style.display = 'none';
+  const adTab = document.getElementById('modal-tab-addday'); if (adTab) adTab.style.display = '';
+  _currentModalContext = {key: key, type: 'shopping', name: d.name};
   switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+let _currentModalContext = null; // {key, type, name} for add-to-day
+
+function openActivityDetail(id) {
+  const d = ACTIVITY_DETAILS[id];
+  if (!d) return;
+  document.getElementById('hotel-modal-name').textContent = d.name;
+  document.getElementById('hotel-modal-sub').textContent = d.price || '';
+  document.getElementById('hotel-modal-badge').innerHTML = '<span class="badge">' + d.badge + '</span>';
+  document.getElementById('hotel-modal-note').style.display = 'none';
+  document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
+  const docsTab = document.getElementById('modal-tab-docs'); if (docsTab) docsTab.style.display = '';
+  const adTab = document.getElementById('modal-tab-addday'); if (adTab) adTab.style.display = '';
+  _currentModalContext = {key: id, type: 'activity', name: d.name};
+  switchModalTab('details');
+  document.getElementById('hotel-modal-overlay').classList.add('open');
+  document.getElementById('hotel-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  loadModalAttachments('activity-' + id);
+}
+
+function openDetailFromEvent(key, type) {
+  if (type === 'food') openFoodDetail(key);
+  else if (type === 'shopping') openShoppingDetail(key);
+  else openActivityDetail(key);
+}
+
+function populateAddDayPane() {
+  const ctx = _currentModalContext;
+  const pane = document.getElementById('addday-pane-content');
+  if (!pane) return;
+  if (!ctx || !appState.days) {
+    pane.innerHTML = '<p class="addday-desc">No item selected.</p>';
+    return;
+  }
+  const today = new Date().toISOString().slice(0, 10);
+  const cityEmoji = {tokyo:'🗼', hakone:'🏔', kyoto:'⛩', osaka:'🦀'};
+  let html = '<p class="addday-desc">Add <strong>' + ctx.name + '</strong> to which day?</p>'
+    + '<div class="day-picker-list">';
+  appState.days.forEach(day => {
+    const isPast = day.date < today;
+    const em = cityEmoji[day.city] || '📅';
+    html += '<button class="day-picker-btn' + (isPast ? ' past' : '') + '" onclick="confirmAddToDay(\'' + day.id + '\')">'
+      + '<span class="day-picker-emoji">' + em + '</span>'
+      + '<div><div class="day-picker-date">' + day.dateLabel + '</div>'
+      + '<div class="day-picker-title">' + day.title + '</div></div>'
+      + '</button>';
+  });
+  html += '</div>';
+  pane.innerHTML = html;
+}
+
+function confirmAddToDay(dayId) {
+  const ctx = _currentModalContext;
+  if (!ctx || !appState.days) return;
+  const day = appState.days.find(d => d.id === dayId);
+  if (!day) return;
+  const typeMap = {food:'food', activity:'activity', shopping:'activity'};
+  const newEv = {
+    id: dayId + 'add' + Date.now(),
+    type: typeMap[ctx.type] || 'activity',
+    text: ctx.name,
+    note: null,
+    time: null,
+    booked: false,
+    highlight: false,
+    done: false,
+    detailKey: ctx.key,
+    detailType: ctx.type,
+  };
+  day.events.push(newEv);
+  saveAppState();
+  renderItinerary();
+  const pane = document.getElementById('addday-pane-content');
+  if (pane) {
+    pane.innerHTML = '<div class="addday-confirm">'
+      + '<div style="font-size:40px;margin-bottom:12px">✓</div>'
+      + '<div style="font-size:16px;font-weight:700;margin-bottom:8px">' + ctx.name + '</div>'
+      + '<div style="font-size:13px;color:var(--text-muted)">Added to ' + day.dateLabel + '</div>'
+      + '<button class="btn-secondary" style="margin-top:20px" onclick="closeHotelDetail()">Done</button>'
+      + '</div>';
+  }
 }
 
 function openFoodDetail(key) {
@@ -6804,6 +7412,8 @@ function openFoodDetail(key) {
   noteEl.style.display = 'none';
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
   const _foodDt = document.getElementById('modal-tab-docs'); if (_foodDt) _foodDt.style.display = '';
+  const _foodAdTab = document.getElementById('modal-tab-addday'); if (_foodAdTab) _foodAdTab.style.display = '';
+  _currentModalContext = {key: key, type: 'food', name: d.name};
   switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
@@ -7110,6 +7720,7 @@ document.addEventListener('visibilitychange', () => {
   <div class="modal-subnav">
     <button class="modal-tab active" id="modal-tab-details" onclick="switchModalTab('details')">Details</button>
     <button class="modal-tab" id="modal-tab-docs" onclick="switchModalTab('docs')">Documents</button>
+    <button class="modal-tab addday" id="modal-tab-addday" onclick="switchModalTab('addday');populateAddDayPane()" style="display:none">＋ Add to Day</button>
   </div>
   <div id="modal-pane-details" class="hotel-modal-body">
     <div id="hotel-modal-note" class="hotel-note" style="display:none"></div>
@@ -7117,6 +7728,9 @@ document.addEventListener('visibilitychange', () => {
   </div>
   <div id="modal-pane-docs" class="hotel-modal-body modal-docs-body" style="display:none">
     <div id="hotel-modal-attachments"></div>
+  </div>
+  <div id="modal-pane-addday" class="hotel-modal-body" style="display:none">
+    <div id="addday-pane-content"></div>
   </div>
 </div>
 
@@ -7162,8 +7776,12 @@ let _currentModalRef = null;
 function switchModalTab(tab) {
   document.getElementById('modal-tab-details').classList.toggle('active', tab === 'details');
   document.getElementById('modal-tab-docs').classList.toggle('active', tab === 'docs');
+  const adBtn = document.getElementById('modal-tab-addday');
+  if (adBtn) adBtn.classList.toggle('active', tab === 'addday');
   document.getElementById('modal-pane-details').style.display = tab === 'details' ? '' : 'none';
   document.getElementById('modal-pane-docs').style.display = tab === 'docs' ? '' : 'none';
+  const adPane = document.getElementById('modal-pane-addday');
+  if (adPane) adPane.style.display = tab === 'addday' ? '' : 'none';
 }
 
 async function loadModalAttachments(bookingRef) {
