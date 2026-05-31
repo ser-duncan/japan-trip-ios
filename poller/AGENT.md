@@ -383,6 +383,54 @@ ON CONFLICT DO NOTHING;
 
 ---
 
+### food_photos — restaurant dish images shown in the food detail modal
+
+The app's food detail cards (e.g. Gion Soy Milk Ramen, Sugarhill Kyoto) have a **Documents / Photos tab** that pulls from `trip_attachments` using `booking_ref = 'food-{key}'`. Uploading photos here is a **one-time enrichment task**, not triggered by emails — run it on any poller run where you have spare context.
+
+#### Key mapping (booking_ref → food item)
+
+| booking_ref | Restaurant |
+|-------------|-----------|
+| `food-toshoan` | Toshoan (登志庵) |
+| `food-waco-crepes` | waco crepes |
+| `food-teuchi-soba` | Teuchi Toru Soba |
+| `food-gion-ramen` | Gion Soy Milk Ramen |
+| `food-choice-kyoto` | CHOICE (チョイス) |
+| `food-ikkakuju` | Ikkakuju Karasuma |
+| `food-sugarhill` | Sugarhill Kyoto |
+| `food-kappa-italian` | Oshokuya Kappa (5Kappa) |
+| `food-musubi-sweets` | Musubi Sweets Factory |
+| `food-maccha-house` | MACCHA HOUSE |
+| `food-gen-kyoto` | Gen (玄gen) Takeout |
+
+#### How to upload a food photo
+
+1. **Download** the image from the restaurant's website, Instagram, or Google Maps (must be publicly accessible)
+2. **Upload** to Supabase Storage:
+   ```
+   PUT https://ubtzeulovzfguazmdchp.supabase.co/storage/v1/object/trip-attachments/food-{key}/{timestamp}-{filename}
+   Headers: apikey: {SUPA_ANON}, Authorization: Bearer {SUPA_ANON}, Content-Type: image/jpeg, x-upsert: true
+   ```
+3. **Insert** into `trip_attachments`:
+   ```sql
+   INSERT INTO trip_attachments
+     (booking_ref, category, label, filename, storage_path, mime_type, source_email_id)
+   VALUES
+     ('food-gion-ramen', 'food', 'Soy milk ramen', 'ramen.jpg',
+      'food-gion-ramen/ramen.jpg', 'image/jpeg', null)
+   ON CONFLICT DO NOTHING;
+   ```
+
+#### Photo guidelines
+
+- **Label**: short, descriptive — e.g. `"Soy milk ramen"`, `"GF gyoza"`, `"Matcha tofu cheesecake"`, `"Exterior"`, `"Menu"`
+- **1–3 photos per restaurant** is plenty — hero dish + maybe exterior or menu
+- **Source priority**: restaurant's own website > Google Maps photos > Instagram posts by the restaurant account
+- **Only use images you can directly download** — do not hotlink from TripAdvisor/Google (they expire and block)
+- **category**: always `'food'` for these entries, `source_email_id`: `null`
+
+---
+
 ## data JSON shape per category
 
 **flight**

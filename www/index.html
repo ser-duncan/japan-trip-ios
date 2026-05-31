@@ -6611,9 +6611,11 @@ function openFoodDetail(key) {
   const noteEl = document.getElementById('hotel-modal-note');
   noteEl.style.display = 'none';
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
+  switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
+  loadModalAttachments('food-' + key);
 }
 
 function renderFoodGuide() {
