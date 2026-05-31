@@ -4829,6 +4829,32 @@ function _mergeDefaultActivities() {
   DEFAULT_ACTIVITIES.forEach(a => { if (!existing.has(a.id)) appState.activities.push(a); });
 }
 
+// Backfills itinerary events for activities that were planned before the
+// assignActivity fix. Creates a 'plan-{id}' event on the assigned day if
+// one doesn't already exist.
+function _migrateAssignedActivities() {
+  if (!appState.activities || !appState.days) return;
+  appState.activities.forEach(a => {
+    if (!a.assignedDay) return;
+    const day = appState.days.find(d => d.id === a.assignedDay);
+    if (!day || day.events.find(e => e.id === 'plan-' + a.id)) return;
+    const hasActivityDet = !!(typeof ACTIVITY_DETAILS !== 'undefined' && ACTIVITY_DETAILS[a.id]);
+    const hasShoppingDet = !!(typeof SHOPPING_DETAILS !== 'undefined' && SHOPPING_DETAILS[a.id]);
+    day.events.push({
+      id: 'plan-' + a.id,
+      type: 'event',
+      time: '',
+      text: a.name,
+      note: a.note || null,
+      highlight: false,
+      booked: false,
+      done: false,
+      detailKey: (hasActivityDet || hasShoppingDet) ? a.id : undefined,
+      detailType: hasActivityDet ? 'activity' : hasShoppingDet ? 'shopping' : undefined,
+    });
+  });
+}
+
 async function loadAppState() {
   if (_sb) {
     try {
@@ -4842,6 +4868,7 @@ async function loadAppState() {
         appState.checklists = d.checklists || {};
         appState.dismissedMapReminders = d.dismissedMapReminders || [];
         _mergeDefaultActivities();
+        _migrateAssignedActivities();
         try { localStorage.setItem(LS_KEY, JSON.stringify({days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders})); } catch(e) {}
         return;
       }
@@ -4858,6 +4885,7 @@ async function loadAppState() {
       appState.checklists = p.checklists || {};
       appState.dismissedMapReminders = p.dismissedMapReminders || [];
       _mergeDefaultActivities();
+      _migrateAssignedActivities();
       return;
     }
   } catch(e) {}
@@ -5392,10 +5420,41 @@ function openAssignModal(activityId) {
 
 function assignActivity(dayId) {
   var a = appState.activities.find(x => x.id === appState._assigningActivity);
-  if (a) a.assignedDay = dayId;
+  if (!a) { appState._assigningActivity = null; closeSheet('assign-sheet'); return; }
+
+  // Remove existing planned event from old day
+  if (a.assignedDay) {
+    var oldDay = appState.days.find(d => d.id === a.assignedDay);
+    if (oldDay) oldDay.events = oldDay.events.filter(e => e.id !== 'plan-' + a.id);
+  }
+
+  a.assignedDay = dayId;
+
+  // Add event to new day
+  if (dayId) {
+    var newDay = appState.days.find(d => d.id === dayId);
+    if (newDay && !newDay.events.find(e => e.id === 'plan-' + a.id)) {
+      var hasActivityDet = !!(typeof ACTIVITY_DETAILS !== 'undefined' && ACTIVITY_DETAILS[a.id]);
+      var hasShoppingDet = !!(typeof SHOPPING_DETAILS !== 'undefined' && SHOPPING_DETAILS[a.id]);
+      newDay.events.push({
+        id: 'plan-' + a.id,
+        type: 'event',
+        time: '',
+        text: a.name,
+        note: a.note || null,
+        highlight: false,
+        booked: false,
+        done: false,
+        detailKey: (hasActivityDet || hasShoppingDet) ? a.id : undefined,
+        detailType: hasActivityDet ? 'activity' : hasShoppingDet ? 'shopping' : undefined,
+      });
+    }
+  }
+
   appState._assigningActivity = null;
   saveAppState();
   renderActivities();
+  renderItinerary();
   closeSheet('assign-sheet');
 }
 
