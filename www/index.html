@@ -8266,13 +8266,15 @@ function closeAttachmentViewer() {
   📬 Updates <span class="inbox-badge" id="inbox-badge" style="display:none">0</span>
 </button>
 
+<!-- App update banner — outside inbox-sheet so swipe handlers don't eat taps -->
+<div id="app-update-banner" class="app-update-banner" onclick="applyAppUpdate()">
+  <span>⬆ App update available — tap to refresh</span>
+  <span class="app-update-banner-close" onclick="event.stopPropagation();document.getElementById('app-update-banner').classList.remove('visible')">✕</span>
+</div>
+
 <!-- Trip Inbox Sheet -->
 <div class="inbox-overlay" id="inbox-overlay" onclick="closeInbox()"></div>
 <div class="inbox-sheet" id="inbox-sheet">
-  <div id="app-update-banner" class="app-update-banner" onclick="applyAppUpdate()">
-    <span>⬆ App update available — tap to refresh</span>
-    <span class="app-update-banner-close" onclick="event.stopPropagation();document.getElementById('app-update-banner').classList.remove('visible')">✕</span>
-  </div>
   <div class="inbox-sheet-handle"></div>
   <div class="inbox-sheet-header">
     <div>
@@ -8576,7 +8578,9 @@ async function triggerPoller() {
       if (status) { status.style.color = '#34d399'; status.textContent = '✓ Poller triggered — check back in ~2 min'; }
     } else {
       const err = await res.json().catch(() => ({}));
-      if (status) { status.style.color = '#f87171'; status.textContent = '✗ ' + (err.error || `Error ${res.status}`); }
+      const msg = typeof err.error === 'string' ? err.error
+                : err.error?.message || err.message || `Error ${res.status}`;
+      if (status) { status.style.color = '#f87171'; status.textContent = '✗ ' + msg; }
     }
   } catch(e) {
     if (status) { status.style.color = '#f87171'; status.textContent = '✗ Network error'; }
