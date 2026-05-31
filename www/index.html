@@ -5062,7 +5062,7 @@ async function applyTripActivities() {
 }
 // ─────────────────────────────────────────────────────────────────────────
 
-
+function saveAppState() {
   const data = { days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders };
   try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
   if (_syncTimer) clearTimeout(_syncTimer);
