@@ -8303,27 +8303,33 @@ function _showUpdateUI() {
 async function applyAppUpdate() {
   const banner = document.getElementById('app-update-banner');
   const btn = document.getElementById('app-update-btn');
-  if (btn) { btn.textContent = '⟳ Updating…'; btn.disabled = true; }
-  if (banner) banner.querySelector('span').textContent = '⟳ Updating…';
 
-  // When the new SW takes control, reload to serve fresh cached files
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
-  }, { once: true });
+  // Dismiss UI immediately — don't leave a stale banner
+  if (banner) banner.classList.remove('visible');
+  if (btn) btn.style.display = 'none';
 
-  if (_swReg) {
-    // Activate a waiting SW that already installed
+  if (!_swReg) return;
+
+  if (_swReg.waiting) {
+    // SW already installed and waiting — activate it, then reload on takeover
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    }, { once: true });
+    _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    // Fallback reload if controllerchange doesn't fire within 4s
+    setTimeout(() => window.location.reload(), 4000);
+  } else {
+    // No waiting SW — force a check; reload only if a new one installs
+    await _swReg.update();
     if (_swReg.waiting) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+      }, { once: true });
       _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
-    } else {
-      // Force fetch of sw.js to pick up a new version
-      await _swReg.update();
-      if (_swReg.waiting) _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      setTimeout(() => window.location.reload(), 4000);
     }
+    // If still no waiting SW, nothing to do — banner already dismissed
   }
-
-  // Fallback: if SW doesn't fire controllerchange within 4s, hard-reload
-  setTimeout(() => window.location.reload(), 4000);
 }
 
 if ('serviceWorker' in navigator) {
