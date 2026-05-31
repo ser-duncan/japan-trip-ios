@@ -50,9 +50,10 @@ email contains **new or changed information** beyond the original confirmation.
 5. **Write Supabase** — **CRITICAL: insert into `email_processing_log` for EVERY email processed, regardless of category or outcome (including skips and actionable items alike).** This is how deduplication works — if you skip this step, the same email will be re-processed on the next run. Then insert into `travel_updates` for actionable items only (confidence ≥ 0.50).
 6. **Write booking_updates** — for high-confidence changes (≥ 0.85), upsert rows into `booking_updates` (see schema below). The app reads this table live — no HTML editing needed.
 7. **Write itinerary_events** — for new activities, reservations, or experiences not yet in the itinerary, upsert rows into `itinerary_events` (see schema below). The app merges these into the day view on load — no HTML editing needed.
-8. **Commit & push** — almost never needed now; only if something genuinely can't be expressed via `booking_updates` or `itinerary_events`.
-9. **Log the run** — INSERT one row into `poller_runs` (see schema below). This is what drives the Poller tab and "Last checked" timestamp in the app UI. Do this even if nothing actionable was found.
-10. **Done** — report: `Processed N emails · M actionable · K booking_updates upserted · J itinerary_events upserted · A attachments saved`
+8. **Process poller_tasks** — check for pending one-off tasks (see schema below). On each run, query for `status = 'pending'` tasks, process up to 3 per run (to avoid timeout), mark each `done` or `failed`. Common tasks: `upload_food_photos` — download a restaurant photo and upload to Supabase Storage.
+9. **Commit & push** — almost never needed now; only if something genuinely can't be expressed via `booking_updates` or `itinerary_events`.
+10. **Log the run** — INSERT one row into `poller_runs` (see schema below). This is what drives the Poller tab and "Last checked" timestamp in the app UI. Do this even if nothing actionable was found.
+11. **Done** — report: `Processed N emails · M actionable · K booking_updates upserted · J itinerary_events upserted · A attachments saved · P tasks completed`
 
 ---
 
@@ -380,6 +381,54 @@ ON CONFLICT DO NOTHING;
 
 **Storage upload:** Use Supabase MCP storage tools or the REST API:
 `PUT https://ubtzeulovzfguazmdchp.supabase.co/storage/v1/object/trip-attachments/{storage_path}`
+
+---
+
+### poller_tasks — one-off task queue
+
+Check this table on **every run** (step 8 in the run checklist). Process up to 3 pending tasks per run.
+
+```sql
+-- Fetch pending tasks
+SELECT id, task_type, item_key, payload FROM poller_tasks WHERE status = 'pending' ORDER BY created_at ASC LIMIT 3;
+```
+
+| Column | Description |
+|--------|-------------|
+| `id` | Auto-increment primary key |
+| `task_type` | Category of task — e.g. `upload_food_photos` |
+| `item_key` | Target item — e.g. `gion-ramen` |
+| `status` | `pending` → `in_progress` → `done` \| `failed` |
+| `payload` | JSON with task context (restaurant name, booking_ref, notes) |
+| `started_at` | Timestamp when processing began |
+| `completed_at` | Timestamp when finished |
+| `error` | Error message if `failed` |
+
+**Mark in-progress before starting** (prevents duplicate processing across runs):
+```sql
+UPDATE poller_tasks SET status = 'in_progress', started_at = now() WHERE id = $id;
+```
+
+**Mark done after success:**
+```sql
+UPDATE poller_tasks SET status = 'done', completed_at = now() WHERE id = $id;
+```
+
+**Mark failed if an error occurred:**
+```sql
+UPDATE poller_tasks SET status = 'failed', completed_at = now(), error = $error_message WHERE id = $id;
+```
+
+#### Task type: `upload_food_photos`
+
+Download 1–3 representative photos for the restaurant and upload to Supabase Storage. Use the `booking_ref` from `payload` to construct the storage path.
+
+1. Find a publicly accessible photo of the restaurant or a signature dish (restaurant website > Google Maps photos > Instagram)
+2. Upload each photo: `PUT https://ubtzeulovzfguazmdchp.supabase.co/storage/v1/object/trip-attachments/{booking_ref}/{timestamp}-{filename}`
+3. Insert a row into `trip_attachments` (see `food_photos` section below)
+4. After all photos uploaded, mark task `done`
+
+If the restaurant website blocks download, try the restaurant's Google Business listing, their official Instagram, or food blogs — always use directly downloadable public URLs. If no accessible photos can be found after 2-3 attempts, mark the task `failed` with `error = 'No publicly downloadable images found'`.
 
 ---
 
