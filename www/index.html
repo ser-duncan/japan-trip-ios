@@ -88,7 +88,74 @@
   [data-theme="light"] .day-card-hourly { border-color: rgba(0,0,0,0.05); }
   [data-theme="light"] .day-detail-overlay { background: rgba(0,0,0,0.3); }
 
-  /* ── Settings section ── */
+  /* ── Light mode: additional targeted fixes ── */
+
+  /* Progress bar — was hardcoded dark bg */
+  [data-theme="light"] .trip-progress-wrap { background: transparent; }
+
+  /* Day nav dots — white dots invisible on light */
+  [data-theme="light"] .day-nav-dot { background: rgba(0,0,0,0.14); }
+
+  /* Callout — yellow text too low-contrast on white */
+  [data-theme="light"] .callout {
+    background: rgba(160,110,0,0.07);
+    border-color: rgba(160,110,0,0.25); border-left-color: rgba(160,110,0,0.5);
+    color: #8B5E00;
+  }
+  [data-theme="light"] .callout strong { color: #6B4400; }
+
+  /* Hourly pill — white-on-white ghost */
+  [data-theme="light"] .day-card-hour-pill {
+    background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.07);
+  }
+
+  /* Expand handle + swipe affordance lines */
+  [data-theme="light"] .day-card-expand-handle { color: rgba(0,0,0,0.28); border-top-color: rgba(0,0,0,0.05); }
+  [data-theme="light"] .day-detail-handle { background: rgba(0,0,0,0.12); }
+  [data-theme="light"] .filter-modal-handle,
+  [data-theme="light"] .more-sheet-handle { background: rgba(0,0,0,0.12); }
+
+  /* Day detail close button */
+  [data-theme="light"] .day-detail-close { background: rgba(0,0,0,0.06); color: var(--text-muted); }
+
+  /* Day detail tabs — inactive tab text was white/35% opacity */
+  [data-theme="light"] .day-detail-tab { color: rgba(0,0,0,0.35); }
+
+  /* Edit mode controls */
+  [data-theme="light"] .day-detail-title-edit {
+    background: rgba(0,0,0,0.04); border-color: rgba(43,110,232,0.3);
+  }
+  [data-theme="light"] .day-reorder-btn {
+    background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.1); color: var(--text-muted);
+  }
+
+  /* Inline filter chips (city / date) */
+  [data-theme="light"] .city-chip[data-city="all"] { border-color: rgba(0,0,0,0.18); }
+  [data-theme="light"] .city-chip[data-city="all"].active { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.3); }
+  [data-theme="light"] .date-seg-wrap { background: rgba(0,0,0,0.06); }
+  [data-theme="light"] .date-seg-btn.active {
+    background: rgba(255,255,255,0.9); color: var(--text);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+  [data-theme="light"] .date-day-btn { border-color: rgba(0,0,0,0.12); }
+  [data-theme="light"] .logistics-chip { border-color: rgba(0,0,0,0.12); background: rgba(0,0,0,0.04); }
+  [data-theme="light"] .filter-chip { border-color: rgba(0,0,0,0.14); }
+  [data-theme="light"] .filter-chip[data-city="all"].active {
+    border-color: rgba(0,0,0,0.4); background: rgba(0,0,0,0.06);
+  }
+
+  /* Add buttons */
+  [data-theme="light"] .add-event-btn,
+  [data-theme="light"] .add-activity-btn,
+  [data-theme="light"] .add-day-btn { border-color: rgba(0,0,0,0.12); }
+
+  /* Day note button */
+  [data-theme="light"] .day-note-btn { border-color: rgba(0,0,0,0.12); }
+
+  /* Separator lines using white opacity */
+  [data-theme="light"] .city-divider { border-color: rgba(0,0,0,0.08); }
+
+  /* Settings section ── */
   .settings-group { margin-bottom: 28px; }
   .settings-group-label {
     font-size: 12px; font-weight: 700; color: var(--text-muted);
