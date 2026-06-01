@@ -2093,7 +2093,7 @@
     padding: 8px 12px; color: var(--text); font-size: 20px; font-weight: 700;
     font-family: inherit; letter-spacing: -0.3px; outline: none; box-sizing: border-box;
   }
-  .day-reorder-row { display: flex; gap: 8px; margin-top: 10px; }
+  .day-reorder-row { display: flex; gap: 8px; margin-top: 4px; margin-bottom: 14px; }
   .day-reorder-btn {
     flex: 1; padding: 9px 12px; border-radius: 10px;
     border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06);
@@ -6492,11 +6492,11 @@ function openDayDetail(dayId) {
     + '<div class="day-detail-hdr-text">'
     + titleHtml
     + '<div class="day-detail-hdr-sub">' + day.dateLabel + ' · ' + (cityLabel[day.city] || day.city) + '</div>'
-    + reorderHtml
     + '</div>'
     + '<button class="day-detail-close" onclick="closeDayDetail()">✕</button>'
     + '</div>'
     + '<div class="day-detail-body">'
+    + reorderHtml
     + day.events.map(ev => buildEventHTML(ev, day.id)).join('')
     + buildDayExtras(day.id)
     + '<button class="add-event-btn" onclick="openEventModal(\'' + day.id + '\',null)">＋ Add item</button>'
@@ -6530,8 +6530,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   sheet.addEventListener('touchmove', function(e) {
     const dy = e.touches[0].clientY - startY;
-    const body = sheet.querySelector('.day-detail-body');
-    const atTop = !body || body.scrollTop <= 0;
+    const atTop = sheet.scrollTop <= 0;
     if (atTop && dy > 0) {
       isDragging = true;
       sheet.style.transition = 'none';
