@@ -155,6 +155,85 @@
   /* Separator lines using white opacity */
   [data-theme="light"] .city-divider { border-color: rgba(0,0,0,0.08); }
 
+  /* ── Light mode: comprehensive sweep ── */
+
+  /* Hero banner — hardcoded dark gradient */
+  [data-theme="light"] .hero {
+    background: linear-gradient(135deg, #e8e0f0 0%, #dde8f8 50%, #d8f0e8 100%);
+  }
+
+  /* Day card inner — soften shadow, fix faint white border */
+  [data-theme="light"] .day-card-inner {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06);
+  }
+  [data-theme="light"] .day-card-weather-row { border-bottom-color: rgba(0,0,0,0.06); }
+  [data-theme="light"] .day-card-hourly { border-bottom-color: rgba(0,0,0,0.05); }
+  [data-theme="light"] .day-card-expand-handle:active { color: rgba(0,0,0,0.4); }
+
+  /* Floating edit FAB — dark glass → light surface */
+  [data-theme="light"] .day-edit-fab {
+    background: rgba(255,255,255,0.92);
+    border-color: rgba(0,0,0,0.1);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.14);
+  }
+
+  /* Subnav segmented buttons — white-alpha text invisible on light */
+  [data-theme="light"] .eatdo-subnav-btn,
+  [data-theme="light"] .transit-subnav-btn,
+  [data-theme="light"] .logistics-subnav-btn { color: rgba(0,0,0,0.38); }
+  [data-theme="light"] .eatdo-subnav-btn.active,
+  [data-theme="light"] .transit-subnav-btn.active,
+  [data-theme="light"] .logistics-subnav-btn.active {
+    background: rgba(255,255,255,0.88);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+  [data-theme="light"] .subnav-overflow-item:active { background: rgba(0,0,0,0.06); }
+
+  /* Modal + filter sheet borders */
+  [data-theme="light"] .modal-subnav { border-bottom-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .filter-modal { border-top-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .filter-chip { border-color: rgba(0,0,0,0.14); }
+  [data-theme="light"] .filter-chip[data-city="all"].active { border-color: rgba(0,0,0,0.4); background: rgba(0,0,0,0.06); }
+
+  /* Day note preview */
+  [data-theme="light"] .day-note-preview {
+    background: rgba(0,0,0,0.02);
+    border-left-color: rgba(43,110,232,0.25);
+  }
+
+  /* Today card hourly strip top border */
+  [data-theme="light"] .today-hourly { border-top-color: rgba(0,0,0,0.07); }
+
+  /* Inbox sheet */
+  [data-theme="light"] .inbox-sheet-handle { background: rgba(0,0,0,0.12); }
+  [data-theme="light"] .inbox-tabs { border-bottom-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .inbox-run-header { border-top-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .inbox-log-row { border-bottom-color: rgba(0,0,0,0.05); }
+  [data-theme="light"] .inbox-log-dot.skip { background: rgba(0,0,0,0.15); }
+
+  /* Attachment thumbnails */
+  [data-theme="light"] .attachment-thumb { border-color: rgba(0,0,0,0.1); background: rgba(0,0,0,0.04); }
+  [data-theme="light"] .attachment-add-btn { border-color: rgba(0,0,0,0.18); background: rgba(0,0,0,0.03); }
+
+  /* Inbox / poller run cards */
+  [data-theme="light"] .poller-run-card { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.07); }
+  [data-theme="light"] .poller-run-committed.no { background: rgba(0,0,0,0.06); }
+  [data-theme="light"] .poller-stat { background: rgba(0,0,0,0.06); }
+
+  /* Reminder table hover row */
+  [data-theme="light"] .reminder-table tr:hover td { background: rgba(0,0,0,0.02); }
+
+  /* Hero city pills "all" active/hover */
+  [data-theme="light"] .pill[data-city="all"].active,
+  [data-theme="light"] .pill[data-city="all"]:hover { background: rgba(0,0,0,0.04); }
+
+  /* Day detail sheet borders */
+  [data-theme="light"] .day-detail-sheet { border-top-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .day-detail-hdr { border-bottom-color: rgba(0,0,0,0.07); }
+
+  /* Trip progress bar background */
+  [data-theme="light"] .trip-progress-wrap { background: rgba(0,0,0,0.03); }
+
   /* Settings section ── */
   .settings-group { margin-bottom: 28px; }
   .settings-group-label {
