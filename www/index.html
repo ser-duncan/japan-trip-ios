@@ -2120,9 +2120,12 @@
   .day-detail-sheet.open { transform: translateY(0); }
   .day-detail-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 12px auto 4px; }
   .day-detail-hdr {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 20px 8px; position: sticky; top: 0; z-index: 1;
+    position: sticky; top: 0; z-index: 1;
     background: var(--bg); border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .day-detail-hdr-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 20px 8px;
   }
   .day-detail-hdr-text {}
   .day-detail-hdr-title { font-size: 17px; font-weight: 700; color: var(--text); }
@@ -2134,6 +2137,41 @@
     font-family: inherit; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
   }
   .day-detail-body { padding: 8px 16px 16px; }
+
+  /* Day detail context tabs */
+  .day-detail-tabs { display: flex; padding: 0 20px; }
+  .day-detail-tab {
+    flex: 1; padding: 8px 4px; font-size: 13px; font-weight: 600;
+    font-family: inherit; background: none; border: none;
+    color: rgba(255,255,255,0.35); cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color 0.2s, border-color 0.2s; -webkit-tap-highlight-color: transparent;
+  }
+  .day-detail-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+  /* Mini stay / transit cards inside panels */
+  .ddp-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px; margin-bottom: 12px;
+  }
+  .ddp-card-hdr { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+  .ddp-card-icon { font-size: 24px; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+  .ddp-card-title-wrap { flex: 1; min-width: 0; }
+  .ddp-card-title { font-size: 15px; font-weight: 700; line-height: 1.2; }
+  .ddp-card-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; line-height: 1.35; }
+  .ddp-card-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .ddp-card-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 13px; }
+  .ddp-card-label { color: var(--text-muted); flex-shrink: 0; }
+  .ddp-card-value { font-weight: 600; text-align: right; }
+  .ddp-card-note { font-size: 12px; color: var(--text-muted); line-height: 1.45; margin-bottom: 12px; }
+  .ddp-open-btn {
+    width: 100%; padding: 10px; border-radius: 10px;
+    background: rgba(126,176,255,0.08); border: 1px solid rgba(126,176,255,0.2);
+    color: var(--accent); font-size: 13px; font-weight: 600; font-family: inherit;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; text-align: center;
+  }
+  .ddp-open-btn:active { background: rgba(126,176,255,0.16); }
+  .ddp-empty { font-size: 14px; color: var(--text-muted); padding: 32px 0; text-align: center; }
 
   /* Filter icon + modal */
   .filter-icon-btn {
@@ -4877,6 +4915,21 @@
     }
   };
 
+  // Day → lodging and transit context lookup maps
+  const DAY_HOTEL_MAP = {
+    d0:'koala', d1:'koala', d2:'koala', d3:'koala',
+    d4:'hakone',
+    d5:'kyoto', d6:'kyoto', d7:'kyoto', d8:'kyoto',
+    d9:'osaka', d10:'osaka',
+  };
+  const DAY_TRANSIT_MAP = {
+    d0: [{type:'flight',key:'ua5408'},{type:'flight',key:'ua39'}],
+    d4: [{type:'train',key:'romancecar'}],
+    d5: [{type:'train',key:'shinkansen'}],
+    d9: [{type:'train',key:'kyoto-osaka'}],
+    d11: [{type:'train',key:'haruka'},{type:'flight',key:'ua34'},{type:'flight',key:'ua2017'}],
+  };
+
   function renderModalSections(sections) {
     return sections.map(sec => {
       if (sec.type === 'directions') {
@@ -6487,19 +6540,36 @@ function openDayDetail(dayId) {
       + '<button class="day-reorder-btn" onclick="moveDayLater(\'' + dayId + '\')"' + (dayIdx >= appState.days.length - 1 ? ' disabled' : '') + '>Move later →</button>'
       + '</div>'
     : '';
+  const hotelKey = DAY_HOTEL_MAP[dayId];
+  const transitItems = DAY_TRANSIT_MAP[dayId] || [];
+  const hasTabs = !!(hotelKey || transitItems.length);
+  const tabsHtml = hasTabs
+    ? '<div class="day-detail-tabs">'
+      + '<button class="day-detail-tab active" data-tab="events" onclick="switchDayDetailTab(\'events\')">📅 Events</button>'
+      + (hotelKey ? '<button class="day-detail-tab" data-tab="lodging" onclick="switchDayDetailTab(\'lodging\')">🏨 Stay</button>' : '')
+      + (transitItems.length ? '<button class="day-detail-tab" data-tab="transit" onclick="switchDayDetailTab(\'transit\')">🚄 Transit</button>' : '')
+      + '</div>'
+    : '';
   sheet.innerHTML = '<div class="day-detail-handle" onclick="closeDayDetail()"></div>'
     + '<div class="day-detail-hdr">'
+    + '<div class="day-detail-hdr-row">'
     + '<div class="day-detail-hdr-text">'
     + titleHtml
     + '<div class="day-detail-hdr-sub">' + day.dateLabel + ' · ' + (cityLabel[day.city] || day.city) + '</div>'
     + '</div>'
     + '<button class="day-detail-close" onclick="closeDayDetail()">✕</button>'
     + '</div>'
+    + tabsHtml
+    + '</div>'
     + '<div class="day-detail-body">'
+    + '<div class="day-detail-panel" data-panel="events">'
     + reorderHtml
     + day.events.map(ev => buildEventHTML(ev, day.id)).join('')
     + buildDayExtras(day.id)
     + '<button class="add-event-btn" onclick="openEventModal(\'' + day.id + '\',null)">＋ Add item</button>'
+    + '</div>'
+    + (hotelKey ? '<div class="day-detail-panel" data-panel="lodging" style="display:none">' + _buildStayPanel(hotelKey) + '</div>' : '')
+    + (transitItems.length ? '<div class="day-detail-panel" data-panel="transit" style="display:none">' + _buildTransitPanel(transitItems) + '</div>' : '')
     + '</div>';
   overlay.classList.add('open');
   sheet.classList.add('open');
@@ -6513,6 +6583,94 @@ function closeDayDetail() {
   _openDetailDayId = null;
   document.getElementById('day-detail-overlay')?.classList.remove('open');
   document.getElementById('day-detail-sheet')?.classList.remove('open');
+}
+
+function switchDayDetailTab(tabName) {
+  const sheet = document.getElementById('day-detail-sheet');
+  if (!sheet) return;
+  sheet.querySelectorAll('.day-detail-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === tabName));
+  sheet.querySelectorAll('.day-detail-panel').forEach(p =>
+    p.style.display = p.dataset.panel === tabName ? '' : 'none');
+  sheet.scrollTop = 0;
+}
+
+function _buildStayPanel(hotelKey) {
+  const h = HOTEL_DETAILS[hotelKey];
+  if (!h) return '<p class="ddp-empty">No lodging info</p>';
+  const datesSection = h.sections && h.sections.find(s => s.title === 'Dates');
+  const checkIn  = datesSection && datesSection.rows.find(r => r.label === 'Check-in');
+  const checkOut = datesSection && datesSection.rows.find(r => r.label === 'Check-out');
+  const dur      = datesSection && datesSection.rows.find(r => r.label === 'Duration');
+  const icons = {koala:'🏙️', hakone:'🏔️', kyoto:'⛩️', osaka:'🏯'};
+  return '<div class="ddp-card">'
+    + '<div class="ddp-card-hdr">'
+    + '<span class="ddp-card-icon">' + (icons[hotelKey] || '🏨') + '</span>'
+    + '<div class="ddp-card-title-wrap">'
+    + '<div class="ddp-card-title">' + h.name + '</div>'
+    + '<div class="ddp-card-sub">' + h.sub + '</div>'
+    + '</div>'
+    + '</div>'
+    + '<div class="ddp-card-rows">'
+    + (checkIn  ? '<div class="ddp-card-row"><span class="ddp-card-label">Check-in</span><span class="ddp-card-value">' + checkIn.value  + '</span></div>' : '')
+    + (checkOut ? '<div class="ddp-card-row"><span class="ddp-card-label">Check-out</span><span class="ddp-card-value">' + checkOut.value + '</span></div>' : '')
+    + (dur      ? '<div class="ddp-card-row"><span class="ddp-card-label">Duration</span><span class="ddp-card-value">' + dur.value      + '</span></div>' : '')
+    + '</div>'
+    + (h.note ? '<div class="ddp-card-note">' + h.note + '</div>' : '')
+    + '<button class="ddp-open-btn" onclick="openHotelDetail(\'' + hotelKey + '\')">Full details + PIN →</button>'
+    + '</div>';
+}
+
+function _buildTransitPanel(items) {
+  if (!items || !items.length) return '<p class="ddp-empty">No planned transit for this day.</p>';
+  const trainIcons = {romancecar:'🚃', shinkansen:'🚄', 'kyoto-osaka':'🚆', haruka:'🚄'};
+  return items.map(item => {
+    if (item.type === 'train') {
+      const t = TRAIN_DETAILS && TRAIN_DETAILS[item.key];
+      if (!t) return '';
+      const j = t.sections && t.sections.find(s => s.title === 'Journey');
+      const date    = j && j.rows.find(r => r.label === 'Date');
+      const departs = j && j.rows.find(r => r.label === 'Departs');
+      const arrives = j && j.rows.find(r => r.label === 'Arrives');
+      return '<div class="ddp-card">'
+        + '<div class="ddp-card-hdr">'
+        + '<span class="ddp-card-icon">' + (trainIcons[item.key] || '🚆') + '</span>'
+        + '<div class="ddp-card-title-wrap">'
+        + '<div class="ddp-card-title">' + t.name + '</div>'
+        + '<div class="ddp-card-sub">' + t.sub + '</div>'
+        + '</div>'
+        + t.badge
+        + '</div>'
+        + '<div class="ddp-card-rows">'
+        + (date    ? '<div class="ddp-card-row"><span class="ddp-card-label">Date</span><span class="ddp-card-value">' + date.value    + '</span></div>' : '')
+        + (departs ? '<div class="ddp-card-row"><span class="ddp-card-label">Departs</span><span class="ddp-card-value">' + departs.value + '</span></div>' : '')
+        + (arrives ? '<div class="ddp-card-row"><span class="ddp-card-label">Arrives</span><span class="ddp-card-value">' + arrives.value + '</span></div>' : '')
+        + '</div>'
+        + '<button class="ddp-open-btn" onclick="openTrainDetail(\'' + item.key + '\')">Full details + seats →</button>'
+        + '</div>';
+    } else if (item.type === 'flight') {
+      const f = FLIGHT_DETAILS && FLIGHT_DETAILS[item.key];
+      if (!f) return '';
+      const fi      = f.sections && f.sections.find(s => s.title === 'Flight Info');
+      const departs = fi && fi.rows.find(r => r.label === 'Departs');
+      const arrives = fi && fi.rows.find(r => r.label === 'Arrives');
+      return '<div class="ddp-card">'
+        + '<div class="ddp-card-hdr">'
+        + '<span class="ddp-card-icon">✈️</span>'
+        + '<div class="ddp-card-title-wrap">'
+        + '<div class="ddp-card-title">' + f.name + '</div>'
+        + '<div class="ddp-card-sub">' + f.badge + '</div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="ddp-card-rows">'
+        + (departs ? '<div class="ddp-card-row"><span class="ddp-card-label">Departs</span><span class="ddp-card-value">' + departs.value + '</span></div>' : '')
+        + (arrives ? '<div class="ddp-card-row"><span class="ddp-card-label">Arrives</span><span class="ddp-card-value">' + arrives.value + '</span></div>' : '')
+        + '</div>'
+        + '<button class="ddp-open-btn" onclick="openFlightDetail(\'' + item.key + '\')">Full details + seats →</button>'
+        + '</div>';
+    }
+    return '';
+  }).join('');
 }
 
 // Swipe-to-close for day detail sheet
