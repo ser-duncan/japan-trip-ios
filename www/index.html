@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<script>/* Apply theme before paint to prevent flash */
+(function(){try{var t=localStorage.getItem('nomad-theme')||'dark';var d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='light'||(t==='system'&&!d)){document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <title>Nomad</title>
 <style>
@@ -24,6 +27,96 @@
     --radius: 12px;
     --accent: #7EB0FF;
   }
+
+  /* ── Light theme ── */
+  [data-theme="light"] {
+    --bg: #F2F2F7;
+    --surface: #FFFFFF;
+    --surface2: #EAEAF2;
+    --border: #D8D8E8;
+    --text: #1C1C2E;
+    --text-muted: #6B6B8A;
+    --accent: #2B6EE8;
+  }
+  [data-theme="light"] body { background: var(--bg); color: var(--text); }
+  [data-theme="light"] .nav,
+  [data-theme="light"] .sticky-header,
+  [data-theme="light"] .app-header {
+    background: rgba(242,242,247,0.92);
+    border-color: rgba(0,0,0,0.07);
+  }
+  [data-theme="light"] .tab-bar {
+    background: rgba(244,244,252,0.82);
+    border-color: rgba(0,0,0,0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06),
+      inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(0,0,0,0.04);
+  }
+  [data-theme="light"] .tab-bar-btn { color: rgba(28,28,46,0.38); }
+  [data-theme="light"] .tab-bar-btn.active {
+    background: rgba(255,255,255,0.88);
+    color: var(--text);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+  [data-theme="light"] .more-sheet {
+    background: rgba(240,240,248,0.94);
+    border-color: rgba(0,0,0,0.1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.7);
+  }
+  [data-theme="light"] .more-sheet-item:active { background: rgba(0,0,0,0.06); }
+  [data-theme="light"] .eatdo-subnav,
+  [data-theme="light"] .transit-subnav,
+  [data-theme="light"] .logistics-subnav {
+    background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.06);
+  }
+  [data-theme="light"] .day-card-inner {
+    border-color: rgba(0,0,0,0.06);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  [data-theme="light"] .day-detail-sheet { border-top-color: rgba(0,0,0,0.07); }
+  [data-theme="light"] .day-detail-hdr { border-color: rgba(0,0,0,0.07); }
+  [data-theme="light"] .subnav-overflow-popup {
+    background: rgba(238,238,248,0.97); border-color: rgba(0,0,0,0.1);
+  }
+  [data-theme="light"] .bottom-sheet { background: var(--surface); }
+  [data-theme="light"] .bottom-sheet-overlay { background: rgba(0,0,0,0.3); }
+  [data-theme="light"] .event-item,
+  [data-theme="light"] .activity-item,
+  [data-theme="light"] .food-item,
+  [data-theme="light"] .logistics-item,
+  [data-theme="light"] .ddp-card,
+  [data-theme="light"] .card { border-color: rgba(0,0,0,0.07); }
+  [data-theme="light"] .day-card-hourly { border-color: rgba(0,0,0,0.05); }
+  [data-theme="light"] .day-detail-overlay { background: rgba(0,0,0,0.3); }
+
+  /* ── Settings section ── */
+  .settings-group { margin-bottom: 28px; }
+  .settings-group-label {
+    font-size: 12px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 8px; padding: 0 4px;
+  }
+  .settings-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+  }
+  .settings-option {
+    display: flex; align-items: center; gap: 14px; width: 100%;
+    padding: 14px 18px; background: none; border: none;
+    font-family: inherit; cursor: pointer; text-align: left;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .settings-option:active { background: rgba(128,128,128,0.1); }
+  .settings-option-icon { font-size: 22px; flex-shrink: 0; width: 28px; text-align: center; }
+  .settings-option-body { flex: 1; min-width: 0; }
+  .settings-option-label { font-size: 15px; font-weight: 500; color: var(--text); }
+  .settings-option-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .settings-option-check {
+    width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border);
+    flex-shrink: 0; transition: all 0.15s; display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 700;
+  }
+  .settings-option-check.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .settings-option-check.active::after { content: '✓'; }
+  .settings-divider { height: 1px; background: var(--border); margin: 0 16px; }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -4118,6 +4211,42 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- ─────────────── SETTINGS ─────────────── -->
+  <div id="section-settings" class="section">
+    <div class="section-title" style="margin-top:0">⚙️ Settings</div>
+    <div class="settings-group">
+      <div class="settings-group-label">Appearance</div>
+      <div class="settings-card">
+        <button class="settings-option" onclick="selectTheme('system')">
+          <span class="settings-option-icon">🌗</span>
+          <div class="settings-option-body">
+            <div class="settings-option-label">System</div>
+            <div class="settings-option-sub">Follows your device setting</div>
+          </div>
+          <span class="settings-option-check" id="theme-check-system"></span>
+        </button>
+        <div class="settings-divider"></div>
+        <button class="settings-option" onclick="selectTheme('light')">
+          <span class="settings-option-icon">☀️</span>
+          <div class="settings-option-body">
+            <div class="settings-option-label">Light</div>
+            <div class="settings-option-sub">Always use light mode</div>
+          </div>
+          <span class="settings-option-check" id="theme-check-light"></span>
+        </button>
+        <div class="settings-divider"></div>
+        <button class="settings-option" onclick="selectTheme('dark')">
+          <span class="settings-option-icon">🌙</span>
+          <div class="settings-option-body">
+            <div class="settings-option-label">Dark</div>
+            <div class="settings-option-sub">Always use dark mode</div>
+          </div>
+          <span class="settings-option-check" id="theme-check-dark"></span>
+        </button>
+      </div>
+    </div>
   </div>
 
 
@@ -9171,6 +9300,9 @@ function closeAttachmentViewer() {
   <button class="more-sheet-item" onclick="goMoreSection('language')">
     <span class="more-sheet-icon">🗣️</span> Language
   </button>
+  <button class="more-sheet-item" onclick="goMoreSection('settings')">
+    <span class="more-sheet-icon">⚙️</span> Settings
+  </button>
 </div>
 
 <!-- Bottom tab bar -->
@@ -9642,6 +9774,40 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   obs.observe(gate, { attributes: true, attributeFilter: ['class'] });
 });
+
+// ── Theme system ──
+function applyTheme(theme) {
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isLight = theme === 'light' || (theme === 'system' && !prefersDark);
+  if (isLight) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+}
+
+function selectTheme(theme) {
+  localStorage.setItem('nomad-theme', theme);
+  applyTheme(theme);
+  ['system', 'light', 'dark'].forEach(t => {
+    const el = document.getElementById('theme-check-' + t);
+    if (el) el.classList.toggle('active', t === theme);
+  });
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('nomad-theme') || 'dark';
+  applyTheme(saved);
+  ['system', 'light', 'dark'].forEach(t => {
+    const el = document.getElementById('theme-check-' + t);
+    if (el) el.classList.toggle('active', t === saved);
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if ((localStorage.getItem('nomad-theme') || 'dark') === 'system') applyTheme('system');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initTheme);
 </script>
 </body>
 </html>
