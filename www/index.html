@@ -1544,6 +1544,20 @@
   .hotel-detail-row:last-child { border-bottom: none; }
   .hotel-detail-label { font-size: 13px; color: var(--text-muted); flex-shrink: 0; }
   .hotel-detail-value { font-size: 14px; font-weight: 500; text-align: right; }
+  .copy-addr-btn {
+    display: inline-flex; align-items: center;
+    margin-left: 8px; padding: 2px 8px;
+    font-size: 11px; font-weight: 700;
+    color: var(--accent); background: rgba(126,176,255,0.1);
+    border: 1px solid rgba(126,176,255,0.25); border-radius: 6px;
+    cursor: pointer; font-family: inherit; flex-shrink: 0;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+    vertical-align: middle; -webkit-tap-highlight-color: transparent;
+    letter-spacing: 0;
+  }
+  .copy-addr-btn.copied { color: #4ade80; background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3); }
+  [data-theme="light"] .copy-addr-btn { background: rgba(43,110,232,0.08); border-color: rgba(43,110,232,0.2); }
+  [data-theme="light"] .copy-addr-btn.copied { color: #16a34a; background: rgba(22,163,74,0.08); border-color: rgba(22,163,74,0.25); }
   .hotel-pin {
     font-family: monospace;
     font-size: 22px;
@@ -4507,6 +4521,30 @@
     resultBox.classList.add('has-value');
   }
 
+  function copyAddr(btn) {
+    const text = btn.getAttribute('data-copy');
+    function flash() {
+      btn.textContent = '✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '⎘'; btn.classList.remove('copied'); }, 1500);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(flash).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch(e) {}
+        document.body.removeChild(ta); flash();
+      });
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch(e) {}
+      document.body.removeChild(ta); flash();
+    }
+  }
+
   function copyPhrase(id) {
     const romanjiEl = document.getElementById('romanji-' + id);
     const jpEl = document.getElementById('jp-' + id);
@@ -5224,12 +5262,18 @@
       }
       return `<div class="hotel-detail-section">
         <div class="hotel-detail-section-title">${sec.title}</div>
-        ${(sec.rows||[]).map(row => `
+        ${(sec.rows||[]).map(row => {
+          const isCopyable = /address|location/i.test(row.label);
+          const plainText = isCopyable ? row.value.replace(/<[^>]+>/g, '').replace(/'/g, "\\'") : '';
+          const copyBtn = isCopyable
+            ? `<button class="copy-addr-btn" data-copy="${row.value.replace(/<[^>]+>/g, '').replace(/"/g, '&quot;')}" onclick="copyAddr(this)">⎘</button>`
+            : '';
+          return `
           <div class="hotel-detail-row">
             <span class="hotel-detail-label">${row.label}</span>
-            <span class="hotel-detail-value">${row.value}</span>
-          </div>
-        `).join('')}
+            <span class="hotel-detail-value">${row.value}${copyBtn}</span>
+          </div>`;
+        }).join('')}
       </div>`;
     }).join('');
   }
