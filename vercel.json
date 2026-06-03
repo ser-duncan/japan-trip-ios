@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/research.js": {
+      "runtime": "edge"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/research",
+      "dest": "/api/research.js"
+    }
+  ]
+}
