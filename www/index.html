@@ -4723,6 +4723,22 @@
     a27: 'okonomiyaki Osaka お好み焼き 大阪',
     a28: 'Universal Studios Japan Osaka ユニバーサル・スタジオ・ジャパン',
     a29: 'Pokemon Cafe Osaka Shinsaibashi ポケモンカフェ 大阪',
+    a30: 'Shinsaibashi Shopping Street Osaka 心斎橋筋商店街',
+    a31: 'Tombori River Cruise Dotonbori Osaka 道頓堀川クルーズ',
+    a32: 'Round1 Stadium Sennichimae Osaka ラウンドワン',
+    a33: 'Namba Parks Osaka ナンバパークス',
+    a34: 'Hep Five Umeda Osaka HEP FIVE',
+    a35: 'Orange Street Horie Osaka ほりえオレンジストリート',
+    a36: 'Amerikamura Osaka アメリカ村',
+    a37: 'Rinku Premium Outlets りんくうプレミアムアウトレット',
+    a38: 'ExpoCity Suita Osaka エキスポシティ',
+    a39: 'Senso-ji Temple Asakusa Tokyo 浅草寺',
+    a40: 'Akihabara Electric Town Tokyo 秋葉原',
+    a41: 'Shibuya Sky Tokyo 渋谷スカイ',
+    a42: 'Odaiba Tokyo お台場 DiverCity',
+    a43: 'Todai-ji Temple Nara 東大寺 奈良',
+    a44: 'Kiyomizudera Temple Kyoto 清水寺',
+    a45: 'Osaka Aquarium Kaiyukan 海遊館',
     komehyo:    'KOMEHYO 新京極 京都',
     brandoff:   'BRAND OFF Kyoto Shijo 京都四条',
     '2ndstreet':'2nd Street Shijo-Kawaramachi Kyoto',
@@ -5563,9 +5579,9 @@ const DEFAULT_DAYS = [
   ]},
   {id:'d2',city:'tokyo',date:'2026-05-27',dateLabel:'Wed · May 27',title:'Asakusa + Akihabara',events:[
     {id:'d2e0',type:'period',text:'☀️ Morning'},
-    {id:'d2e1',type:'event',time:'Morning',text:'⛩ Sensō-ji',note:'Nakamise shopping street',highlight:false,booked:false,done:false},
+    {id:'d2e1',type:'event',time:'Morning',text:'⛩ Sensō-ji',note:'Nakamise shopping street',highlight:false,booked:false,done:false,detailKey:'a39',detailType:'activity'},
     {id:'d2e2',type:'period',text:'🌤 Afternoon'},
-    {id:'d2e3',type:'event',time:'Afternoon',text:'🎮 Akihabara',note:'Anime stores, arcades, capsule toy hunting',highlight:false,booked:false,done:false},
+    {id:'d2e3',type:'event',time:'Afternoon',text:'🎮 Akihabara',note:'Anime stores, arcades, capsule toy hunting',highlight:false,booked:false,done:false,detailKey:'a40',detailType:'activity'},
     {id:'d2e4',type:'period',text:'🌙 Evening'},
     {id:'d2e5',type:'event',time:'Evening',text:'🍽 Relaxed dinner near hotel',note:null,highlight:false,booked:false,done:false},
   ]},
@@ -5573,17 +5589,17 @@ const DEFAULT_DAYS = [
     {id:'d3e0',type:'period',text:'☀️ Morning'},
     {id:'d3e1',type:'event',time:'Morning',text:'🎨 teamLab Planets TOKYO',note:'Ref: ABT743615 (Klook) · 5 persons · Toyosu',highlight:true,booked:true,done:false,detailKey:'a4',detailType:'activity'},
     {id:'d3e2',type:'period',text:'🌤 Afternoon'},
-    {id:'d3e3',type:'event',time:'Afternoon',text:'🏝 Odaiba OR free shopping time',note:null,highlight:false,booked:false,done:false},
+    {id:'d3e3',type:'event',time:'Afternoon',text:'🏝 Odaiba OR free shopping time',note:null,highlight:false,booked:false,done:false,detailKey:'a42',detailType:'activity'},
     {id:'d3e4',type:'period',text:'🌙 Evening'},
-    {id:'d3e5',type:'event',time:'7:40 PM',text:'✨ Shibuya Sky',note:'Ref: RBA473737 (Klook) · 19:40 · 7 adults',highlight:true,booked:true,done:false},
+    {id:'d3e5',type:'event',time:'7:40 PM',text:'✨ Shibuya Sky',note:'Ref: RBA473737 (Klook) · 19:40 · 7 adults',highlight:true,booked:true,done:false,detailKey:'a41',detailType:'activity'},
     {id:'d3e6',type:'callout',icon:'💡',text:"You'll know Shibuya well by now — energy is better by day 3, perfect timing for the rooftop views"},
   ]},
   {id:'d4',city:'hakone',date:'2026-05-29',dateLabel:'Fri · May 29',title:'Tokyo → Hakone',events:[
     {id:'d4e0',type:'period',text:'🌤 Travel'},
     {id:'d4e1',type:'event',time:'Morning',text:'🚃 Romancecar → Odawara',note:'Then taxi to ryokan',highlight:true,booked:true,done:false,detailKey:'romancecar',detailType:'train'},
     {id:'d4e2',type:'period',text:'🌙 Evening'},
-    {id:'d4e3',type:'event',time:'Evening',text:'🍱 Ryokan dinner',note:null,highlight:false,booked:false,done:false},
-    {id:'d4e4',type:'event',time:'Night',text:'♨ Private onsen',note:'Early night — fully relaxing',highlight:false,booked:false,done:false},
+    {id:'d4e3',type:'event',time:'Evening',text:'🍱 Ryokan dinner',note:null,highlight:false,booked:false,done:false,detailKey:'kaiseki',detailType:'food'},
+    {id:'d4e4',type:'event',time:'Night',text:'♨ Private onsen',note:'Early night — fully relaxing',highlight:false,booked:false,done:false,detailKey:'a12',detailType:'activity'},
   ]},
   {id:'d5',city:'kyoto',date:'2026-05-30',dateLabel:'Sat · May 30',title:'Hakone → Kyoto',events:[
     {id:'d5e0',type:'period',text:'☀️ Morning'},
@@ -5605,13 +5621,13 @@ const DEFAULT_DAYS = [
     {id:'d7e0',type:'callout',icon:'🦌',text:'Great <strong>"slower day"</strong> before the Osaka energy — highly recommended'},
     {id:'d7e1',type:'period',text:'☀️ Morning'},
     {id:'d7e2',type:'event',time:'Morning',text:'✨ Train from Kyoto → Nara (~45 min)',note:null,highlight:true,booked:false,done:false},
-    {id:'d7e3',type:'event',time:'Morning',text:'🦌 Bowing deer · Tōdai-ji · Giant Buddha',note:'Mochi pounding shops nearby',highlight:false,booked:false,done:false},
+    {id:'d7e3',type:'event',time:'Morning',text:'🦌 Bowing deer · Tōdai-ji · Giant Buddha',note:'Mochi pounding shops nearby',highlight:false,booked:false,done:false,detailKey:'a43',detailType:'activity'},
     {id:'d7e4',type:'period',text:'🌤 Afternoon'},
     {id:'d7e5',type:'event',time:'Afternoon',text:'Wander old Nara streets',note:'Return to Kyoto in the afternoon',highlight:false,booked:false,done:false},
   ]},
   {id:'d8',city:'kyoto',date:'2026-06-02',dateLabel:'Tue · Jun 2',title:'Kiyomizudera Day',events:[
     {id:'d8e0',type:'period',text:'☀️ Morning'},
-    {id:'d8e1',type:'event',time:'Morning',text:'⛩ Kiyomizudera — Lift Benkei\'s Spear',note:'Benkei left his ~96 kg iron naginata at the temple. Legend: lift it and you\'ll prosper. Jake is an absolute badass.',highlight:true,booked:false,done:false},
+    {id:'d8e1',type:'event',time:'Morning',text:'⛩ Kiyomizudera — Lift Benkei\'s Spear',note:'Benkei left his ~96 kg iron naginata at the temple. Legend: lift it and you\'ll prosper. Jake is an absolute badass.',highlight:true,booked:false,done:false,detailKey:'a44',detailType:'activity'},
     {id:'d8e3',type:'period',text:'🌙 Evening'},
     {id:'d8e4',type:'event',time:'Evening',text:'🍽 Relaxed Kyoto dinner',note:null,highlight:false,booked:false,done:false},
   ]},
@@ -5623,15 +5639,15 @@ const DEFAULT_DAYS = [
     {id:'d9e4',type:'event',time:'Afternoon',text:'Check into Airbnb, settle in',note:'2-7-12 四貫島, Konohana Ward — self check-in lockbox',highlight:false,booked:false,done:false,detailKey:'osaka',detailType:'hotel'},
     {id:'d9e5',type:'period',text:'🌙 Evening'},
     {id:'d9e6',type:'event',time:'Evening',text:'✨ Pokémon Cafe Osaka',note:'Grand Front Osaka North Bldg 7F, 4-20 Ofukacho, Kita Ward',highlight:true,booked:true,done:false,detailKey:'a29',detailType:'activity'},
-    {id:'d9e7',type:'event',time:'After café',text:'🎮 Browse Pokémon Center — same complex',note:'Escalators down from café. Grab any missed merch.',highlight:false,booked:false,done:false},
+    {id:'d9e7',type:'event',time:'After café',text:'🎮 Browse Pokémon Center — same complex',note:'Escalators down from café. Grab any missed merch.',highlight:false,booked:false,done:false,detailKey:'a7',detailType:'activity'},
     {id:'d9e8',type:'period',text:'🌃 Night'},
     {id:'d9e9',type:'event',time:'Night',text:'🛍 Shinsaibashi-suji covered arcade',note:'Subway: Umeda → Shinsaibashi (Midosuji line, 2 stops). Long covered arcade — fashion, cosmetics, snacks, Japan goods. Great for teens.',highlight:false,booked:false,done:false,detailKey:'a30',detailType:'activity'},
     {id:'d9e10',type:'event',time:'Night',text:'🌃 Dotonbori neon walk',note:'Glico Running Man · Kani Doraku giant crab · canal lights — full Osaka chaos',highlight:true,booked:false,done:false,detailKey:'a23',detailType:'activity'},
     {id:'d9e11',type:'event',time:'Optional',text:'⛵ Tombori River Cruise',note:'¥2,000/adult · 20 min · last departure 21:00 · board at Don Quijote Dotonbori (north bank). Best at night — neon on the water.',highlight:false,booked:false,done:false,detailKey:'a31',detailType:'activity'},
     {id:'d9e12',type:'event',time:'Optional',text:'🕹 Round1 Stadium Sennichimae',note:'Arcade, claw machines, bowling, sports — perfect for burning teen energy. Near Namba, open late.',highlight:false,booked:false,done:false,detailKey:'a32',detailType:'activity'},
     {id:'d9e13',type:'period',text:'🍽 Dinner'},
-    {id:'d9e14',type:'event',time:'Dinner',text:'🍜 Genji-soba — dedicated GF kitchen',note:'4-5-8 Namba (few blocks from Dotonbori). 100% GF soba hot or cold + GF tempura. Separate utensils. Celiac-safe.',highlight:false,booked:false,done:false},
-    {id:'d9e15',type:'event',time:'GF alt',text:'🐙 OKO — GF takoyaki + kushikatsu',note:'1-15-24 Higashishinsaibashi. 5-floor restaurant, GF vegetarian takoyaki and kushikatsu.',highlight:false,booked:false,done:false},
+    {id:'d9e14',type:'event',time:'Dinner',text:'🍜 Genji-soba — dedicated GF kitchen',note:'4-5-8 Namba (few blocks from Dotonbori). 100% GF soba hot or cold + GF tempura. Separate utensils. Celiac-safe.',highlight:false,booked:false,done:false,detailKey:'genji-soba',detailType:'food'},
+    {id:'d9e15',type:'event',time:'GF alt',text:'🐙 OKO — GF takoyaki + kushikatsu',note:'1-15-24 Higashishinsaibashi. 5-floor restaurant, GF vegetarian takoyaki and kushikatsu.',highlight:false,booked:false,done:false,detailKey:'oko',detailType:'food'},
   ]},
   {id:'d10',city:'osaka',date:'2026-06-04',dateLabel:'Thu · Jun 4',title:'Shopping Morning + Aquarium',events:[
     {id:'d10e0',type:'period',text:'☀️ Morning — Free'},
@@ -5639,7 +5655,7 @@ const DEFAULT_DAYS = [
     {id:'d10e2m',type:'event',time:'Alt morning',text:'🏙 Hep Five Umeda — ferris wheel + fashion',note:'Red ferris wheel (¥1,000 · 15 min · 106m views). 6 min walk from Osaka Station. Hours: 11–21.',highlight:false,booked:false,done:false,detailKey:'a34',detailType:'activity'},
     {id:'d10e3m',type:'event',time:'Alt morning',text:'🧥 Orange Street, Horie — vintage + streetwear',note:'Osaka\'s best streetwear strip. Supreme, Bape, vintage, indie brands. Yotsubashi Station (3 min walk).',highlight:false,booked:false,done:false,detailKey:'a35',detailType:'activity'},
     {id:'d10ep',type:'period',text:'🌤 Afternoon'},
-    {id:'d10e1',type:'event',time:'3:30 PM',text:'🐋 Osaka Aquarium Kaiyukan',note:"One of the world's largest aquariums",highlight:true,booked:true,done:false},
+    {id:'d10e1',type:'event',time:'3:30 PM',text:'🐋 Osaka Aquarium Kaiyukan',note:"One of the world's largest aquariums",highlight:true,booked:true,done:false,detailKey:'a45',detailType:'activity'},
   ]},
   {id:'d11',city:'osaka',date:'2026-06-05',dateLabel:'Fri · Jun 5',title:'Departure Day ✈️',events:[
     {id:'d11e0',type:'period',text:'☀️ Morning'},
@@ -5695,6 +5711,13 @@ const DEFAULT_ACTIVITIES = [
   {id:'a36',name:'Amerikamura',note:'Youth fashion, streetwear, hip-hop culture',type:'shopping',city:'osaka',assignedDay:null},
   {id:'a37',name:'Rinku Premium Outlets',note:'Coach, Nike, Gucci near KIX · 50 min from Namba',type:'shopping',city:'osaka',assignedDay:null},
   {id:'a38',name:'Expo City Suita',note:'NIFREL aqua-zoo · 123m Osaka Wheel · Pokémon Center',type:'optional',city:'osaka',assignedDay:null},
+  {id:'a39',name:'Sensō-ji Temple',note:'Asakusa · Tokyo\'s oldest temple · Nakamise shopping street',type:'must',city:'tokyo',assignedDay:null},
+  {id:'a40',name:'Akihabara Electric Town',note:'Anime, arcades, capsule toys, electronics',type:'must',city:'tokyo',assignedDay:null},
+  {id:'a41',name:'Shibuya Sky',note:'Rooftop observation deck 229m · Booked',type:'optional',city:'tokyo',assignedDay:null},
+  {id:'a42',name:'Odaiba',note:'Waterfront island · life-size Gundam · teamLab Borderless nearby',type:'optional',city:'tokyo',assignedDay:null},
+  {id:'a43',name:'Nara — Tōdai-ji & Deer Park',note:'Day trip from Kyoto · Giant Buddha · 500 free-roaming deer',type:'must',city:'kyoto',assignedDay:null},
+  {id:'a44',name:'Kiyomizudera Temple',note:'UNESCO Heritage · wooden stage · Benkei\'s iron spear',type:'must',city:'kyoto',assignedDay:null},
+  {id:'a45',name:'Osaka Aquarium Kaiyukan',note:'One of world\'s largest · whale shark · Booked',type:'optional',city:'osaka',assignedDay:null},
 ];
 
 // ── App state ──
@@ -8275,6 +8298,32 @@ const FOOD_DETAILS = {
       { label:'💴 Budget-friendly', value:'Best value GF meal in Kyoto.' },
     ]},
   ]},
+  'genji-soba': { name:'Genji-soba (源氏そば)', city:'osaka', badge:'🦀 Osaka · 100% GF Kitchen', price:'¥800–1,500', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:'Dedicated 100% gluten-free kitchen in Namba. Pure buckwheat soba (no wheat flour) served hot or cold. GF tempura also available with separate utensils and fryer. Celiac-safe.' },
+      { label:'Must order', value:'Cold seiro soba with tsuyu dipping broth · GF tempura set · Ask for kakesoba (hot) in cool weather.' },
+      { label:'Hours', value:'11:30 AM – 9:00 PM · Closed Tuesdays' },
+      { label:'Price', value:'¥800–1,500 per person' },
+    ]},
+    { title:'Location', rows:[
+      { label:'Address', value:'4-5-8 Namba, Naniwa Ward, Osaka' },
+      { label:'Getting there', value:'Namba Station — 5 min walk south toward Namba City' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=4-5-8+Namba+Naniwa+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+  'oko': { name:'OKO Restaurant', city:'osaka', badge:'🦀 Osaka · GF-Friendly', price:'¥800–2,000', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:'5-floor restaurant near Shinsaibashi with dedicated GF options. Specializes in GF vegetarian takoyaki (rice flour batter) and kushikatsu (separate fryer). Great for the whole group.' },
+      { label:'GF menu', value:'GF takoyaki · GF kushikatsu · GF okonomiyaki — all cooked in a dedicated gluten-free fryer. Mention GF when ordering.' },
+      { label:'Hours', value:'11:00 AM – 11:00 PM daily' },
+      { label:'Price', value:'¥800–2,000 per person' },
+    ]},
+    { title:'Location', rows:[
+      { label:'Address', value:'1-15-24 Higashishinsaibashi, Chuo Ward, Osaka' },
+      { label:'Getting there', value:'Shinsaibashi Station exit 7 — 3 min walk' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=1-15-24+Higashishinsaibashi+Chuo+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
 };
 
 const ACTIVITY_DETAILS = {
@@ -8953,6 +9002,127 @@ const ACTIVITY_DETAILS = {
       { label:'Address', value:'2-1 Senribanpakukoen, Suita-shi, Osaka 565-0826' },
       { label:'From Namba', value:'Osaka Metro Midosuji Line → Shin-Osaka or Senri-Chuo → transfer to Osaka Monorail → Bampaku-Kinen-Koen Station → 2-min walk. Total: ~60–75 min.' },
       { label:'Maps', value:'<a href="https://maps.google.com/?q=ExpoCity+Suita+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+  a39: { name:'Sensō-ji Temple (浅草寺)', badge:'🗼 Tokyo · Must-do', price:'Free entry', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:"Tokyo's oldest temple, founded 628 AD. The iconic Kaminarimon (Thunder Gate) with its giant red lantern is one of Japan's most photographed spots. Free to enter the grounds any time." },
+      { label:'Best time', value:'Early morning (before 8 AM) for peaceful atmosphere — crowds build by 10 AM. The 5-story pagoda is stunning at sunrise.' },
+      { label:'Nakamise-dōri', value:'200m shopping street leading to the main hall — traditional snacks (ningyo-yaki, senbei), souvenirs, and crafts. Great for gifts.' },
+    ]},
+    { title:'What to Do', rows:[
+      { label:'Omikuji', value:'Draw a fortune slip (¥100) at the main hall. If you get a bad fortune, tie it to the rack and leave it behind.' },
+      { label:'Incense smoke', value:'Wave smoke from the incense burner over yourself — tradition says it brings good health.' },
+      { label:'Nakamise shopping', value:'Budget ¥1,000–3,000 for snacks and small souvenirs along the shopping arcade.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Station', value:'Asakusa Station — Ginza line, Asakusa line, or Tobu Skytree line — 5 min walk' },
+      { label:'Address', value:'2-3-1 Asakusa, Taito City, Tokyo' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Senso-ji+Temple+Asakusa+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+  a40: { name:'Akihabara Electric Town (秋葉原)', badge:'🗼 Tokyo · Must-do', price:'Free to explore', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:"Tokyo's legendary otaku district — anime, manga, gaming, electronics, and gachapon machines on every corner. Multi-floor arcades, figure stores, rare merchandise, and maid cafés." },
+      { label:'Best spots', value:'SEGA Akihabara (5 floors of arcade games) · Yodobashi Akiba (8 floors of electronics) · Animate (anime merch) · Mandarake Complex (used manga + figures)' },
+      { label:'Gachapon', value:'Gachapon Kaikan has 400+ capsule toy machines on multiple floors. Budget ¥2,000–3,000 for a solid haul.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Best time', value:'Weekday afternoons are less crowded. Weekends get busy by noon.' },
+      { label:'💴 Budget', value:'Bring cash — many small shops are cash-only. ¥3,000–10,000 for figures and merch depending on tastes.' },
+      { label:'🍱 Food', value:'Plenty of fast food options. Don\'t miss the maid cafés if curious — cheesy fun.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Station', value:'Akihabara Station (JR Yamanote, Chuo-Sobu, Tokyo Metro Hibiya line) — Electric Town Exit, 1 min walk' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Akihabara+Electric+Town+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+  a41: { name:'Shibuya Sky (渋谷スカイ)', badge:'🗼 Tokyo · Booked ✓', price:'¥2,000/adult · ¥1,600 teen · ¥1,000 child', sections:[
+    { title:'Booking', rows:[
+      { label:'Reservation ref', value:'RBA473737 (Klook)' },
+      { label:'Date & time', value:'Thu May 28 · 7:40 PM entry' },
+      { label:'Group', value:'7 adults' },
+      { label:'Duration', value:'60–90 min recommended' },
+    ]},
+    { title:'Overview', rows:[
+      { label:'About', value:'Open-air rooftop observation deck on the 46th floor of Shibuya Scramble Square, 229m above ground. 360° views of the Tokyo skyline including Mount Fuji on clear days.' },
+      { label:'At night', value:'Evening gives the best views — city lights, Shibuya Crossing below, Tokyo Tower and Skytree glowing in the distance.' },
+      { label:'Weather tip', value:'The outdoor ROOF section closes in high winds — check conditions. The enclosed SKY GALLERY on the floor below stays open.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Station', value:'Shibuya Station — directly connected via Shibuya Scramble Square (east exit of station)' },
+      { label:'Address', value:'2-24-12 Shibuya, Shibuya City, Tokyo' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Shibuya+Sky+Tokyo+渋谷スカイ" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+  a42: { name:'Odaiba — Waterfront District', badge:'🗼 Tokyo · Optional', price:'Free (some attractions paid)', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:"Futuristic artificial island in Tokyo Bay with Rainbow Bridge views, life-size Gundam statue, shopping malls, and teamLab Borderless (world's largest digital art museum nearby)." },
+      { label:'Life-size Gundam', value:'18m RX-78-2 Gundam statue at DiverCity Tokyo Plaza — free to view from outside. One of the most iconic geek attractions in Japan.' },
+      { label:'teamLab Borderless', value:'Immersive digital art museum nearby (¥3,200/adult, book ahead) — different from teamLab Planets. Both are excellent, Borderless is more maze-like.' },
+    ]},
+    { title:'What\'s There', rows:[
+      { label:'DiverCity Tokyo', value:'Large mall with Gundam statue, anime shops, and food court.' },
+      { label:'Aqua City Odaiba', value:'Shopping with direct Rainbow Bridge views. Worth walking the outdoor deck.' },
+      { label:'Palette Town area', value:'Closing/changing — check current status.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Yurikamome monorail', value:'From Shimbashi Station — scenic elevated ride across Rainbow Bridge, ~25 min to Daiba Station' },
+      { label:'Rinkai line', value:'From Osaki or Shinjuku — Tokyo Teleport Station, 5 min walk to DiverCity' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=DiverCity+Tokyo+Odaiba" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+  a43: { name:'Nara — Tōdai-ji & Deer Park', badge:'🦌 Nara · Day Trip from Kyoto', price:'¥600/adult · ¥300 child (Tōdai-ji)', sections:[
+    { title:'Highlights', rows:[
+      { label:'Great Buddha (Daibutsu)', value:'15m bronze Buddha — the world\'s largest bronze statue. Inside Tōdai-ji\'s Daibutsuden (Great Buddha Hall), the world\'s largest wooden building. Utterly massive in person.' },
+      { label:'Bowing deer', value:'500+ wild sika deer roam freely through Nara Park. Buy shika senbei (deer crackers) for ¥200 — they literally bow to ask for food. Respectful but persistent.' },
+      { label:'Kasuga Taisha Shrine', value:'15 min walk from Tōdai-ji. 3,000 stone and bronze lanterns line the path — magical during Lantern Festivals.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🦌 Deer behavior', value:'They can grab bags, scarves, maps. Keep food out of sight when not feeding — they figure it out fast.' },
+      { label:'⏰ Timing', value:'Morning is best — deer are more active and temple is less crowded. The walk from Kintetsu Nara Station to Tōdai-ji takes ~20 min through the park.' },
+      { label:'🍡 Street food', value:'Naramachi old town has mochi pounding shops and kakigōri (shaved ice with matcha syrup) — great after the temple.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'From Kyoto', value:'Kintetsu Kyoto → Kintetsu Nara — 45 min express (¥760). Or JR Miyakoji Rapid via JR Pass (~70 min, ¥720).' },
+      { label:'From station', value:'Kintetsu Nara Station: 5 min walk to Nara Park. JR Nara Station: 20 min walk or city bus.' },
+      { label:'Address', value:'406-1 Zōshichō, Nara City, Nara (Tōdai-ji)' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Todaiji+Temple+Nara+東大寺" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+  a44: { name:'Kiyomizudera Temple (清水寺)', badge:'⛩ Kyoto · Must-do', price:'¥500/adult · ¥200 child', sections:[
+    { title:'Highlights', rows:[
+      { label:'The Wooden Stage', value:'Butai — an enormous wooden platform extending 13m over the forested hillside, built without a single nail. UNESCO World Heritage. The views of Kyoto below are spectacular.' },
+      { label:'Benkei\'s Spear', value:"Warrior monk Musashibō Benkei's iron naginata (~96 kg) is enshrined at the temple. Legend says if you can lift it, you'll prosper. Jake is an absolute badass." },
+      { label:'Otowa Waterfall', value:'Three streams flow below the temple — pilgrims drink from one (longevity, love, or academic success — pick one, tradition says choosing all is greedy). Long queue but worth it.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'⏰ Best time', value:'Go early (6–8 AM) to beat the crowds. The stone-paved lanes of Sannen-zaka and Ninen-zaka leading up are lined with beautiful ceramic and craft shops.' },
+      { label:'🥾 Footwear', value:'The walk up from the bus stop is steep stone lanes — comfortable shoes essential.' },
+      { label:'📸 Best photo spot', value:'Pagoda view from the western terrace of the main hall, looking back at the wooden stage against the forested hillside.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Bus', value:'Bus 100 or 206 from Kyoto Station to Kiyomizumichi stop (10 min) — then 15 min walk uphill through Sannen-zaka shopping lanes' },
+      { label:'Hours', value:'6:00 AM – 6:00 PM · Extended evening illuminations in spring and fall' },
+      { label:'Address', value:'1-294 Kiyomizu, Higashiyama Ward, Kyoto' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Kiyomizudera+Temple+Kyoto+清水寺" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+  a45: { name:'Osaka Aquarium Kaiyukan (海遊館)', badge:'🦀 Osaka · Booked ✓', price:'¥2,400 adults · ¥1,200 ages 7–15 · ¥600 ages 4–6', sections:[
+    { title:'Overview', rows:[
+      { label:'About', value:"One of the world's largest aquariums — 15 zones representing Pacific Rim ecosystems from the Japan Forest to the Antarctic. The main Pacific Ocean tank holds 5,400 tons of water and is stunning." },
+      { label:'Whale shark', value:'The centerpiece — the largest fish in the world, gliding through the massive central tank alongside manta rays, schools of fish, and a huge variety of Pacific life.' },
+      { label:'Duration', value:'Plan 2–3 hours. Gets very crowded mid-afternoon — arrive at opening or after 4 PM.' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'📍 Walk-around', value:'The aquarium spirals down 8 floors — follow the ramp all the way for the full experience. Don\'t skip the deep-sea zone at the bottom.' },
+      { label:'🦈 Best views', value:'Whale shark tank has multiple levels — the bottom viewing floor (floor 3) is the most impressive angle.' },
+      { label:'🎡 Nearby', value:'Tempozan Ferris Wheel is steps away (¥1,000 for great harbor views). Tempozan Marketplace has good food options for before/after.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Station', value:'Osakako Station (Chuo Line) — 5 min walk west along the harbor' },
+      { label:'Address', value:'1-1-10 Kaigandori, Minato Ward, Osaka' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Osaka+Aquarium+Kaiyukan+海遊館" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
     ]},
   ]},
 };
