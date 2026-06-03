@@ -3322,7 +3322,7 @@
       <div class="card-header">
         <div>
           <div class="card-title">KOALA BLDG. SHINJUKU</div>
-          <div class="card-sub">2-chōme-11-12 Yoyogi 3F, Shibuya, Tokyo 151-0053</div>
+          <div class="card-sub">2-chōme-11-12 Yoyogi 3F, Shibuya, Tokyo 151-0053 <button class="copy-addr-btn" data-copy="2-chōme-11-12 Yoyogi 3F, Shibuya, Tokyo 151-0053" onclick="event.stopPropagation();copyAddr(this)">⎘</button></div>
         </div>
         <span class="badge badge-tokyo">🗼 Tokyo</span>
       </div>
@@ -3339,7 +3339,7 @@
       <div class="card-header">
         <div>
           <div class="card-title">箱根芦ノ湖ゴルフ Villa</div>
-          <div class="card-sub">249-3 Hakone, Ashigarashimo District, Kanagawa 250-0521</div>
+          <div class="card-sub">249-3 Hakone, Ashigarashimo District, Kanagawa 250-0521 <button class="copy-addr-btn" data-copy="249-3 Hakone, Ashigarashimo District, Kanagawa 250-0521" onclick="event.stopPropagation();copyAddr(this)">⎘</button></div>
         </div>
         <span class="badge badge-hakone">🏔 Hakone</span>
       </div>
@@ -3358,7 +3358,7 @@
       <div class="card-header">
         <div>
           <div class="card-title">515 Yamadachō</div>
-          <div class="card-sub">515 Yamadachō, Nakagyo Ward, Kyoto 604-8237</div>
+          <div class="card-sub">515 Yamadachō, Nakagyo Ward, Kyoto 604-8237 <button class="copy-addr-btn" data-copy="515 Yamadachō, Nakagyo Ward, Kyoto 604-8237" onclick="event.stopPropagation();copyAddr(this)">⎘</button></div>
         </div>
         <span class="badge badge-kyoto">⛩ Kyoto</span>
       </div>
@@ -3375,7 +3375,7 @@
       <div class="card-header">
         <div>
           <div class="card-title">Lien de premier リアンドプルミエ</div>
-          <div class="card-sub">2-7-12 四貫島, Osaka 554-0014</div>
+          <div class="card-sub">2-7-12 四貫島, Osaka 554-0014 <button class="copy-addr-btn" data-copy="2-7-12 四貫島, Osaka 554-0014" onclick="event.stopPropagation();copyAddr(this)">⎘</button></div>
         </div>
         <span class="badge badge-osaka">🦀 Osaka</span>
       </div>
@@ -5400,7 +5400,9 @@
     const hotel = HOTEL_DETAILS[id];
     if (!hotel) return;
     document.getElementById('hotel-modal-name').textContent = hotel.name;
-    document.getElementById('hotel-modal-sub').textContent = hotel.sub;
+    document.getElementById('hotel-modal-sub').innerHTML = hotel.sub
+      ? hotel.sub + ' <button class="copy-addr-btn" data-copy="' + hotel.sub.replace(/"/g, '&quot;') + '" onclick="copyAddr(this)">⎘</button>'
+      : '';
     document.getElementById('hotel-modal-badge').innerHTML = hotel.badge;
     const noteEl = document.getElementById('hotel-modal-note');
     if (hotel.note) { noteEl.textContent = hotel.note; noteEl.style.display = 'block'; }
@@ -6926,7 +6928,7 @@ function _buildStayPanel(hotelKey) {
     + '<span class="ddp-card-icon">' + (icons[hotelKey] || '🏨') + '</span>'
     + '<div class="ddp-card-title-wrap">'
     + '<div class="ddp-card-title">' + h.name + '</div>'
-    + '<div class="ddp-card-sub">' + h.sub + '</div>'
+    + '<div class="ddp-card-sub">' + h.sub + ' <button class="copy-addr-btn" data-copy="' + h.sub.replace(/"/g, '&quot;') + '" onclick="copyAddr(this)">⎘</button></div>'
     + '</div>'
     + '</div>'
     + '<div class="ddp-card-rows">'
