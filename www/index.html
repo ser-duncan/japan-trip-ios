@@ -3442,20 +3442,20 @@
 
     <div class="train-card hotel-card" onclick="openTrainDetail('kyoto-osaka')">
       <div class="train-header">
-        <span class="train-icon">🚃</span>
+        <span class="train-icon">🚆</span>
         <div>
-          <div class="train-name">Regional (JR Kyoto Line)</div>
-          <div class="train-route">Kyoto → Osaka</div>
+          <div class="train-name">Hankyu PRiVACE</div>
+          <div class="train-route">Karasuma → Osaka-Umeda</div>
         </div>
-        <span class="badge badge-info">IC card — no booking</span>
+        <span class="badge badge-success">✓ Booked</span>
       </div>
       <div class="train-body">
         <div class="train-cell"><div class="info-label">Date</div><div class="info-value">June 3</div></div>
-        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">Midday</div></div>
-        <div class="train-cell"><div class="info-label">Duration</div><div class="info-value">~75 min</div></div>
-        <div class="train-cell"><div class="info-label">Ticket</div><div class="info-value">Tap IC card</div></div>
+        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">11:32 AM</div></div>
+        <div class="train-cell"><div class="info-label">Car · Seats</div><div class="info-value">Car 4 · 11B 11C 12A 12B 12C</div></div>
+        <div class="train-cell"><div class="info-label">Ref</div><div class="info-value">260603-77719-6JE</div></div>
       </div>
-      <div class="hotel-card-footer">Route info ›</div>
+      <div class="hotel-card-footer">Seat details ›</div>
     </div>
 
     <div class="train-card hotel-card" onclick="openTrainDetail('haruka')">
@@ -5122,61 +5122,74 @@
       ]
     },
     'kyoto-osaka': {
-      name: 'JR Kyoto Line',
-      sub: 'Kyoto → Osaka · June 3',
-      badge: '<span class="badge badge-info">No booking needed</span>',
-      note: 'No reservation required — just tap your IC card (Suica/PASMO) at the gate.',
+      name: 'Hankyu PRiVACE',
+      sub: 'Karasuma → Osaka-Umeda · June 3',
+      badge: '<span class="badge badge-success">✓ Booked · 260603-77719-6JE</span>',
+      note: 'Premium reserved seats · Hankyu Kyoto Line Limited Express · 5 seats · ¥2,500 total. Board with IC card (base fare ~¥410) + show purchase number on phone.',
       sections: [
         {
           title: 'Journey',
           rows: [
             { label: 'Date', value: 'Wednesday, June 3' },
-            { label: 'Departs', value: 'Midday (flexible)' },
-            { label: 'Duration', value: '~75 min (Rapid / Special Rapid)' },
-            { label: 'Route', value: 'Kyoto → Shin-Osaka or Osaka' },
+            { label: 'Train', value: 'No. 11017 — 特急 Limited Express' },
+            { label: 'Departs', value: '11:32 AM — Karasuma (烏丸)' },
+            { label: 'Arrives', value: '~12:17 PM — Osaka-Umeda (~45 min)' },
+            { label: 'PRiVACE Car', value: 'Car 4 from Osaka direction (middle of 8-car train)' },
           ]
         },
         {
-          title: 'Tips',
+          title: 'Seats & Booking',
           rows: [
-            { label: 'Train type', value: 'Special Rapid is fastest (shinkyu)' },
-            { label: 'Ticket', value: 'IC card tap-in / tap-out' },
-            { label: 'Fare', value: '~¥560 per person' },
+            { label: 'Seats', value: '11B · 11C · 12A · 12B · 12C' },
+            { label: 'Configuration', value: 'Row 11 (11B+11C pair) + Row 12 (12A·12B·12C full row) — all together' },
+            { label: 'Booking ref 1', value: '260603-77719-6JE — seats 11C, 12A, 12B, 12C (¥2,000)' },
+            { label: 'Booking ref 2', value: '260603-77722-5S2 — seat 11B (¥500)' },
+            { label: 'Total', value: '¥2,500 (5 × ¥500 PRiVACE surcharge) + IC card base fare each' },
+          ]
+        },
+        {
+          title: 'PRiVACE Amenities',
+          rows: [
+            { label: 'Seating', value: '2+1 layout — wide premium reclining seats' },
+            { label: 'Power', value: 'Outlet at every seat' },
+            { label: 'Table', value: 'Retractable tray table (laptop-friendly)' },
+            { label: 'Extras', value: 'Drink holder · baggage hook · reading lamp · free Wi-Fi' },
+            { label: 'Ticket', value: 'IC card at gate (base fare) + show purchase number on phone for seat check' },
           ]
         },
         {
           type: 'directions',
-          title: '515 Yamadachō → Kyoto Station',
-          intro: 'Check-out is 11:00 AM. Special Rapid trains to Osaka run every ~15 min — no rush once you\'re at the station.',
+          title: '515 Yamadachō → Hankyu Karasuma Station',
+          intro: 'Check-out is 11:00 AM. Hankyu Karasuma (烏丸) is about a 10–12 min walk south from the Airbnb — flat Kyoto streets, manageable with luggage.',
           steps: [
-            { heading: 'Getting to Kyoto Station' },
-            { text: '<strong>Taxi recommended with luggage</strong>: ~10–12 min, ~¥1,200–1,600. Tell driver: "京都駅 / Kyoto eki".' },
-            { text: 'Or walk ~12–15 min to <strong>Karasuma-Oike Station (烏丸御池)</strong>, take Karasuma Subway Line (烏丸線) south 2 stops to Kyoto Station. Use IC card.' },
-            { heading: 'At Kyoto Station — JR platforms' },
-            { text: 'Follow signs for <strong>JR 在来線 / JR Lines</strong> (not Shinkansen).' },
-            { text: 'Look for <strong>新快速 Special Rapid toward 大阪 / Osaka</strong>. Tap IC card — no reservation needed.' },
-            { text: 'Trains run every 10–15 min. Platform varies — check the boards.' },
-            { heading: 'The ride' },
-            { text: 'JR Special Rapid (新快速) to <strong>JR Osaka Station</strong> takes ~75 min.' },
-            { text: 'Do not take the Shinkansen for this leg — unnecessary and expensive.' },
+            { heading: 'Walk to Hankyu Karasuma (~10–12 min)' },
+            { text: 'Head <strong>south on Karasuma-dori (烏丸通)</strong> — the main north-south boulevard running past the Airbnb.' },
+            { text: 'The station entrance is at the <strong>Shijō-Karasuma intersection (四条烏丸)</strong>. Look for <strong>阪急 (Hankyu)</strong> signage — not the Karasuma subway (地下鉄) entrance nearby.' },
+            { heading: 'At the station' },
+            { text: 'Tap your <strong>IC card</strong> at the gate — this pays the base fare (~¥410 per person).' },
+            { text: 'Head to the platform. Look for <strong>特急 (Tokkyū / Limited Express) toward 大阪梅田 Osaka-Umeda</strong>. Train 11017 departs 11:32 AM.' },
+            { text: 'Board <strong>Car 4</strong> — 4th car counting from the Osaka end. Look for the PRiVACE logo on the car door.' },
+            { heading: 'On board' },
+            { text: 'Take your reserved seats. A conductor will check — have the <strong>purchase number visible on your phone</strong> (from the confirmation email).' },
+            { text: 'Ref 1: <strong>260603-77719-6JE</strong> (seats 11C, 12A, 12B, 12C) &nbsp;·&nbsp; Ref 2: <strong>260603-77722-5S2</strong> (seat 11B).' },
           ],
-          tip: 'Confirm you\'re boarding 新快速 (Special Rapid) toward 大阪 or 神戸. Anything saying Osaka/Kobe works.'
+          tip: 'Seats 11B+11C are the paired double on one side of row 11. Seats 12A·12B·12C fill the entire row 12. You\'re in a 2-row cluster — everyone within arm\'s reach.'
         },
         {
           type: 'directions',
-          title: 'JR Osaka Station → Lien de premier (四貫島)',
-          intro: 'Check-in is 4:00 PM. Host Taiga sends the lockbox PIN a couple days before.',
+          title: 'Hankyu Osaka-Umeda → Lien de premier (四貫島)',
+          intro: 'Check-in is 4:00 PM. Hankyu Osaka-Umeda station is adjacent to JR Osaka Station — same area, same taxi ranks.',
           steps: [
-            { heading: 'From Osaka Station' },
-            { text: '<strong>Taxi recommended with luggage</strong>: from the south exit taxi rank, ~15–20 min, ~¥2,000–2,500.' },
-            { text: 'Tell the driver: <strong>"四貫島2-7-12, 此花区"</strong> — or show them the Maps link in the Hotels section.' },
-            { heading: 'By train (if no heavy luggage)' },
-            { text: 'Take JR Osaka Loop Line (環状線) outer loop / 外回り — 2 stops to <strong>Nishi-Kujo (西九条)</strong>, ~7 min.' },
-            { text: 'From Nishi-Kujo: ~15 min walk north/west to 四貫島. Use Maps — it\'s a quiet residential area, easy to navigate.' },
+            { heading: 'By taxi (recommended with luggage)' },
+            { text: 'Exit the Hankyu terminal toward the south (Midōsuji / 御堂筋 exit). Join the taxi rank — ~20–25 min to 四貫島, ~¥2,000–2,800.' },
+            { text: 'Tell the driver: <strong>"四貫島2-7-12, 此花区"</strong> — or show the Maps link in the Hotels section.' },
+            { heading: 'By train (no heavy luggage)' },
+            { text: 'Walk 3 min to <strong>JR Osaka Station</strong>. Take JR Osaka Loop Line (環状線) outer loop / 外回り — 2 stops to <strong>Nishi-Kujo (西九条)</strong>, ~7 min.' },
+            { text: 'From Nishi-Kujo: ~15 min walk northwest to 四貫島. Use Maps — quiet residential area.' },
             { heading: 'At the property' },
             { text: 'Entry via lockbox. Use the PIN Taiga sends beforehand.' },
           ],
-          tip: 'Simple: taxi from Osaka Station directly to 四貫島 2-7-12. No transfers.'
+          tip: 'With 5 people + luggage: one large taxi or two regular cabs from the Umeda rank. Easiest move after the train.'
         }
       ]
     },
