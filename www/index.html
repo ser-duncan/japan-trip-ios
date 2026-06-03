@@ -234,6 +234,13 @@
   /* Trip progress bar background */
   [data-theme="light"] .trip-progress-wrap { background: rgba(0,0,0,0.03); }
 
+  /* Drag handle + ev-info-sheet light mode */
+  [data-theme="light"] .event-drag-handle { color: rgba(0,0,0,0.2); }
+  [data-theme="light"] .period-label.drop-target { background: rgba(43,110,232,0.1); }
+  [data-theme="light"] .ev-info-sheet { background: rgba(248,248,252,0.96); border-top-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .ev-info-handle { background: rgba(0,0,0,0.12); }
+  [data-theme="light"] .ev-info-action-btn { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.09); }
+
   /* Settings section ── */
   .settings-group { margin-bottom: 28px; }
   .settings-group-label {
@@ -538,6 +545,42 @@
   }
   .event-text { font-size: 14px; }
   .event-note { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  /* Drag handle */
+  .event-drag-handle {
+    color: rgba(255,255,255,0.2); font-size: 14px; letter-spacing: -1px;
+    cursor: grab; flex-shrink: 0; align-self: stretch;
+    display: flex; align-items: center; padding: 0 8px 0 0;
+    -webkit-tap-highlight-color: transparent; user-select: none; touch-action: none;
+  }
+  .drag-ghost { position: fixed; z-index: 9999; pointer-events: none; border-radius: 8px; box-shadow: 0 12px 40px rgba(0,0,0,0.55); transform: scale(1.03); }
+  .event.drag-source { opacity: 0.22; }
+  .period-label.drop-target { background: rgba(126,176,255,0.14); border-radius: 8px; outline: 1.5px dashed var(--accent); padding: 6px 14px; margin: 0 -2px; }
+
+  /* Event info sheet */
+  .ev-info-overlay { position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: opacity 0.22s; }
+  .ev-info-overlay.open { opacity: 1; pointer-events: auto; }
+  .ev-info-sheet {
+    position: fixed; z-index: 401; bottom: 0; left: 0; right: 0;
+    background: rgba(22,22,30,0.9); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-top: 1px solid rgba(255,255,255,0.1); border-radius: 22px 22px 0 0;
+    padding-bottom: max(28px, env(safe-area-inset-bottom, 28px));
+    transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.34,1.4,0.64,1);
+  }
+  .ev-info-sheet.open { transform: translateY(0); }
+  .ev-info-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 12px auto 20px; }
+  .ev-info-body { padding: 0 20px 12px; }
+  .ev-info-time-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin-bottom: 8px; }
+  .ev-info-title { font-size: 18px; font-weight: 700; line-height: 1.3; margin-bottom: 10px; }
+  .ev-info-note { font-size: 14px; color: var(--text-muted); line-height: 1.55; margin-bottom: 8px; }
+  .ev-info-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .ev-info-action-btn {
+    width: 100%; padding: 13px 16px; border-radius: 14px;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text); font-family: inherit; font-size: 15px; font-weight: 500;
+    cursor: pointer; text-align: left; -webkit-tap-highlight-color: transparent;
+  }
+  .ev-info-action-btn:active { background: rgba(255,255,255,0.13); }
 
   .event-highlight {
     border-color: rgba(126,176,255,0.3);
@@ -6094,13 +6137,16 @@ function buildEventHTML(ev, dayId) {
     (typeof FOOD_DETAILS !== 'undefined' && FOOD_DETAILS[ev.detailKey]) ||
     (typeof SHOPPING_DETAILS !== 'undefined' && SHOPPING_DETAILS[ev.detailKey])
   ));
-  var evStyle = hasDetail ? ' style="cursor:pointer"' : '';
-  var evClick = hasDetail ? ' onclick="openDetailFromEvent(\'' + ev.detailKey + '\',\'' + (ev.detailType||'activity') + '\')"' : '';
+  var evClick = hasDetail
+    ? ' onclick="openDetailFromEvent(\'' + ev.detailKey + '\',\'' + (ev.detailType||'activity') + '\')"'
+    : ' onclick="openEvInfo(\'' + dayId + '\',\'' + ev.id + '\')"';
   var detailArrow = hasDetail ? '<span class="event-detail-arrow">›</span>' : '';
-  return '<div class="event' + hc + dc + '"' + evStyle + evClick + ' data-event-id="' + ev.id + '">'
+  var dragHandle = '<span class="event-drag-handle" data-drag-day="' + dayId + '" data-drag-event="' + ev.id + '" ontouchstart="startEventDrag(event,this)" onclick="event.stopPropagation()">⠿</span>';
+  return '<div class="event' + hc + dc + '" style="cursor:pointer"' + evClick + ' data-event-id="' + ev.id + '">'
     + '<input type="checkbox" class="event-done-cb"' + chk + ' onclick="toggleEventDone(\'' + dayId + '\',\'' + ev.id + '\');event.stopPropagation()">'
     + '<span class="event-time">' + (ev.time||'') + '</span>'
     + '<div style="flex:1;min-width:0"><div class="event-text">' + ev.text + booked + detailArrow + '</div>' + note + '</div>'
+    + dragHandle
     + '<button class="event-edit-btn" onclick="openEventModal(\'' + dayId + '\',\'' + ev.id + '\');event.stopPropagation()">⋯</button>'
     + '</div>';
 }
@@ -6331,6 +6377,111 @@ function moveEventToDay(targetDayId) {
   }
   appState._movingEvent = null;
   closeSheet('day-picker');
+}
+
+// ── Event info sheet (tap any event to see full details) ──
+function openEvInfo(dayId, eventId) {
+  const day = appState.days.find(d => d.id === dayId);
+  if (!day) return;
+  const ev = day.events.find(e => e.id === eventId);
+  if (!ev || ev.type !== 'event') return;
+  const booked = ev.booked ? ' <span class="badge badge-success" style="font-size:12px;padding:3px 9px;margin-left:8px;">✓ Booked</span>' : '';
+  const note = ev.note ? '<div class="ev-info-note">' + ev.note + '</div>' : '';
+  const hotelKey = typeof DAY_HOTEL_MAP !== 'undefined' && DAY_HOTEL_MAP[dayId];
+  const transitList = typeof DAY_TRANSIT_MAP !== 'undefined' ? (DAY_TRANSIT_MAP[dayId] || []) : [];
+  let actions = '';
+  if (hotelKey) actions += '<button class="ev-info-action-btn" onclick="switchDayDetailTab(\'lodging\');closeEvInfo()">🏨 View stay details →</button>';
+  if (transitList.length) actions += '<button class="ev-info-action-btn" onclick="switchDayDetailTab(\'transit\');closeEvInfo()">🚄 View transit & tickets →</button>';
+  const sheet = document.getElementById('ev-info-sheet');
+  if (!sheet) return;
+  sheet.innerHTML = '<div class="ev-info-handle"></div>'
+    + '<div class="ev-info-body">'
+    + (ev.time ? '<div class="ev-info-time-label">' + ev.time + '</div>' : '')
+    + '<div class="ev-info-title">' + ev.text + booked + '</div>'
+    + note
+    + (actions ? '<div class="ev-info-actions">' + actions + '</div>' : '')
+    + '</div>';
+  document.getElementById('ev-info-overlay').classList.add('open');
+  sheet.classList.add('open');
+}
+
+function closeEvInfo() {
+  document.getElementById('ev-info-overlay')?.classList.remove('open');
+  document.getElementById('ev-info-sheet')?.classList.remove('open');
+}
+
+// ── Drag-and-drop event reordering between period sections ──
+let _drag = null;
+
+function startEventDrag(touchEvt, handleEl) {
+  if (touchEvt.touches.length !== 1) return;
+  touchEvt.preventDefault(); touchEvt.stopPropagation();
+  const row = handleEl.closest('.event[data-event-id]');
+  if (!row) return;
+  const dayId = handleEl.dataset.dragDay;
+  const eventId = handleEl.dataset.dragEvent;
+  const rect = row.getBoundingClientRect();
+  const touch = touchEvt.touches[0];
+  const ghost = row.cloneNode(true);
+  ghost.classList.add('drag-ghost');
+  ghost.style.width = rect.width + 'px';
+  ghost.style.left = rect.left + 'px';
+  ghost.style.top = rect.top + 'px';
+  document.body.appendChild(ghost);
+  row.classList.add('drag-source');
+  if (navigator.vibrate) navigator.vibrate(8);
+  _drag = { row, ghost, dayId, eventId, offsetY: touch.clientY - rect.top, targetPeriod: null };
+  document.addEventListener('touchmove', _dragMove, { passive: false });
+  document.addEventListener('touchend', _dragEnd, { once: true });
+}
+
+function _dragMove(e) {
+  if (!_drag) return;
+  e.preventDefault();
+  const touch = e.touches[0];
+  _drag.ghost.style.top = (touch.clientY - _drag.offsetY) + 'px';
+  const panel = document.querySelector('.day-detail-panel[data-panel="events"]');
+  if (!panel) return;
+  const periods = [...panel.querySelectorAll('.period-label')];
+  let nearest = null, nearestDist = Infinity;
+  periods.forEach(p => {
+    const r = p.getBoundingClientRect();
+    const d = Math.abs(touch.clientY - (r.top + r.height / 2));
+    if (d < nearestDist && d < 120) { nearestDist = d; nearest = p; }
+  });
+  periods.forEach(p => p.classList.toggle('drop-target', p === nearest));
+  _drag.targetPeriod = nearest ? nearest.textContent.trim() : null;
+}
+
+function _dragEnd() {
+  if (!_drag) return;
+  document.removeEventListener('touchmove', _dragMove);
+  _drag.ghost.remove();
+  _drag.row.classList.remove('drag-source');
+  document.querySelectorAll('.period-label.drop-target').forEach(p => p.classList.remove('drop-target'));
+  if (_drag.targetPeriod) _moveEvToPeriod(_drag.dayId, _drag.eventId, _drag.targetPeriod);
+  _drag = null;
+}
+
+function _moveEvToPeriod(dayId, eventId, periodText) {
+  const day = appState.days.find(d => d.id === dayId);
+  if (!day) return;
+  const evIdx = day.events.findIndex(e => e.id === eventId);
+  if (evIdx === -1) return;
+  let curPeriodIdx = -1;
+  for (let i = evIdx - 1; i >= 0; i--) {
+    if (day.events[i].type === 'period') { curPeriodIdx = i; break; }
+  }
+  const tgtPeriodIdx = day.events.findIndex(e => e.type === 'period' && e.text.trim() === periodText);
+  if (tgtPeriodIdx === -1 || tgtPeriodIdx === curPeriodIdx) return;
+  const [ev] = day.events.splice(evIdx, 1);
+  const newTgtIdx = day.events.findIndex(e => e.type === 'period' && e.text.trim() === periodText);
+  if (newTgtIdx === -1) { day.events.splice(evIdx, 0, ev); return; }
+  let insertAt = newTgtIdx + 1;
+  while (insertAt < day.events.length && day.events[insertAt].type !== 'period') insertAt++;
+  day.events.splice(insertAt, 0, ev);
+  saveAppState();
+  openDayDetail(dayId);
 }
 
 // ── Activity modal ──
@@ -9671,6 +9822,8 @@ function closeAttachmentViewer() {
 <!-- Day detail bottom sheet -->
 <div class="day-detail-overlay" id="day-detail-overlay" onclick="closeDayDetail()"></div>
 <div class="day-detail-sheet" id="day-detail-sheet"><!-- content injected by openDayDetail() --></div>
+<div class="ev-info-overlay" id="ev-info-overlay" onclick="closeEvInfo()"></div>
+<div class="ev-info-sheet" id="ev-info-sheet"></div>
 
 <!-- City filter modal -->
 <div class="filter-modal-overlay" id="filter-modal-overlay" onclick="closeFilterModal()"></div>
