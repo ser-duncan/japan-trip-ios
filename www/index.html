@@ -178,6 +178,27 @@
     border-color: rgba(0,0,0,0.1);
     box-shadow: 0 2px 12px rgba(0,0,0,0.14);
   }
+  /* Floating AI FAB — always visible, context-aware */
+  .ai-fab {
+    position: fixed; right: 20px;
+    bottom: calc(160px + env(safe-area-inset-bottom, 0px));
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(30,30,40,0.88);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid rgba(126,176,255,0.3);
+    box-shadow: 0 4px 20px rgba(126,176,255,0.25), 0 2px 8px rgba(0,0,0,0.4);
+    color: var(--accent); font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 92; -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .ai-fab:active { transform: scale(0.9); box-shadow: 0 2px 8px rgba(126,176,255,0.15); }
+  [data-theme="light"] .ai-fab {
+    background: rgba(255,255,255,0.92); border-color: rgba(43,110,232,0.2);
+    box-shadow: 0 4px 16px rgba(43,110,232,0.14), 0 2px 8px rgba(0,0,0,0.08);
+    color: #2B6EE8;
+  }
 
   /* Subnav segmented buttons — white-alpha text invisible on light */
   [data-theme="light"] .eatdo-subnav-btn,
@@ -685,6 +706,15 @@
   .ai-loading-title::after { content: '.'; animation: ai-dots 1.5s steps(4,end) infinite; }
   .ai-loading-query { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
   .ai-loading-sub { font-size: 12px; color: var(--text-muted); }
+
+  /* Multi-result list */
+  .ai-result-list-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .ai-result-list-item {
+    display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  [data-theme="light"] .ai-result-list-item { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.09); }
 
   /* Auto-save toggle */
   .ai-autosave-label {
@@ -3757,24 +3787,10 @@
     </div>
     <div id="food-guide-section">
       <div class="section-title" style="margin-top:0">🍜 Food Guide</div>
-      <button class="ai-ask-btn" onclick="openAiResearch('new', null)">
-        <span style="font-size:20px">✨</span>
-        <div class="ai-ask-btn-text">
-          <span>Research with AI</span>
-          <span class="ai-ask-btn-sub">Find restaurants, ramen spots, cafes…</span>
-        </div>
-      </button>
       <div id="food-guide-container"><!-- rendered by JS --></div>
     </div>
     <div id="activities-section">
       <div class="section-title" style="margin-top:28px">🎯 Activities</div>
-      <button class="ai-ask-btn" onclick="openAiResearch('new', null)">
-        <span style="font-size:20px">✨</span>
-        <div class="ai-ask-btn-text">
-          <span>Research with AI</span>
-          <span class="ai-ask-btn-sub">Find activities, attractions, hidden gems…</span>
-        </div>
-      </button>
       <div id="activities-container"><!-- rendered by JS --></div>
     </div>
     <div style="display:none"><!-- static backup -->
@@ -6001,6 +6017,8 @@ const appState = {
   editingMode: false,
   _movingEvent: null,
   _assigningActivity: null,
+  _section: 'itinerary',
+  _eatdoView: 'all',
 };
 let _sb = null;
 let _syncTimer = null;
@@ -6217,6 +6235,7 @@ function setSyncDot(s) {
 
 // ── Section switching (override) ──
 function showSection(id, btn) {
+  appState._section = id;
   document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
   document.querySelectorAll('.tab-bar-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('section-' + id).classList.add('visible');
@@ -6704,6 +6723,27 @@ function closeEvInfo() {
 const AI_RESEARCH_URL = 'https://ubtzeulovzfguazmdchp.supabase.co/functions/v1/research';
 let _aiCtx = null;
 let _aiLastResult = null;
+let _aiLastResults = null; // array for multi-item results
+
+// Context-aware AI FAB entry point
+function openAiContextual() {
+  const section = appState._section || 'itinerary';
+  const view = appState._eatdoView || 'all';
+  const ctxKey = (section === 'activities')
+    ? (view === 'food' ? 'food' : view === 'activities' ? 'activities' : 'eatdo')
+    : section;
+  const CTXMAP = {
+    itinerary:   { sub: 'Add or research events for your itinerary',          placeholder: '"sunset at Fushimi Inari", "dinner near hotel on Day 3"' },
+    hotels:      { sub: 'Research hotels, lodging, or neighborhoods',          placeholder: '"ryokan in Hakone", "what\'s near our Kyoto hotel"' },
+    trains:      { sub: 'Research transit, passes, or train routes',           placeholder: '"Shinkansen Tokyo to Kyoto", "IC card vs JR Pass for 5 people"' },
+    logistics:   { sub: 'Research logistics, reservations, or practicalities', placeholder: '"currency exchange in Namba", "tourist SIM card options"' },
+    food:        { sub: 'Find restaurants, ramen, cafes, or food experiences', placeholder: '"best breakfast near Dotonbori", "top 3 ramen in Tokyo"' },
+    activities:  { sub: 'Find activities, attractions, or hidden gems',        placeholder: '"teamLab Planets Tokyo", "top 5 things to do in Kyoto"' },
+    eatdo:       { sub: 'Find food spots, activities, or attractions',         placeholder: '"best ramen near Osaka station", "family activities in Tokyo"' },
+  };
+  const ctx = CTXMAP[ctxKey] || CTXMAP.eatdo;
+  openAiResearch('new', { contextHint: ctxKey, sub: ctx.sub, placeholder: ctx.placeholder });
+}
 
 function _getExistingDetail(key, type) {
   if (!key) return null;
@@ -6731,10 +6771,10 @@ function openAiResearch(action, ctx) {
     placeholder = 'e.g. "getting there by train", "gluten-free options", "best time to visit", "tips for kids"…\nLeave blank for full enrichment.';
     btnLabel = '✨ Enrich';
   } else if (action === 'new') {
-    title = '✨ Research New Activity';
-    sub = 'Find any activity, restaurant, or attraction in Japan';
+    title = '✨ Research with AI';
+    sub = (ctx && ctx.sub) || 'Find any activity, restaurant, or attraction in Japan';
     inputLabel = 'What do you want to research?';
-    placeholder = 'e.g. "best ramen in Osaka", "teamLab Planets Tokyo", "Arashiyama bamboo grove Kyoto"';
+    placeholder = (ctx && ctx.placeholder) || 'e.g. "best ramen in Osaka", "teamLab Planets Tokyo", "top 5 things to do in Kyoto"';
     btnLabel = '✨ Research';
   } else {
     title = '✨ Research This Event';
@@ -6759,6 +6799,99 @@ function openAiResearch(action, ctx) {
 function closeAiResearch() {
   document.getElementById('ai-sheet-overlay').classList.remove('open');
   document.getElementById('ai-sheet').classList.remove('open');
+}
+
+async function runAiRefinement() {
+  const input = document.getElementById('ai-refine-input');
+  const body = document.getElementById('ai-sheet-body');
+  if (!input || !body || !_aiLastResult) return;
+  const query = input.value.trim();
+  if (!query) return;
+  const displayQuery = query.slice(0, 60);
+  body.innerHTML = '<div class="ai-loading-card">'
+    + '<div class="ai-loading-icon">✨</div>'
+    + '<div class="ai-loading-title">Refining</div>'
+    + '<div class="ai-loading-query">' + displayQuery + '</div>'
+    + '<div class="ai-loading-sub">Continuing the research thread…</div>'
+    + '</div>';
+  try {
+    const res = await fetch(AI_RESEARCH_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'refine', existingResult: _aiLastResult, query }),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Refinement failed');
+    _aiLastResult = data.result;
+    _showAiResult(data.result);
+  } catch (err) {
+    body.innerHTML = '<div style="text-align:center;padding:20px 0">'
+      + '<div style="font-size:28px;margin-bottom:10px">⚠️</div>'
+      + '<div style="font-size:15px;font-weight:600;margin-bottom:6px">Refinement failed</div>'
+      + '<div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">' + err.message + '</div>'
+      + '<button class="ai-run-btn" onclick="closeAiResearch()" style="width:auto;padding:10px 24px">Dismiss</button>'
+      + '</div>';
+  }
+}
+
+function _showAiResultList(results) {
+  const body = document.getElementById('ai-sheet-body');
+  if (!body || !results || !results.length) return;
+  var items = results.map(function(r, i) {
+    var overviewSec = (r.sections || []).find(function(s) { return s.title === 'Overview'; });
+    var descRow = overviewSec && (overviewSec.rows || []).find(function(row) { return /desc/i.test(row.label); });
+    var snippet = descRow ? descRow.value.replace(/<[^>]+>/g, '').slice(0, 80) + '…' : '';
+    return '<label class="ai-result-list-item">'
+      + '<input type="checkbox" class="ai-result-check" data-idx="' + i + '" checked style="accent-color:var(--accent);flex-shrink:0;width:18px;height:18px;cursor:pointer">'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:14px;font-weight:700;margin-bottom:2px">' + (r.name || 'Result ' + (i+1)) + '</div>'
+      + (r.price ? '<div style="font-size:12px;color:var(--text-muted);margin-bottom:3px">' + (r.badge||'') + ' · ' + r.price + '</div>' : '')
+      + (snippet ? '<div style="font-size:12px;color:var(--text-muted);line-height:1.4">' + snippet + '</div>' : '')
+      + '</div>'
+      + '</label>';
+  }).join('');
+  body.innerHTML = '<div class="ai-sheet-title">✨ Found ' + results.length + ' results</div>'
+    + '<div class="ai-sheet-sub" style="margin-bottom:12px">All checked by default — uncheck any you don\'t want</div>'
+    + '<div class="ai-result-list-wrap">' + items + '</div>'
+    + '<button class="ai-save-btn" style="margin-top:14px" onclick="saveSelectedAiResults()">＋ Save selected</button>'
+    + '<button onclick="closeAiResearch()" style="width:100%;padding:12px;margin-top:8px;border:none;background:none;color:var(--text-muted);font-family:inherit;font-size:14px;cursor:pointer">Dismiss</button>';
+}
+
+function saveSelectedAiResults() {
+  if (!_aiLastResults || !_aiLastResults.length) return;
+  const checks = document.querySelectorAll('.ai-result-check');
+  let saved = 0;
+  checks.forEach(function(chk) {
+    if (!chk.checked) return;
+    const idx = parseInt(chk.dataset.idx, 10);
+    const r = _aiLastResults[idx];
+    if (!r) return;
+    const detail = _buildDetail(r);
+    const id = 'ai-' + Date.now() + '-' + idx;
+    const badge = (r.badge || '').toLowerCase();
+    appState.activities = appState.activities || [];
+    appState.activities.push({
+      id: id,
+      name: detail.name,
+      note: detail._note,
+      type: (badge.includes('food') || badge.includes('restaurant') || badge.includes('ramen') || badge.includes('sushi') || badge.includes('cafe') || badge.includes('dining')) ? 'food' : 'activity',
+      city: detail.city || (['tokyo','hakone','kyoto','osaka'].includes(appState.cityFilter) ? appState.cityFilter : 'tokyo'),
+      assignedDay: null,
+    });
+    appState.customDetails = appState.customDetails || {};
+    appState.customDetails[id] = detail;
+    saved++;
+  });
+  saveAppState();
+  renderActivities();
+  closeAiResearch();
+  if (saved > 0) {
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:calc(120px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:rgba(30,30,40,0.92);color:#fff;padding:10px 20px;border-radius:24px;font-size:14px;font-weight:600;z-index:999;pointer-events:none;backdrop-filter:blur(12px)';
+    toast.textContent = '＋ Saved ' + saved + (saved === 1 ? ' item' : ' items');
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 2200);
+  }
 }
 
 async function runAiResearch() {
@@ -6800,11 +6933,18 @@ async function runAiResearch() {
     });
     const data = await res.json();
     if (!res.ok || data.error) throw new Error(data.error || 'Research failed');
-    _aiLastResult = data.result;
-    if (autoSave) {
-      saveAiResult();
+    if (data.results && Array.isArray(data.results)) {
+      _aiLastResults = data.results;
+      _aiLastResult = null;
+      _showAiResultList(data.results);
     } else {
-      _showAiResult(data.result);
+      _aiLastResult = data.result;
+      _aiLastResults = null;
+      if (autoSave) {
+        saveAiResult();
+      } else {
+        _showAiResult(data.result);
+      }
     }
   } catch (err) {
     body.innerHTML = '<div style="text-align:center;padding:20px 0">'
@@ -6840,6 +6980,11 @@ function _showAiResult(result) {
     + (result.price ? '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">' + result.badge + ' · ' + result.price + '</div>' : '')
     + '<div class="ai-result-card">' + (preview || '<div style="color:var(--text-muted);font-size:13px">Ready to save</div>') + '</div>'
     + '<button class="ai-save-btn" onclick="saveAiResult()">＋ Save to App</button>'
+    + '<div style="margin-top:14px">'
+    + '<div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px">Continue research</div>'
+    + '<textarea class="ai-sheet-textarea" id="ai-refine-input" placeholder="Ask a follow-up — e.g. \'what\'s the gluten-free situation?\' or \'how far from our hotel?\'" style="min-height:52px"></textarea>'
+    + '<button class="ai-run-btn" style="margin-top:8px;background:rgba(255,255,255,0.08);color:var(--text)" onclick="runAiRefinement()">↩ Refine</button>'
+    + '</div>'
     + '<button onclick="closeAiResearch()" style="width:100%;padding:12px;margin-top:8px;border:none;background:none;color:var(--text-muted);font-family:inherit;font-size:14px;cursor:pointer">Dismiss</button>';
 }
 
@@ -6864,11 +7009,14 @@ function _buildDetail(result) {
     var descRow = (overviewSec.rows || []).find(function(r) { return /desc/i.test(r.label); });
     if (descRow) note = descRow.value.replace(/<[^>]+>/g, '').slice(0, 120);
   }
+  const VALID_CITIES = ['tokyo','hakone','kyoto','osaka'];
+  const rawCity = (result.city || '').toLowerCase().trim();
+  const city = VALID_CITIES.find(c => rawCity.includes(c)) || '';
   return {
     name: result.name || 'AI Research',
     badge: result.badge || result.category || 'AI',
     price: result.price || '',
-    city: (result.city || '').toLowerCase(),
+    city: city,
     sections: sections,
     mapQuery: result.mapQuery || result.name || '',
     _note: note,
@@ -6899,7 +7047,7 @@ function saveAiResult() {
       name: detail.name,
       note: detail._note,
       type: (badge.includes('food') || badge.includes('restaurant') || badge.includes('ramen') || badge.includes('sushi')) ? 'food' : 'activity',
-      city: detail.city || 'tokyo',
+      city: detail.city || (['tokyo','hakone','kyoto','osaka'].includes(appState.cityFilter) ? appState.cityFilter : 'tokyo'),
       assignedDay: null,
     };
     appState.activities = appState.activities || [];
@@ -7895,6 +8043,7 @@ function openFlightDetail(key) {
 }
 
 function filterEatDo(view, btn) {
+  appState._eatdoView = view;
   document.querySelectorAll('.eatdo-subnav-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   const foodSec = document.getElementById('food-guide-section');
@@ -9778,7 +9927,7 @@ function openShoppingDetail(key) {
 let _currentModalContext = null; // {key, type, name} for add-to-day
 
 function openActivityDetail(id) {
-  const d = ACTIVITY_DETAILS[id] || (appState.customDetails && appState.customDetails[id]);
+  const d = (appState.customDetails && appState.customDetails[id]) || ACTIVITY_DETAILS[id];
   if (!d) return;
   document.getElementById('hotel-modal-name').textContent = d.name;
   document.getElementById('hotel-modal-sub').textContent = d.price || '';
@@ -9864,7 +10013,7 @@ function confirmAddToDay(dayId) {
 }
 
 function openFoodDetail(key) {
-  const d = FOOD_DETAILS[key] || (appState.customDetails && appState.customDetails[key]);
+  const d = (appState.customDetails && appState.customDetails[key]) || FOOD_DETAILS[key];
   if (!d) return;
   document.getElementById('hotel-modal-name').textContent = d.name;
   document.getElementById('hotel-modal-sub').textContent = d.price || '';
@@ -10214,6 +10363,7 @@ document.addEventListener('visibilitychange', () => {
 
 <button class="today-fab" id="today-fab" onclick="scrollToToday()">📅 Today</button>
 <button class="day-edit-fab" id="day-edit-fab" onclick="handleEditFabTap()" title="Edit">✏</button>
+<button class="ai-fab" id="ai-fab" onclick="openAiContextual()" title="AI Research">✨</button>
 
 <!-- Trip Inbox FAB -->
 <script>
