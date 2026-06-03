@@ -243,6 +243,29 @@
   [data-theme="light"] .ev-info-handle { background: rgba(0,0,0,0.12); }
   [data-theme="light"] .ev-info-action-btn { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.09); }
 
+  /* AI research sheet — light mode */
+  [data-theme="light"] .ai-sheet {
+    background: rgba(248,248,252,0.97);
+    border-top-color: rgba(0,0,0,0.1);
+  }
+  [data-theme="light"] .ai-sheet-handle { background: rgba(0,0,0,0.15); }
+  [data-theme="light"] .ai-sheet-title { color: var(--text); }
+  [data-theme="light"] .ai-sheet-textarea {
+    background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.13); color: var(--text);
+  }
+  [data-theme="light"] .ai-sheet-textarea::placeholder { color: rgba(0,0,0,0.3); }
+  [data-theme="light"] .ai-result-card {
+    background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1);
+  }
+  [data-theme="light"] .ai-loading-card { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); }
+  [data-theme="light"] .modal-enrich-btn {
+    border-color: rgba(0,0,0,0.14); background: rgba(0,0,0,0.04); color: var(--text-muted);
+  }
+  [data-theme="light"] .ai-ask-btn {
+    background: rgba(43,110,232,0.07); border-color: rgba(43,110,232,0.2); color: #2B6EE8;
+  }
+  [data-theme="light"] .ai-autosave-label { color: rgba(0,0,0,0.45); }
+
   /* Settings section ── */
   .settings-group { margin-bottom: 28px; }
   .settings-group-label {
@@ -639,12 +662,36 @@
   }
   .modal-enrich-btn:active { opacity: 0.7; }
   .ai-ask-btn {
-    display: flex; align-items: center; gap: 8px; width: 100%; padding: 13px 16px;
-    border-radius: 14px; background: rgba(126,176,255,0.07); border: 1.5px dashed rgba(126,176,255,0.22);
-    color: var(--accent); font-family: inherit; font-size: 15px; font-weight: 600;
-    cursor: pointer; -webkit-tap-highlight-color: transparent; margin-top: 16px; box-sizing: border-box;
+    display: flex; align-items: center; gap: 10px; width: 100%; padding: 15px 18px;
+    border-radius: 16px; background: rgba(126,176,255,0.1); border: 1.5px solid rgba(126,176,255,0.28);
+    color: var(--accent); font-family: inherit; font-size: 15px; font-weight: 700;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; margin-bottom: 20px;
+    box-sizing: border-box; box-shadow: 0 2px 14px rgba(126,176,255,0.12);
+    transition: opacity 0.15s, box-shadow 0.15s;
   }
-  .ai-ask-btn:active { opacity: 0.7; }
+  .ai-ask-btn:active { opacity: 0.75; box-shadow: none; }
+  .ai-ask-btn-text { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+  .ai-ask-btn-sub { font-size: 12px; font-weight: 500; opacity: 0.65; }
+
+  /* Loading state */
+  @keyframes ai-pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+  @keyframes ai-dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} 100%{content:'.'} }
+  .ai-loading-card {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px; padding: 24px 20px; margin-top: 4px; text-align: center;
+  }
+  .ai-loading-icon { font-size: 32px; animation: ai-pulse 1.6s ease-in-out infinite; margin-bottom: 12px; }
+  .ai-loading-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+  .ai-loading-title::after { content: '.'; animation: ai-dots 1.5s steps(4,end) infinite; }
+  .ai-loading-query { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+  .ai-loading-sub { font-size: 12px; color: var(--text-muted); }
+
+  /* Auto-save toggle */
+  .ai-autosave-label {
+    display: flex; align-items: center; gap: 8px; margin-top: 10px;
+    font-size: 13px; color: rgba(255,255,255,0.5); cursor: pointer; user-select: none;
+  }
+  .ai-autosave-label input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
 
   .event-highlight {
     border-color: rgba(126,176,255,0.3);
@@ -3710,14 +3757,25 @@
     </div>
     <div id="food-guide-section">
       <div class="section-title" style="margin-top:0">🍜 Food Guide</div>
+      <button class="ai-ask-btn" onclick="openAiResearch('new', null)">
+        <span style="font-size:20px">✨</span>
+        <div class="ai-ask-btn-text">
+          <span>Research with AI</span>
+          <span class="ai-ask-btn-sub">Find restaurants, ramen spots, cafes…</span>
+        </div>
+      </button>
       <div id="food-guide-container"><!-- rendered by JS --></div>
     </div>
     <div id="activities-section">
       <div class="section-title" style="margin-top:28px">🎯 Activities</div>
-      <div id="activities-container"><!-- rendered by JS --></div>
       <button class="ai-ask-btn" onclick="openAiResearch('new', null)">
-        <span style="font-size:17px">✨</span> Research new activity with AI
+        <span style="font-size:20px">✨</span>
+        <div class="ai-ask-btn-text">
+          <span>Research with AI</span>
+          <span class="ai-ask-btn-sub">Find activities, attractions, hidden gems…</span>
+        </div>
       </button>
+      <div id="activities-container"><!-- rendered by JS --></div>
     </div>
     <div style="display:none"><!-- static backup -->
     <div class="activity-group">
@@ -6610,6 +6668,7 @@ function openAiResearch(action, ctx) {
     + '<div class="ai-sheet-sub">' + sub + '</div>'
     + '<div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px">' + inputLabel + '</div>'
     + '<textarea class="ai-sheet-textarea" id="ai-query-input" placeholder="' + placeholder + '"></textarea>'
+    + '<label class="ai-autosave-label"><input type="checkbox" id="ai-autosave"> Auto-save — skip the preview and save directly</label>'
     + '<button class="ai-run-btn" id="ai-run-btn" onclick="runAiResearch()">' + btnLabel + '</button>';
 
   document.getElementById('ai-sheet-overlay').classList.add('open');
@@ -6623,14 +6682,26 @@ function closeAiResearch() {
 }
 
 async function runAiResearch() {
-  const btn = document.getElementById('ai-run-btn');
   const input = document.getElementById('ai-query-input');
   const body = document.getElementById('ai-sheet-body');
-  if (!btn || !input || !body) return;
+  if (!input || !body) return;
   const query = input.value.trim();
   const action = _aiCtx && _aiCtx.action ? _aiCtx.action : 'new';
-  btn.disabled = true;
-  btn.textContent = '⏳ Researching…';
+  const autoSave = document.getElementById('ai-autosave')?.checked || false;
+
+  // Determine a display label for what's being researched
+  const displayQuery = query
+    || (_aiCtx && _aiCtx.ctx && _aiCtx.ctx.name)
+    || (action === 'enrich' ? 'this entry' : 'Japan');
+
+  // Replace entire sheet body with loading card
+  body.innerHTML = '<div class="ai-loading-card">'
+    + '<div class="ai-loading-icon">✨</div>'
+    + '<div class="ai-loading-title">Researching</div>'
+    + '<div class="ai-loading-query">' + displayQuery.slice(0, 60) + '</div>'
+    + '<div class="ai-loading-sub">This usually takes 10–20 seconds</div>'
+    + '</div>';
+
   try {
     const reqBody = { action };
     if (action === 'enrich') {
@@ -6650,14 +6721,18 @@ async function runAiResearch() {
     const data = await res.json();
     if (!res.ok || data.error) throw new Error(data.error || 'Research failed');
     _aiLastResult = data.result;
-    _showAiResult(data.result);
+    if (autoSave) {
+      saveAiResult();
+    } else {
+      _showAiResult(data.result);
+    }
   } catch (err) {
-    btn.disabled = false;
-    btn.textContent = '✨ Try Again';
-    const errDiv = document.createElement('div');
-    errDiv.style.cssText = 'color:#ff6b6b;font-size:13px;margin-top:10px;text-align:center';
-    errDiv.textContent = 'Error: ' + err.message;
-    body.appendChild(errDiv);
+    body.innerHTML = '<div style="text-align:center;padding:20px 0">'
+      + '<div style="font-size:28px;margin-bottom:10px">⚠️</div>'
+      + '<div style="font-size:15px;font-weight:600;margin-bottom:6px">Research failed</div>'
+      + '<div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">' + err.message + '</div>'
+      + '<button class="ai-run-btn" onclick="closeAiResearch()" style="width:auto;padding:10px 24px">Dismiss</button>'
+      + '</div>';
   }
 }
 
