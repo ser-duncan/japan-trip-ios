@@ -6506,29 +6506,51 @@ const AI_RESEARCH_URL = 'https://ubtzeulovzfguazmdchp.supabase.co/functions/v1/r
 let _aiCtx = null;
 let _aiLastResult = null;
 
+function _getExistingDetail(key, type) {
+  if (!key) return null;
+  if (type === 'food') return (typeof FOOD_DETAILS !== 'undefined' && FOOD_DETAILS[key]) || (appState.customDetails && appState.customDetails[key]) || null;
+  return (typeof ACTIVITY_DETAILS !== 'undefined' && ACTIVITY_DETAILS[key]) || (appState.customDetails && appState.customDetails[key]) || null;
+}
+
 function openAiResearch(action, ctx) {
   _aiCtx = { action, ctx };
   _aiLastResult = null;
+
+  // For enrich: look up existing detail data now so we can send it to the AI
+  if (action === 'enrich' && ctx && ctx.key) {
+    _aiCtx.existingDetail = _getExistingDetail(ctx.key, ctx.type);
+  }
+
   const body = document.getElementById('ai-sheet-body');
   if (!body) return;
-  let title, sub, placeholder;
+
+  let title, sub, inputLabel, placeholder, btnLabel;
   if (action === 'enrich') {
     title = '✨ Enrich with AI';
-    sub = ctx && ctx.name ? 'Improve details for: ' + ctx.name : 'Enrich this entry';
-    placeholder = 'Any specific questions or context? (optional)';
+    sub = ctx && ctx.name ? ctx.name : 'Enrich this entry';
+    inputLabel = 'What do you want to know more about?';
+    placeholder = 'e.g. "getting there by train", "gluten-free options", "best time to visit", "tips for kids"…\nLeave blank for full enrichment.';
+    btnLabel = '✨ Enrich';
   } else if (action === 'new') {
     title = '✨ Research New Activity';
-    sub = 'Ask AI about any activity, restaurant, or attraction in Japan';
-    placeholder = 'e.g. "best ramen in Osaka" or "teamLab Planets Tokyo"';
+    sub = 'Find any activity, restaurant, or attraction in Japan';
+    inputLabel = 'What do you want to research?';
+    placeholder = 'e.g. "best ramen in Osaka", "teamLab Planets Tokyo", "Arashiyama bamboo grove Kyoto"';
+    btnLabel = '✨ Research';
   } else {
     title = '✨ Research This Event';
     sub = ctx && ctx.name ? ctx.name : 'Itinerary event';
-    placeholder = 'Add context or questions… (optional)';
+    inputLabel = 'Any extra context? (optional)';
+    placeholder = 'Add details or questions about this event…';
+    btnLabel = '✨ Research';
   }
+
   body.innerHTML = '<div class="ai-sheet-title">' + title + '</div>'
     + '<div class="ai-sheet-sub">' + sub + '</div>'
+    + '<div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px">' + inputLabel + '</div>'
     + '<textarea class="ai-sheet-textarea" id="ai-query-input" placeholder="' + placeholder + '"></textarea>'
-    + '<button class="ai-run-btn" id="ai-run-btn" onclick="runAiResearch()">✨ Research</button>';
+    + '<button class="ai-run-btn" id="ai-run-btn" onclick="runAiResearch()">' + btnLabel + '</button>';
+
   document.getElementById('ai-sheet-overlay').classList.add('open');
   document.getElementById('ai-sheet').classList.add('open');
   setTimeout(function() { var el = document.getElementById('ai-query-input'); if (el) el.focus(); }, 400);
@@ -6552,7 +6574,7 @@ async function runAiResearch() {
     const reqBody = { action };
     if (action === 'enrich') {
       reqBody.existingName = (_aiCtx.ctx && _aiCtx.ctx.name) || '';
-      reqBody.existingData = _aiCtx.ctx || {};
+      reqBody.existingSections = (_aiCtx.existingDetail && _aiCtx.existingDetail.sections) || [];
       if (query) reqBody.query = query;
     } else if (action === 'new') {
       reqBody.query = query || 'interesting activity in Japan';
@@ -6581,35 +6603,59 @@ async function runAiResearch() {
 function _showAiResult(result) {
   const body = document.getElementById('ai-sheet-body');
   if (!body || !result) return;
-  const hl = (result.highlights || []).map(function(h) { return '<li>' + h + '</li>'; }).join('');
-  const tp = (result.tips || []).map(function(t) { return '<li>' + t + '</li>'; }).join('');
-  body.innerHTML = '<div class="ai-sheet-title">✨ Result</div>'
-    + '<div class="ai-result-card">'
-    + '<div class="ai-result-name">' + (result.name || '') + '</div>'
-    + (result.overview ? '<div class="ai-result-overview">' + result.overview + '</div>' : '')
-    + (hl ? '<ul class="ai-result-list">' + hl + '</ul>' : '')
-    + (tp ? '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin:8px 0 4px">Tips</div><ul class="ai-result-list">' + tp + '</ul>' : '')
-    + (result.hours ? '<div style="font-size:13px;color:var(--text-muted);margin-top:6px">🕐 ' + result.hours + '</div>' : '')
-    + (result.price ? '<div style="font-size:13px;color:var(--text-muted);margin-top:2px">💰 ' + result.price + '</div>' : '')
-    + '</div>'
+  // Build a preview from the native sections format
+  var preview = '';
+  (result.sections || []).slice(0, 3).forEach(function(sec) {
+    if (!sec.rows || !sec.rows.length) return;
+    preview += '<div style="margin-bottom:10px">'
+      + '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:5px">' + sec.title + '</div>';
+    sec.rows.slice(0, 3).forEach(function(row) {
+      preview += '<div style="font-size:13px;line-height:1.45;margin-bottom:4px">'
+        + '<span style="color:var(--text-muted)">' + row.label + ': </span>'
+        + '<span>' + row.value + '</span></div>';
+    });
+    if (sec.rows.length > 3) preview += '<div style="font-size:12px;color:var(--text-muted)">+ ' + (sec.rows.length - 3) + ' more…</div>';
+    preview += '</div>';
+  });
+  if (result.sections && result.sections.length > 3) {
+    preview += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px">+ ' + (result.sections.length - 3) + ' more sections in full card</div>';
+  }
+  body.innerHTML = '<div class="ai-sheet-title">✨ ' + (result.name || 'Result') + '</div>'
+    + (result.price ? '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">' + result.badge + ' · ' + result.price + '</div>' : '')
+    + '<div class="ai-result-card">' + (preview || '<div style="color:var(--text-muted);font-size:13px">Ready to save</div>') + '</div>'
     + '<button class="ai-save-btn" onclick="saveAiResult()">＋ Save to App</button>'
     + '<button onclick="closeAiResearch()" style="width:100%;padding:12px;margin-top:8px;border:none;background:none;color:var(--text-muted);font-family:inherit;font-size:14px;cursor:pointer">Dismiss</button>';
 }
 
-function _aiResultToDetail(result) {
-  const sections = [];
-  if (result.overview) sections.push({title: 'Overview', body: result.overview});
-  if (result.highlights && result.highlights.length) sections.push({title: 'Highlights', items: result.highlights});
-  if (result.tips && result.tips.length) sections.push({title: 'Tips', items: result.tips});
-  if (result.hours) sections.push({title: 'Hours', body: result.hours});
-  if (result.address) sections.push({title: 'Location', body: result.address});
+function _buildDetail(result) {
+  // Result already has native sections[] format matching renderModalSections
+  // Inject a Maps link into Getting There if mapQuery is set and no Maps row exists yet
+  var mapsUrl = result.mapQuery ? 'https://maps.google.com/?q=' + encodeURIComponent(result.mapQuery) : null;
+  var sections = (result.sections || []).map(function(sec) {
+    if (mapsUrl && sec.title === 'Getting There') {
+      var hasMap = (sec.rows || []).some(function(r) { return /map/i.test(r.label); });
+      if (!hasMap) {
+        var newRows = (sec.rows || []).concat([{label: 'Maps', value: '<a href="' + mapsUrl + '" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>'}]);
+        return Object.assign({}, sec, {rows: newRows});
+      }
+    }
+    return sec;
+  });
+  // Extract a short note from the first Overview Description row for the activity list card
+  var note = null;
+  var overviewSec = (result.sections || []).find(function(s) { return s.title === 'Overview'; });
+  if (overviewSec) {
+    var descRow = (overviewSec.rows || []).find(function(r) { return /desc/i.test(r.label); });
+    if (descRow) note = descRow.value.replace(/<[^>]+>/g, '').slice(0, 120);
+  }
   return {
     name: result.name || 'AI Research',
+    badge: result.badge || result.category || 'AI',
     price: result.price || '',
-    badge: result.category || 'AI',
     city: (result.city || '').toLowerCase(),
     sections: sections,
     mapQuery: result.mapQuery || result.name || '',
+    _note: note,
     _aiGenerated: true,
   };
 }
@@ -6617,7 +6663,7 @@ function _aiResultToDetail(result) {
 function saveAiResult() {
   if (!_aiLastResult) return;
   const action = _aiCtx && _aiCtx.action;
-  const detail = _aiResultToDetail(_aiLastResult);
+  const detail = _buildDetail(_aiLastResult);
   appState.customDetails = appState.customDetails || {};
 
   if (action === 'enrich') {
@@ -6631,11 +6677,12 @@ function saveAiResult() {
     }
   } else if (action === 'new') {
     const id = 'ai-' + Date.now();
+    const badge = (_aiLastResult.badge || '').toLowerCase();
     const newAct = {
       id: id,
       name: detail.name,
-      note: (_aiLastResult.overview || '').slice(0, 120) || null,
-      type: (_aiLastResult.category === 'Food') ? 'food' : 'activity',
+      note: detail._note,
+      type: (badge.includes('food') || badge.includes('restaurant') || badge.includes('ramen') || badge.includes('sushi')) ? 'food' : 'activity',
       city: detail.city || 'tokyo',
       assignedDay: null,
     };
