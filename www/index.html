@@ -5572,18 +5572,30 @@ const DEFAULT_DAYS = [
     {id:'d8e3',type:'period',text:'🌙 Evening'},
     {id:'d8e4',type:'event',time:'Evening',text:'🍽 Relaxed Kyoto dinner',note:null,highlight:false,booked:false,done:false},
   ]},
-  {id:'d9',city:'osaka',date:'2026-06-03',dateLabel:'Wed · Jun 3',title:'Gion Morning → Osaka',events:[
+  {id:'d9',city:'osaka',date:'2026-06-03',dateLabel:'Wed · Jun 3',title:'Gion Morning → Osaka + Pokémon',events:[
     {id:'d9e0',type:'period',text:'🌅 Morning'},
     {id:'d9e1',type:'event',time:'Morning',text:'⛩ Gion District — morning stroll',note:'Best before crowds; wander Hanamikoji and Shirakawa Canal',highlight:true,booked:false,done:false,detailKey:'a17',detailType:'activity'},
     {id:'d9e2',type:'period',text:'🌤 Travel + Afternoon'},
     {id:'d9e3',type:'event',time:'Midday',text:'🚃 Kyoto → Osaka',note:'IC card — no booking needed',highlight:false,booked:false,done:false},
-    {id:'d9e4',type:'event',time:'Afternoon',text:'Check into Airbnb, explore Dotonbori',note:null,highlight:false,booked:false,done:false},
+    {id:'d9e4',type:'event',time:'Afternoon',text:'Check into Airbnb, settle in',note:'2-7-12 四貫島, Konohana Ward — self check-in lockbox',highlight:false,booked:false,done:false},
     {id:'d9e5',type:'period',text:'🌙 Evening'},
-    {id:'d9e6',type:'event',time:'Evening',text:'✨ Pokémon Cafe Osaka',note:'Fun energy, great for teens, near shopping',highlight:true,booked:true,done:false},
-    {id:'d9e7',type:'event',time:'Night',text:'🌃 Dotonbori at night + street food',note:null,highlight:false,booked:false,done:false,detailKey:'a23',detailType:'activity'},
+    {id:'d9e6',type:'event',time:'Evening',text:'✨ Pokémon Cafe Osaka',note:'Grand Front Osaka North Bldg 7F, 4-20 Ofukacho, Kita Ward',highlight:true,booked:true,done:false},
+    {id:'d9e7',type:'event',time:'After café',text:'🎮 Browse Pokémon Center — same complex',note:'Escalators down from café. Grab any missed merch.',highlight:false,booked:false,done:false},
+    {id:'d9e8',type:'period',text:'🌃 Night'},
+    {id:'d9e9',type:'event',time:'Night',text:'🛍 Shinsaibashi-suji covered arcade',note:'Subway: Umeda → Shinsaibashi (Midosuji line, 2 stops). Long covered arcade — fashion, cosmetics, snacks, Japan goods. Great for teens.',highlight:false,booked:false,done:false,detailKey:'a30',detailType:'activity'},
+    {id:'d9e10',type:'event',time:'Night',text:'🌃 Dotonbori neon walk',note:'Glico Running Man · Kani Doraku giant crab · canal lights — full Osaka chaos',highlight:true,booked:false,done:false,detailKey:'a23',detailType:'activity'},
+    {id:'d9e11',type:'event',time:'Optional',text:'⛵ Tombori River Cruise',note:'¥2,000/adult · 20 min · last departure 21:00 · board at Don Quijote Dotonbori (north bank). Best at night — neon on the water.',highlight:false,booked:false,done:false,detailKey:'a31',detailType:'activity'},
+    {id:'d9e12',type:'event',time:'Optional',text:'🕹 Round1 Stadium Sennichimae',note:'Arcade, claw machines, bowling, sports — perfect for burning teen energy. Near Namba, open late.',highlight:false,booked:false,done:false,detailKey:'a32',detailType:'activity'},
+    {id:'d9e13',type:'period',text:'🍽 Dinner'},
+    {id:'d9e14',type:'event',time:'Dinner',text:'🍜 Genji-soba — dedicated GF kitchen',note:'4-5-8 Namba (few blocks from Dotonbori). 100% GF soba hot or cold + GF tempura. Separate utensils. Celiac-safe.',highlight:false,booked:false,done:false},
+    {id:'d9e15',type:'event',time:'GF alt',text:'🐙 OKO — GF takoyaki + kushikatsu',note:'1-15-24 Higashishinsaibashi. 5-floor restaurant, GF vegetarian takoyaki and kushikatsu.',highlight:false,booked:false,done:false},
   ]},
-  {id:'d10',city:'osaka',date:'2026-06-04',dateLabel:'Thu · Jun 4',title:'Osaka Aquarium',events:[
-    {id:'d10e0',type:'period',text:'🌤 Afternoon'},
+  {id:'d10',city:'osaka',date:'2026-06-04',dateLabel:'Thu · Jun 4',title:'Shopping Morning + Aquarium',events:[
+    {id:'d10e0',type:'period',text:'☀️ Morning — Free'},
+    {id:'d10e1m',type:'event',time:'Morning',text:'🛍 Namba Parks — rooftop garden + lifestyle shops',note:'10,000-plant rooftop garden, 250 stores. Connected to Nankai Namba Station. Hours: 11–21.',highlight:false,booked:false,done:false,detailKey:'a33',detailType:'activity'},
+    {id:'d10e2m',type:'event',time:'Alt morning',text:'🏙 Hep Five Umeda — ferris wheel + fashion',note:'Red ferris wheel (¥1,000 · 15 min · 106m views). 6 min walk from Osaka Station. Hours: 11–21.',highlight:false,booked:false,done:false,detailKey:'a34',detailType:'activity'},
+    {id:'d10e3m',type:'event',time:'Alt morning',text:'🧥 Orange Street, Horie — vintage + streetwear',note:'Osaka\'s best streetwear strip. Supreme, Bape, vintage, indie brands. Yotsubashi Station (3 min walk).',highlight:false,booked:false,done:false,detailKey:'a35',detailType:'activity'},
+    {id:'d10ep',type:'period',text:'🌤 Afternoon'},
     {id:'d10e1',type:'event',time:'3:30 PM',text:'🐋 Osaka Aquarium Kaiyukan',note:"One of the world's largest aquariums",highlight:true,booked:true,done:false},
   ]},
   {id:'d11',city:'osaka',date:'2026-06-05',dateLabel:'Fri · Jun 5',title:'Departure Day ✈️',events:[
@@ -5631,6 +5643,15 @@ const DEFAULT_ACTIVITIES = [
   {id:'a27',name:'Okonomiyaki',note:'Savory pancake',type:'food',city:'osaka',assignedDay:null},
   {id:'a28',name:'Universal Studios Japan',note:'Get Express Pass',type:'optional',city:'osaka',assignedDay:null},
   {id:'a29',name:'Pokémon Café Osaka',note:'Backup for Tokyo Café',type:'optional',city:'osaka',assignedDay:null},
+  {id:'a30',name:'Shinsaibashi-suji Arcade',note:'Covered shopping street — fashion, cosmetics, snacks',type:'shopping',city:'osaka',assignedDay:null},
+  {id:'a31',name:'Tombori River Cruise',note:'Canal cruise · neon reflections at night',type:'optional',city:'osaka',assignedDay:null},
+  {id:'a32',name:'Round1 Stadium Sennichimae',note:'Arcade, bowling, claw machines, sports — open late',type:'optional',city:'osaka',assignedDay:null},
+  {id:'a33',name:'Namba Parks',note:'Rooftop garden + lifestyle shopping near Namba',type:'shopping',city:'osaka',assignedDay:null},
+  {id:'a34',name:'Hep Five Umeda',note:'Red ferris wheel + 7 floors fashion',type:'shopping',city:'osaka',assignedDay:null},
+  {id:'a35',name:'Orange Street, Horie',note:'Vintage, streetwear, interior boutiques',type:'shopping',city:'osaka',assignedDay:null},
+  {id:'a36',name:'Amerikamura',note:'Youth fashion, streetwear, hip-hop culture',type:'shopping',city:'osaka',assignedDay:null},
+  {id:'a37',name:'Rinku Premium Outlets',note:'Coach, Nike, Gucci near KIX · 50 min from Namba',type:'shopping',city:'osaka',assignedDay:null},
+  {id:'a38',name:'Expo City Suita',note:'NIFREL aqua-zoo · 123m Osaka Wheel · Pokémon Center',type:'optional',city:'osaka',assignedDay:null},
 ];
 
 // ── App state ──
@@ -8601,6 +8622,191 @@ const ACTIVITY_DETAILS = {
       { label:'Address', value:'Grand Front Osaka North Building 7F, 4-20 Ofukacho, Kita Ward, Osaka' },
       { label:'Maps', value:'<a href="https://maps.google.com/?q=Pokemon+Cafe+Grand+Front+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
       { label:'Nearest stop', value:'JR Osaka Station or Umeda Station — Grand Front Osaka is directly connected' },
+    ]},
+  ]},
+
+  a30: { name:'Shinsaibashi-suji Arcade', badge:'🦀 Osaka · Shopping', price:'Free to browse', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"One of Japan's longest covered shopping arcades — stretches south from Shinsaibashi toward Dotonbori. Fashion, cosmetics, drugstores, fast food, snack shops, quirky Japan goods. Excellent for teens." },
+      { label:'Vibe', value:'Mix of high street, beauty brands (Loft, Plaza, drugstores), fast fashion (Uniqlo, GU), anime goods, and local snack stops. Busy but sheltered from rain.' },
+      { label:'Hours', value:'Most shops 11:00 AM – 9:00 PM. Open 7 days.' },
+    ]},
+    { title:'What to Buy', rows:[
+      { label:'🧴 Drugstores', value:'Matsumoto Kiyoshi and Kokumin — cosmetics, skincare, KitKat variety packs, Japanese snacks. Great for souvenirs.' },
+      { label:'🎮 Character goods', value:'Multiple Pokémon, Sanrio, anime goods stores throughout the arcade.' },
+      { label:'👟 Fashion', value:'Uniqlo, GU, WEGO, local boutiques — mix of affordable and youth brands.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Location', value:'Shinsaibashi-suji, Chuo Ward, Osaka — south from Shinsaibashi Station to Dotonbori' },
+      { label:'Nearest stop', value:'Shinsaibashi Station (Midosuji/Nagahori Tsurumi-ryokuchi lines) — exit directly into the arcade' },
+      { label:'From Umeda', value:'Midosuji Line south 2 stops (5 min). IC card, no ticket needed.' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Shinsaibashi+Shopping+Street+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+
+  a31: { name:'Tombori River Cruise', badge:'🦀 Osaka · Experience', price:'¥2,000/adult', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"20-minute scenic cruise along the Dotonbori River under the neon signs, bridges, and glowing facades. Best at night when the reflections turn the canal into a mirror of color." },
+      { label:'Hours', value:'11:00 AM – 9:00 PM daily. Departs every 30 minutes (:00 and :30).' },
+      { label:'Duration', value:'~20 minutes per cruise.' },
+    ]},
+    { title:'Tickets', rows:[
+      { label:'Adults (13+)', value:'¥2,000' },
+      { label:'Students (middle school)', value:'¥1,000' },
+      { label:'Children (elementary)', value:'¥500' },
+      { label:'Under elementary', value:'Free (1 per accompanying adult)' },
+      { label:'📅 Booking', value:'Online reservations strongly recommended for evening — slots fill fast. Walk-ups possible but risk missing your preferred time.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Boarding point', value:'1F of Don Quijote Dotonbori store, north bank of Tonbori River Walk promenade — right in front of the store.' },
+      { label:'Location', value:'Dotonbori, Chuo Ward, Osaka' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Tombori+River+Cruise+Dotonbori+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'🌃 Best time', value:"Evening departures (8:00–8:30 PM last practical slot) — neon on the water is spectacular. Book the 8:00 PM slot if you want the full experience." },
+      { label:'⚠ Capacity', value:"Often reaches full capacity — arrive or book online early. No reservation = risk of a sold-out evening departure." },
+    ]},
+  ]},
+
+  a32: { name:'Round1 Stadium Sennichimae', badge:'🦀 Osaka · Entertainment', price:'¥2,890 Spo-Cha pass', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Massive multi-story entertainment complex near Namba — arcade, bowling, skating, sports simulators, claw machines, karaoke, go-karts, and more. The definitive teen energy-burn spot in Osaka." },
+      { label:'Hours', value:'Arcade: 6:00 AM – 12:50 AM. Bowling: 24 hours. Facility open 24 hours.' },
+    ]},
+    { title:'What\'s Inside', rows:[
+      { label:'🕹 Arcade', value:'Rhythm games, racing, claw machines (prize crane), classics — most at ¥100/play.' },
+      { label:'🎳 Bowling', value:'¥760/game · ¥1,470/2 games · ¥2,530 unlimited.' },
+      { label:'⚡ Spo-Cha pass', value:'¥2,890/person for 3 hours — covers bowling, roller skating, batting cages, soccer, go-karts, karaoke, darts, table tennis, archery. Best value for the group.' },
+      { label:'🎤 Karaoke', value:'Private rooms available separately — great for a fun 30-min wind-down.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'1-3-1 Namba, Chuo Ward, Osaka 542-0076' },
+      { label:'Nearest stop', value:'Namba Station Exit 15 (Midosuji/Sennichimae lines) — 3-min walk. Also accessible from Namba Walk underground via Exit 22.' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Round1+Stadium+Sennichimae+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+
+  a33: { name:'Namba Parks', badge:'🦀 Osaka · Shopping', price:'Free to enter', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Multi-level open-air shopping mall built in a dramatic canyon-like architectural style, with a famous rooftop garden — 10,000 plants across 500 species. About 250 stores plus multiple dining floors." },
+      { label:'Hours', value:'Shops: 11:00 AM – 9:00 PM. Restaurants: 11:00 AM – 11:00 PM.' },
+      { label:'Vibe', value:'Stylish and mid-to-upper range — select shops, lifestyle brands, interior goods, fashion boutiques. More curated than Shinsaibashi-suji.' },
+    ]},
+    { title:'What\'s There', rows:[
+      { label:'🌿 Parks Garden (Rooftop)', value:'The highlight — terraced rooftop with 10,000 plants, a small stream, canyon landscape. Free to walk. Especially beautiful in June (summer flowers beginning).' },
+      { label:'🎬 Cinema', value:'Namba Parks Cinema — largest cinema complex in Osaka City.' },
+      { label:'🍽 Dining', value:'6F casual dining, 7F–8F higher-end restaurants: Japanese, Korean, Italian and more. Great for a meal before/after the aquarium.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'2-10-70 Nanbanaka, Naniwa Ward, Osaka 556-0011' },
+      { label:'Access', value:'Directly connected to Nankai Namba Station (2F walkway). 10–15 min walk from Dotonbori/Shinsaibashi.' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Namba+Parks+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+
+  a34: { name:'Hep Five Umeda', badge:'🦀 Osaka · Shopping + Fun', price:'Free entry · ¥1,000 ferris wheel', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"7-story youth fashion mall in Umeda (north Osaka) topped by an iconic giant red Ferris wheel rising 106m above the city. The wheel reopened April 2026 after renovation — should be fully operational for your visit." },
+      { label:'Hours', value:'Shopping: 11 AM–9 PM. Restaurants: 11 AM–10:30 PM. Amusement (8F–9F): 11 AM–11 PM. Ferris Wheel: 11 AM–10:45 PM last boarding.' },
+    ]},
+    { title:'Ferris Wheel', rows:[
+      { label:'🎡 Height', value:'106m above ground (75m diameter wheel on rooftop). Panoramic views over Umeda and northern Osaka. On clear days, views to the Akashi Strait.' },
+      { label:'⏱ Duration', value:'~15 minutes per revolution.' },
+      { label:'💴 Price', value:'¥1,000 per person. Children under 5 free.' },
+      { label:'📍 Boarding point', value:'7th floor of Hep Five.' },
+    ]},
+    { title:'Shopping', rows:[
+      { label:'B1–6F', value:'Youth and women\'s fashion, accessories, character goods, cosmetics — mix of mid-range Japanese and international brands.' },
+      { label:'8F–9F', value:'Amusement — arcade, purikura (photo booths), gashapon (capsule toys).' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'5-15 Kakudacho, Kita Ward, Osaka 530-0017' },
+      { label:'Access', value:'6-min walk east of JR Osaka Station. 4-min walk south of Hankyu Osaka-Umeda Station.' },
+      { label:'From Namba', value:'Osaka Metro Midosuji Line north to Umeda Station (~5 stops, 10 min).' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Hep+Five+Umeda+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+
+  a35: { name:'Orange Street, Horie', badge:'🦀 Osaka · Streetwear Shopping', price:'Free to browse', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Osaka's coolest streetwear corridor — ~800m strip (Tachibana-dori, Minami-Horie) lined with vintage shops, sneaker boutiques, indie Japanese fashion, interior design showrooms, and specialty coffee. Less touristy, more local than Shinsaibashi." },
+      { label:'Vibe', value:'Americana, hip-hop, skate, Japanese streetwear aesthetic. Where Osaka\'s fashion-forward youth actually shop. Teens into Supreme, Bape, vintage or Japanese brands will love this.' },
+      { label:'Hours', value:'Most shops 11:00 AM – 8:00 PM. Cafes earlier. Some shops closed on Tuesdays.' },
+    ]},
+    { title:'What to Find', rows:[
+      { label:'👟 Sneakers + streetwear', value:'Supreme, A Bathing Ape (Bape/Aape), Champion, Adidas, and independent Japanese brands you won\'t find at home.' },
+      { label:'🧥 Vintage', value:'Quality thrift and vintage shops — good finds for those willing to dig.' },
+      { label:'🛋 Interior', value:'Independent furniture and lifestyle boutiques — very Osaka cool-adult. Great browsing.' },
+      { label:'☕ Coffee', value:'Several specialty coffee shops along the strip — good for a break mid-browse.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Location', value:'Tachibana-dori (Orange Street), Minami-Horie, Nishi Ward, Osaka' },
+      { label:'Nearest stop', value:'Yotsubashi Station (Yotsubashi Line) — 3-min walk.' },
+      { label:'From Shinsaibashi', value:'10–15 min walk west, or 1 stop on Yotsubashi Line.' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Orange+Street+Horie+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'💡 Combine with', value:'Amerika-mura is just northeast (same vibe, more concentrated). Do Orange Street → cut through Amerika-mura → Shinsaibashi for a full afternoon shopping loop.' },
+    ]},
+  ]},
+
+  a36: { name:'Amerikamura (Amerika-mura)', badge:'🦀 Osaka · Street Culture', price:'Free to browse', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Short for 'American Village' — a few square blocks west of Shinsaibashi packed with youth fashion, streetwear, vintage, music culture, and quirky teen-friendly shops. More concentrated and edgy than the covered arcade." },
+      { label:'Vibe', value:'Hip-hop, punk, skate, street art. Triangle Park at the center is the social hub — food stalls, buskers, teens hanging out. Very lively on weekends.' },
+      { label:'Hours', value:'Most shops 12:00 PM – 9:00 PM. Later on weekends.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Location', value:'Nishi-Shinsaibashi, Chuo Ward, Osaka — west of Shinsaibashi-suji arcade' },
+      { label:'Nearest stop', value:'Shinsaibashi Station (Midosuji Line) — 5–8 min walk west' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Amerikamura+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+  ]},
+
+  a37: { name:'Rinku Premium Outlets', badge:'🦀 Osaka · Outlet Shopping', price:'Free entry · discounts 40–60%', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Japan's most scenic outlet mall — waterfront setting directly across Osaka Bay from KIX Airport. 210–250 stores with international luxury and premium brands at 40–60% discount. Worth a half-day if the group is into outlet shopping." },
+      { label:'Hours', value:'10:00 AM – 8:00 PM (most of year). 10:00 AM – 7:00 PM (February only).' },
+    ]},
+    { title:'What\'s There', rows:[
+      { label:'👜 Luxury', value:'Coach (50–60% off bags/wallets), Gucci, Burberry, Michael Kors, Furla.' },
+      { label:'👟 Sport', value:'Nike, New Balance, Adidas, Under Armour.' },
+      { label:'⌚ Other', value:'Seiko, Samsonite, and a wide mix of Japanese and international brands.' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'3-28 Rinku Ourai Minami, Izumisano-shi, Osaka 598-8508' },
+      { label:'From Namba', value:'Nankai Line Airport Express from Nankai Namba Station → Rinku-Town Station (~40 min). Then 6-min walk to outlets.' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=Rinku+Premium+Outlets+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
+    ]},
+    { title:'Tips', rows:[
+      { label:'💡 Best used', value:'Combine with a KIX airport day — on your June 5 departure, you COULD stop here before taking HARUKA... but the train timing is tight. Better as a dedicated half-day on June 4 morning (leave Namba ~9:30, shop 10–1, back to Namba by 2 PM before the Aquarium).' },
+      { label:'🌊 Scenic bonus', value:'Marble Beach is nearby — one of Japan\'s best sunset viewpoints over Osaka Bay.' },
+    ]},
+  ]},
+
+  a38: { name:'Expo City Suita', badge:'🦀 Osaka · Full-Day Family', price:'NIFREL ¥2,200 · Osaka Wheel ¥1,000', sections:[
+    { title:'Overview', rows:[
+      { label:'Description', value:"Major family entertainment complex in northern Osaka suburb — NIFREL (unique aqua-zoo-art hybrid), Redhorse Osaka Wheel (Japan's tallest at 123m), LaLaport EXPOCITY mall with ~300 stores including a Pokémon Center, and the historic Expo '70 park next door." },
+      { label:'⚠ Distance note', value:'60–75 min from Namba. This is a dedicated full-day destination — not a quick add-on.' },
+    ]},
+    { title:'NIFREL', rows:[
+      { label:'What it is', value:"Hybrid aquarium-zoo-art installation. Jellyfish, fish, small mammals, reptiles, and birds displayed like living art with immersive lighting — unlike any standard aquarium. Very popular with families and teens." },
+      { label:'Hours', value:'10:00 AM – 6:00 PM weekdays. 9:30 AM – 7:00 PM weekends/holidays.' },
+      { label:'Price', value:'Adults ¥2,200 · Middle/elementary school ¥1,100 · Ages 3+ ¥650' },
+    ]},
+    { title:'Osaka Wheel (Redhorse)', rows:[
+      { label:'What it is', value:"Japan's tallest Ferris wheel at 123m — transparent-floor gondolas with full see-through walls. 18-minute ride. A genuinely memorable experience for any age." },
+      { label:'Price', value:'¥1,000 standard · ¥8,000 VIP (premium gondola — worth it for photos).' },
+      { label:'Hours', value:'10:00 AM – 10:00 PM.' },
+    ]},
+    { title:'Mall + Pokémon Center', rows:[
+      { label:'LaLaport EXPOCITY', value:'~300 stores: fashion, lifestyle, food, specialty. Large cinema. Pokémon Center is here — great follow-up if the group is still in Pokémon mode.' },
+      { label:'Hours', value:'Shops: 10 AM–8 PM weekdays, 10 AM–9 PM weekends. Restaurants: 11 AM–9 PM (10 PM weekends).' },
+    ]},
+    { title:'Getting There', rows:[
+      { label:'Address', value:'2-1 Senribanpakukoen, Suita-shi, Osaka 565-0826' },
+      { label:'From Namba', value:'Osaka Metro Midosuji Line → Shin-Osaka or Senri-Chuo → transfer to Osaka Monorail → Bampaku-Kinen-Koen Station → 2-min walk. Total: ~60–75 min.' },
+      { label:'Maps', value:'<a href="https://maps.google.com/?q=ExpoCity+Suita+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
     ]},
   ]},
 };
