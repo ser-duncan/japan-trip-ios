@@ -5580,7 +5580,7 @@ const DEFAULT_DAYS = [
   ]},
   {id:'d4',city:'hakone',date:'2026-05-29',dateLabel:'Fri · May 29',title:'Tokyo → Hakone',events:[
     {id:'d4e0',type:'period',text:'🌤 Travel'},
-    {id:'d4e1',type:'event',time:'Morning',text:'🚃 Romancecar → Odawara',note:'Then taxi to ryokan',highlight:true,booked:true,done:false},
+    {id:'d4e1',type:'event',time:'Morning',text:'🚃 Romancecar → Odawara',note:'Then taxi to ryokan',highlight:true,booked:true,done:false,detailKey:'romancecar',detailType:'train'},
     {id:'d4e2',type:'period',text:'🌙 Evening'},
     {id:'d4e3',type:'event',time:'Evening',text:'🍱 Ryokan dinner',note:null,highlight:false,booked:false,done:false},
     {id:'d4e4',type:'event',time:'Night',text:'♨ Private onsen',note:'Early night — fully relaxing',highlight:false,booked:false,done:false},
@@ -5589,7 +5589,7 @@ const DEFAULT_DAYS = [
     {id:'d5e0',type:'period',text:'☀️ Morning'},
     {id:'d5e1',type:'event',time:'Morning',text:'🍳 Slow breakfast at ryokan',note:null,highlight:false,booked:false,done:false},
     {id:'d5e2',type:'period',text:'🌤 Travel'},
-    {id:'d5e3',type:'event',time:'Midday',text:'🚄 Shinkansen → Kyoto',note:'Odawara → Kyoto via SmartEX',highlight:true,booked:true,done:false},
+    {id:'d5e3',type:'event',time:'Midday',text:'🚄 Shinkansen → Kyoto',note:'Odawara → Kyoto via SmartEX',highlight:true,booked:true,done:false,detailKey:'shinkansen',detailType:'train'},
     {id:'d5e4',type:'period',text:'🌙 Evening'},
     {id:'d5e5',type:'event',time:'Evening',text:'🏘 Explore neighborhood casually',note:'Settle in, low-key first night in Kyoto',highlight:false,booked:false,done:false},
   ]},
@@ -5620,9 +5620,9 @@ const DEFAULT_DAYS = [
     {id:'d9e1',type:'event',time:'Morning',text:'⛩ Gion District — morning stroll',note:'Best before crowds; wander Hanamikoji and Shirakawa Canal',highlight:true,booked:false,done:false,detailKey:'a17',detailType:'activity'},
     {id:'d9e2',type:'period',text:'🌤 Travel + Afternoon'},
     {id:'d9e3',type:'event',time:'Midday',text:'🚃 Kyoto → Osaka',note:'IC card — no booking needed',highlight:false,booked:false,done:false},
-    {id:'d9e4',type:'event',time:'Afternoon',text:'Check into Airbnb, settle in',note:'2-7-12 四貫島, Konohana Ward — self check-in lockbox',highlight:false,booked:false,done:false},
+    {id:'d9e4',type:'event',time:'Afternoon',text:'Check into Airbnb, settle in',note:'2-7-12 四貫島, Konohana Ward — self check-in lockbox',highlight:false,booked:false,done:false,detailKey:'osaka',detailType:'hotel'},
     {id:'d9e5',type:'period',text:'🌙 Evening'},
-    {id:'d9e6',type:'event',time:'Evening',text:'✨ Pokémon Cafe Osaka',note:'Grand Front Osaka North Bldg 7F, 4-20 Ofukacho, Kita Ward',highlight:true,booked:true,done:false},
+    {id:'d9e6',type:'event',time:'Evening',text:'✨ Pokémon Cafe Osaka',note:'Grand Front Osaka North Bldg 7F, 4-20 Ofukacho, Kita Ward',highlight:true,booked:true,done:false,detailKey:'a29',detailType:'activity'},
     {id:'d9e7',type:'event',time:'After café',text:'🎮 Browse Pokémon Center — same complex',note:'Escalators down from café. Grab any missed merch.',highlight:false,booked:false,done:false},
     {id:'d9e8',type:'period',text:'🌃 Night'},
     {id:'d9e9',type:'event',time:'Night',text:'🛍 Shinsaibashi-suji covered arcade',note:'Subway: Umeda → Shinsaibashi (Midosuji line, 2 stops). Long covered arcade — fashion, cosmetics, snacks, Japan goods. Great for teens.',highlight:false,booked:false,done:false,detailKey:'a30',detailType:'activity'},
@@ -5646,7 +5646,7 @@ const DEFAULT_DAYS = [
     {id:'d11e1',type:'event',time:'Morning',text:'☕ Slow morning',note:null,highlight:false,booked:false,done:false},
     {id:'d11e2',type:'event',time:'Late AM',text:'🛍 Last-minute snacks & souvenirs',note:null,highlight:false,booked:false,done:false},
     {id:'d11e3',type:'period',text:'✈️ Departure'},
-    {id:'d11e4',type:'event',time:'12:47 PM',text:'🚄 HARUKA 25 → KIX',note:'Tennoji → Kansai Airport · 33 min · Klook ref YMB549238',highlight:true,booked:true,done:false},
+    {id:'d11e4',type:'event',time:'12:47 PM',text:'🚄 HARUKA 25 → KIX',note:'Tennoji → Kansai Airport · 33 min · Klook ref YMB549238',highlight:true,booked:true,done:false,detailKey:'haruka',detailType:'train'},
   ]},
 ];
 
@@ -6133,6 +6133,7 @@ function buildEventHTML(ev, dayId) {
   var note = ev.note ? '<div class="event-note">' + ev.note + '</div>' : '';
   var chk = ev.done ? ' checked' : '';
   var hasDetail = !!(ev.detailKey && (
+    ev.detailType === 'hotel' || ev.detailType === 'train' || ev.detailType === 'flight' ||
     (typeof ACTIVITY_DETAILS !== 'undefined' && ACTIVITY_DETAILS[ev.detailKey]) ||
     (typeof FOOD_DETAILS !== 'undefined' && FOOD_DETAILS[ev.detailKey]) ||
     (typeof SHOPPING_DETAILS !== 'undefined' && SHOPPING_DETAILS[ev.detailKey])
@@ -6387,11 +6388,6 @@ function openEvInfo(dayId, eventId) {
   if (!ev || ev.type !== 'event') return;
   const booked = ev.booked ? ' <span class="badge badge-success" style="font-size:12px;padding:3px 9px;margin-left:8px;">✓ Booked</span>' : '';
   const note = ev.note ? '<div class="ev-info-note">' + ev.note + '</div>' : '';
-  const hotelKey = typeof DAY_HOTEL_MAP !== 'undefined' && DAY_HOTEL_MAP[dayId];
-  const transitList = typeof DAY_TRANSIT_MAP !== 'undefined' ? (DAY_TRANSIT_MAP[dayId] || []) : [];
-  let actions = '';
-  if (hotelKey) actions += '<button class="ev-info-action-btn" onclick="switchDayDetailTab(\'lodging\');closeEvInfo()">🏨 View stay details →</button>';
-  if (transitList.length) actions += '<button class="ev-info-action-btn" onclick="switchDayDetailTab(\'transit\');closeEvInfo()">🚄 View transit & tickets →</button>';
   const sheet = document.getElementById('ev-info-sheet');
   if (!sheet) return;
   sheet.innerHTML = '<div class="ev-info-handle"></div>'
@@ -6399,7 +6395,6 @@ function openEvInfo(dayId, eventId) {
     + (ev.time ? '<div class="ev-info-time-label">' + ev.time + '</div>' : '')
     + '<div class="ev-info-title">' + ev.text + booked + '</div>'
     + note
-    + (actions ? '<div class="ev-info-actions">' + actions + '</div>' : '')
     + '</div>';
   document.getElementById('ev-info-overlay').classList.add('open');
   sheet.classList.add('open');
@@ -9133,6 +9128,9 @@ function openActivityDetail(id) {
 function openDetailFromEvent(key, type) {
   if (type === 'food') openFoodDetail(key);
   else if (type === 'shopping') openShoppingDetail(key);
+  else if (type === 'hotel') openHotelDetail(key);
+  else if (type === 'train') openTrainDetail(key);
+  else if (type === 'flight') openFlightDetail(key);
   else openActivityDetail(key);
 }
 
