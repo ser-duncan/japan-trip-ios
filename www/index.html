@@ -582,6 +582,68 @@
   }
   .ev-info-action-btn:active { background: rgba(255,255,255,0.13); }
 
+  /* AI Research Sheet */
+  .ai-sheet-overlay { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: opacity 0.22s; }
+  .ai-sheet-overlay.open { opacity: 1; pointer-events: auto; }
+  .ai-sheet {
+    position: fixed; z-index: 601; bottom: 0; left: 0; right: 0;
+    background: rgba(22,22,30,0.94); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-top: 1px solid rgba(255,255,255,0.1); border-radius: 22px 22px 0 0;
+    padding-bottom: max(28px, env(safe-area-inset-bottom, 28px));
+    transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.34,1.4,0.64,1);
+    max-height: 85vh; overflow-y: auto;
+  }
+  .ai-sheet.open { transform: translateY(0); }
+  .ai-sheet-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 12px auto 20px; }
+  .ai-sheet-body { padding: 0 20px 16px; }
+  .ai-sheet-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .ai-sheet-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.4; }
+  .ai-sheet-textarea {
+    width: 100%; box-sizing: border-box; min-height: 80px; padding: 12px 14px;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px; color: var(--text); font-family: inherit; font-size: 15px;
+    resize: none; outline: none; line-height: 1.5;
+  }
+  .ai-sheet-textarea:focus { border-color: rgba(126,176,255,0.5); }
+  .ai-run-btn {
+    width: 100%; padding: 14px; margin-top: 12px; border-radius: 14px;
+    background: var(--accent); border: none; color: #fff; font-family: inherit;
+    font-size: 16px; font-weight: 700; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.15s;
+  }
+  .ai-run-btn:active { opacity: 0.8; }
+  .ai-run-btn:disabled { opacity: 0.45; }
+  .ai-result-card {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px; padding: 16px; margin-top: 14px;
+  }
+  .ai-result-name { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .ai-result-overview { font-size: 14px; color: var(--text-muted); line-height: 1.55; margin-bottom: 10px; }
+  .ai-result-list { list-style: none; padding: 0; margin: 0 0 8px; }
+  .ai-result-list li { font-size: 13px; color: var(--text-muted); padding: 3px 0 3px 18px; position: relative; line-height: 1.4; }
+  .ai-result-list li::before { content: '•'; position: absolute; left: 6px; }
+  .ai-save-btn {
+    width: 100%; padding: 13px; margin-top: 12px; border-radius: 14px;
+    background: rgba(126,176,255,0.15); border: 1.5px solid rgba(126,176,255,0.35);
+    color: var(--accent); font-family: inherit; font-size: 15px; font-weight: 700;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .ai-save-btn:active { opacity: 0.7; }
+  .modal-enrich-btn {
+    padding: 6px 11px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.07); color: var(--text-muted); font-size: 13px;
+    font-weight: 600; font-family: inherit; cursor: pointer; white-space: nowrap;
+    -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+  }
+  .modal-enrich-btn:active { opacity: 0.7; }
+  .ai-ask-btn {
+    display: flex; align-items: center; gap: 8px; width: 100%; padding: 13px 16px;
+    border-radius: 14px; background: rgba(126,176,255,0.07); border: 1.5px dashed rgba(126,176,255,0.22);
+    color: var(--accent); font-family: inherit; font-size: 15px; font-weight: 600;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; margin-top: 16px; box-sizing: border-box;
+  }
+  .ai-ask-btn:active { opacity: 0.7; }
+
   .event-highlight {
     border-color: rgba(126,176,255,0.3);
     background: rgba(126,176,255,0.05);
@@ -3644,6 +3706,9 @@
     <div id="activities-section">
       <div class="section-title" style="margin-top:28px">🎯 Activities</div>
       <div id="activities-container"><!-- rendered by JS --></div>
+      <button class="ai-ask-btn" onclick="openAiResearch('new', null)">
+        <span style="font-size:17px">✨</span> Research new activity with AI
+      </button>
     </div>
     <div style="display:none"><!-- static backup -->
     <div class="activity-group">
@@ -5447,6 +5512,7 @@
     document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(train.sections);
     const _tdt = document.getElementById('modal-tab-docs'); if (_tdt) _tdt.style.display = '';
     const _tadTab = document.getElementById('modal-tab-addday'); if (_tadTab) _tadTab.style.display = 'none'; _currentModalContext = null;
+    const _tEnrich = document.getElementById('modal-enrich-btn'); if (_tEnrich) _tEnrich.style.display = 'none';
     switchModalTab('details');
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
@@ -5469,6 +5535,7 @@
     document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(hotel.sections);
     const _hdt = document.getElementById('modal-tab-docs'); if (_hdt) _hdt.style.display = '';
     const _hadTab = document.getElementById('modal-tab-addday'); if (_hadTab) _hadTab.style.display = 'none'; _currentModalContext = null;
+    const _hEnrich = document.getElementById('modal-enrich-btn'); if (_hEnrich) _hEnrich.style.display = 'none';
     switchModalTab('details');
     document.getElementById('hotel-modal-overlay').classList.add('open');
     document.getElementById('hotel-modal').classList.add('open');
@@ -5728,6 +5795,7 @@ const appState = {
   harukaBooked: true,
   checklists: {},
   dismissedMapReminders: [],
+  customDetails: {},
   cityFilter: 'all',
   dateFilter: 'upcoming',
   tagFilter: 'all',
@@ -5797,9 +5865,10 @@ async function loadAppState() {
         appState.harukaBooked = d.harukaBooked || false;
         appState.checklists = d.checklists || {};
         appState.dismissedMapReminders = d.dismissedMapReminders || [];
+        appState.customDetails = d.customDetails || {};
         _mergeDefaultActivities();
         _migrateAssignedActivities();
-        try { localStorage.setItem(LS_KEY, JSON.stringify({days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders})); } catch(e) {}
+        try { localStorage.setItem(LS_KEY, JSON.stringify({days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders, customDetails: appState.customDetails})); } catch(e) {}
         return;
       }
     } catch(e) {}
@@ -5814,6 +5883,7 @@ async function loadAppState() {
       appState.harukaBooked = p.harukaBooked || false;
       appState.checklists = p.checklists || {};
       appState.dismissedMapReminders = p.dismissedMapReminders || [];
+      appState.customDetails = p.customDetails || {};
       _mergeDefaultActivities();
       _migrateAssignedActivities();
       return;
@@ -5925,7 +5995,7 @@ async function applyTripActivities() {
 // ─────────────────────────────────────────────────────────────────────────
 
 function saveAppState() {
-  const data = { days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders };
+  const data = { days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders, customDetails: appState.customDetails || {} };
   try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
   if (_syncTimer) clearTimeout(_syncTimer);
   setSyncDot('syncing');
@@ -6159,7 +6229,8 @@ function buildEventHTML(ev, dayId) {
     ev.detailType === 'hotel' || ev.detailType === 'train' || ev.detailType === 'flight' ||
     (typeof ACTIVITY_DETAILS !== 'undefined' && ACTIVITY_DETAILS[ev.detailKey]) ||
     (typeof FOOD_DETAILS !== 'undefined' && FOOD_DETAILS[ev.detailKey]) ||
-    (typeof SHOPPING_DETAILS !== 'undefined' && SHOPPING_DETAILS[ev.detailKey])
+    (typeof SHOPPING_DETAILS !== 'undefined' && SHOPPING_DETAILS[ev.detailKey]) ||
+    (appState.customDetails && appState.customDetails[ev.detailKey])
   ));
   var evClick = hasDetail
     ? ' onclick="openDetailFromEvent(\'' + ev.detailKey + '\',\'' + (ev.detailType||'activity') + '\')"'
@@ -6411,6 +6482,7 @@ function openEvInfo(dayId, eventId) {
   if (!ev || ev.type !== 'event') return;
   const booked = ev.booked ? ' <span class="badge badge-success" style="font-size:12px;padding:3px 9px;margin-left:8px;">✓ Booked</span>' : '';
   const note = ev.note ? '<div class="ev-info-note">' + ev.note + '</div>' : '';
+  const researchBtn = '<div class="ev-info-actions"><button class="ev-info-action-btn" onclick="openAiResearch(\'event\',{name:\'' + ev.text.replace(/'/g, "\\'") + '\',ev:appState.days.find(d=>d.id===\'' + dayId + '\').events.find(e=>e.id===\'' + eventId + '\'),dayId:\'' + dayId + '\'})">✨ Research this with AI</button></div>';
   const sheet = document.getElementById('ev-info-sheet');
   if (!sheet) return;
   sheet.innerHTML = '<div class="ev-info-handle"></div>'
@@ -6418,6 +6490,7 @@ function openEvInfo(dayId, eventId) {
     + (ev.time ? '<div class="ev-info-time-label">' + ev.time + '</div>' : '')
     + '<div class="ev-info-title">' + ev.text + booked + '</div>'
     + note
+    + researchBtn
     + '</div>';
   document.getElementById('ev-info-overlay').classList.add('open');
   sheet.classList.add('open');
@@ -6426,6 +6499,215 @@ function openEvInfo(dayId, eventId) {
 function closeEvInfo() {
   document.getElementById('ev-info-overlay')?.classList.remove('open');
   document.getElementById('ev-info-sheet')?.classList.remove('open');
+}
+
+// ── AI Research ──
+const AI_RESEARCH_URL = 'https://ubtzeulovzfguazmdchp.supabase.co/functions/v1/research';
+let _aiCtx = null;
+let _aiLastResult = null;
+
+function _getExistingDetail(key, type) {
+  if (!key) return null;
+  if (type === 'food') return (typeof FOOD_DETAILS !== 'undefined' && FOOD_DETAILS[key]) || (appState.customDetails && appState.customDetails[key]) || null;
+  return (typeof ACTIVITY_DETAILS !== 'undefined' && ACTIVITY_DETAILS[key]) || (appState.customDetails && appState.customDetails[key]) || null;
+}
+
+function openAiResearch(action, ctx) {
+  _aiCtx = { action, ctx };
+  _aiLastResult = null;
+
+  // For enrich: look up existing detail data now so we can send it to the AI
+  if (action === 'enrich' && ctx && ctx.key) {
+    _aiCtx.existingDetail = _getExistingDetail(ctx.key, ctx.type);
+  }
+
+  const body = document.getElementById('ai-sheet-body');
+  if (!body) return;
+
+  let title, sub, inputLabel, placeholder, btnLabel;
+  if (action === 'enrich') {
+    title = '✨ Enrich with AI';
+    sub = ctx && ctx.name ? ctx.name : 'Enrich this entry';
+    inputLabel = 'What do you want to know more about?';
+    placeholder = 'e.g. "getting there by train", "gluten-free options", "best time to visit", "tips for kids"…\nLeave blank for full enrichment.';
+    btnLabel = '✨ Enrich';
+  } else if (action === 'new') {
+    title = '✨ Research New Activity';
+    sub = 'Find any activity, restaurant, or attraction in Japan';
+    inputLabel = 'What do you want to research?';
+    placeholder = 'e.g. "best ramen in Osaka", "teamLab Planets Tokyo", "Arashiyama bamboo grove Kyoto"';
+    btnLabel = '✨ Research';
+  } else {
+    title = '✨ Research This Event';
+    sub = ctx && ctx.name ? ctx.name : 'Itinerary event';
+    inputLabel = 'Any extra context? (optional)';
+    placeholder = 'Add details or questions about this event…';
+    btnLabel = '✨ Research';
+  }
+
+  body.innerHTML = '<div class="ai-sheet-title">' + title + '</div>'
+    + '<div class="ai-sheet-sub">' + sub + '</div>'
+    + '<div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px">' + inputLabel + '</div>'
+    + '<textarea class="ai-sheet-textarea" id="ai-query-input" placeholder="' + placeholder + '"></textarea>'
+    + '<button class="ai-run-btn" id="ai-run-btn" onclick="runAiResearch()">' + btnLabel + '</button>';
+
+  document.getElementById('ai-sheet-overlay').classList.add('open');
+  document.getElementById('ai-sheet').classList.add('open');
+  setTimeout(function() { var el = document.getElementById('ai-query-input'); if (el) el.focus(); }, 400);
+}
+
+function closeAiResearch() {
+  document.getElementById('ai-sheet-overlay').classList.remove('open');
+  document.getElementById('ai-sheet').classList.remove('open');
+}
+
+async function runAiResearch() {
+  const btn = document.getElementById('ai-run-btn');
+  const input = document.getElementById('ai-query-input');
+  const body = document.getElementById('ai-sheet-body');
+  if (!btn || !input || !body) return;
+  const query = input.value.trim();
+  const action = _aiCtx && _aiCtx.action ? _aiCtx.action : 'new';
+  btn.disabled = true;
+  btn.textContent = '⏳ Researching…';
+  try {
+    const reqBody = { action };
+    if (action === 'enrich') {
+      reqBody.existingName = (_aiCtx.ctx && _aiCtx.ctx.name) || '';
+      reqBody.existingSections = (_aiCtx.existingDetail && _aiCtx.existingDetail.sections) || [];
+      if (query) reqBody.query = query;
+    } else if (action === 'new') {
+      reqBody.query = query || 'interesting activity in Japan';
+    } else {
+      reqBody.query = ((_aiCtx.ctx && _aiCtx.ctx.name) || '') + (query ? ' — ' + query : '');
+    }
+    const res = await fetch(AI_RESEARCH_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reqBody),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Research failed');
+    _aiLastResult = data.result;
+    _showAiResult(data.result);
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = '✨ Try Again';
+    const errDiv = document.createElement('div');
+    errDiv.style.cssText = 'color:#ff6b6b;font-size:13px;margin-top:10px;text-align:center';
+    errDiv.textContent = 'Error: ' + err.message;
+    body.appendChild(errDiv);
+  }
+}
+
+function _showAiResult(result) {
+  const body = document.getElementById('ai-sheet-body');
+  if (!body || !result) return;
+  // Build a preview from the native sections format
+  var preview = '';
+  (result.sections || []).slice(0, 3).forEach(function(sec) {
+    if (!sec.rows || !sec.rows.length) return;
+    preview += '<div style="margin-bottom:10px">'
+      + '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:5px">' + sec.title + '</div>';
+    sec.rows.slice(0, 3).forEach(function(row) {
+      preview += '<div style="font-size:13px;line-height:1.45;margin-bottom:4px">'
+        + '<span style="color:var(--text-muted)">' + row.label + ': </span>'
+        + '<span>' + row.value + '</span></div>';
+    });
+    if (sec.rows.length > 3) preview += '<div style="font-size:12px;color:var(--text-muted)">+ ' + (sec.rows.length - 3) + ' more…</div>';
+    preview += '</div>';
+  });
+  if (result.sections && result.sections.length > 3) {
+    preview += '<div style="font-size:12px;color:var(--text-muted);margin-top:2px">+ ' + (result.sections.length - 3) + ' more sections in full card</div>';
+  }
+  body.innerHTML = '<div class="ai-sheet-title">✨ ' + (result.name || 'Result') + '</div>'
+    + (result.price ? '<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">' + result.badge + ' · ' + result.price + '</div>' : '')
+    + '<div class="ai-result-card">' + (preview || '<div style="color:var(--text-muted);font-size:13px">Ready to save</div>') + '</div>'
+    + '<button class="ai-save-btn" onclick="saveAiResult()">＋ Save to App</button>'
+    + '<button onclick="closeAiResearch()" style="width:100%;padding:12px;margin-top:8px;border:none;background:none;color:var(--text-muted);font-family:inherit;font-size:14px;cursor:pointer">Dismiss</button>';
+}
+
+function _buildDetail(result) {
+  // Result already has native sections[] format matching renderModalSections
+  // Inject a Maps link into Getting There if mapQuery is set and no Maps row exists yet
+  var mapsUrl = result.mapQuery ? 'https://maps.google.com/?q=' + encodeURIComponent(result.mapQuery) : null;
+  var sections = (result.sections || []).map(function(sec) {
+    if (mapsUrl && sec.title === 'Getting There') {
+      var hasMap = (sec.rows || []).some(function(r) { return /map/i.test(r.label); });
+      if (!hasMap) {
+        var newRows = (sec.rows || []).concat([{label: 'Maps', value: '<a href="' + mapsUrl + '" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>'}]);
+        return Object.assign({}, sec, {rows: newRows});
+      }
+    }
+    return sec;
+  });
+  // Extract a short note from the first Overview Description row for the activity list card
+  var note = null;
+  var overviewSec = (result.sections || []).find(function(s) { return s.title === 'Overview'; });
+  if (overviewSec) {
+    var descRow = (overviewSec.rows || []).find(function(r) { return /desc/i.test(r.label); });
+    if (descRow) note = descRow.value.replace(/<[^>]+>/g, '').slice(0, 120);
+  }
+  return {
+    name: result.name || 'AI Research',
+    badge: result.badge || result.category || 'AI',
+    price: result.price || '',
+    city: (result.city || '').toLowerCase(),
+    sections: sections,
+    mapQuery: result.mapQuery || result.name || '',
+    _note: note,
+    _aiGenerated: true,
+  };
+}
+
+function saveAiResult() {
+  if (!_aiLastResult) return;
+  const action = _aiCtx && _aiCtx.action;
+  const detail = _buildDetail(_aiLastResult);
+  appState.customDetails = appState.customDetails || {};
+
+  if (action === 'enrich') {
+    const key = _aiCtx.ctx && _aiCtx.ctx.key;
+    if (key) {
+      appState.customDetails[key] = detail;
+      saveAppState();
+      closeAiResearch();
+      const type = (_aiCtx.ctx && _aiCtx.ctx.type) || 'activity';
+      setTimeout(function() { if (type === 'food') openFoodDetail(key); else openActivityDetail(key); }, 200);
+    }
+  } else if (action === 'new') {
+    const id = 'ai-' + Date.now();
+    const badge = (_aiLastResult.badge || '').toLowerCase();
+    const newAct = {
+      id: id,
+      name: detail.name,
+      note: detail._note,
+      type: (badge.includes('food') || badge.includes('restaurant') || badge.includes('ramen') || badge.includes('sushi')) ? 'food' : 'activity',
+      city: detail.city || 'tokyo',
+      assignedDay: null,
+    };
+    appState.activities = appState.activities || [];
+    appState.activities.push(newAct);
+    appState.customDetails[id] = detail;
+    saveAppState();
+    renderActivities();
+    closeAiResearch();
+    setTimeout(function() { openActivityDetail(id); }, 300);
+  } else if (action === 'event') {
+    const ev = _aiCtx.ctx && _aiCtx.ctx.ev;
+    const dayId = _aiCtx.ctx && _aiCtx.ctx.dayId;
+    if (ev && dayId) {
+      const id = 'ai-ev-' + ev.id;
+      appState.customDetails[id] = detail;
+      ev.detailKey = id;
+      ev.detailType = 'activity';
+      saveAppState();
+      renderItinerary();
+      closeEvInfo();
+      closeAiResearch();
+      setTimeout(function() { openActivityDetail(id); }, 300);
+    }
+  }
 }
 
 // ── Drag-and-drop event reordering between period sections ──
@@ -7387,6 +7669,7 @@ function openFlightDetail(key) {
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
   const _fltdt = document.getElementById('modal-tab-docs'); if (_fltdt) _fltdt.style.display = '';
   const _fltAdTab = document.getElementById('modal-tab-addday'); if (_fltAdTab) _fltAdTab.style.display = 'none'; _currentModalContext = null;
+  const _fltEnrich = document.getElementById('modal-enrich-btn'); if (_fltEnrich) _fltEnrich.style.display = 'none';
   switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
@@ -9268,6 +9551,7 @@ function openShoppingDetail(key) {
   const docsTab = document.getElementById('modal-tab-docs');
   if (docsTab) docsTab.style.display = 'none';
   const adTab = document.getElementById('modal-tab-addday'); if (adTab) adTab.style.display = '';
+  const _sEnrich = document.getElementById('modal-enrich-btn'); if (_sEnrich) _sEnrich.style.display = 'none';
   _currentModalContext = {key: key, type: 'shopping', name: d.name};
   switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
@@ -9278,7 +9562,7 @@ function openShoppingDetail(key) {
 let _currentModalContext = null; // {key, type, name} for add-to-day
 
 function openActivityDetail(id) {
-  const d = ACTIVITY_DETAILS[id];
+  const d = ACTIVITY_DETAILS[id] || (appState.customDetails && appState.customDetails[id]);
   if (!d) return;
   document.getElementById('hotel-modal-name').textContent = d.name;
   document.getElementById('hotel-modal-sub').textContent = d.price || '';
@@ -9288,6 +9572,8 @@ function openActivityDetail(id) {
   const docsTab = document.getElementById('modal-tab-docs'); if (docsTab) docsTab.style.display = '';
   const adTab = document.getElementById('modal-tab-addday'); if (adTab) adTab.style.display = '';
   _currentModalContext = {key: id, type: 'activity', name: d.name};
+  const enrichBtn = document.getElementById('modal-enrich-btn');
+  if (enrichBtn) { enrichBtn.style.display = ''; enrichBtn.onclick = function() { openAiResearch('enrich', _currentModalContext); }; }
   switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
@@ -9362,17 +9648,18 @@ function confirmAddToDay(dayId) {
 }
 
 function openFoodDetail(key) {
-  const d = FOOD_DETAILS[key];
+  const d = FOOD_DETAILS[key] || (appState.customDetails && appState.customDetails[key]);
   if (!d) return;
   document.getElementById('hotel-modal-name').textContent = d.name;
   document.getElementById('hotel-modal-sub').textContent = d.price || '';
   document.getElementById('hotel-modal-badge').innerHTML = '<span class="badge">' + d.badge + '</span>';
-  const noteEl = document.getElementById('hotel-modal-note');
-  noteEl.style.display = 'none';
+  document.getElementById('hotel-modal-note').style.display = 'none';
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
   const _foodDt = document.getElementById('modal-tab-docs'); if (_foodDt) _foodDt.style.display = '';
   const _foodAdTab = document.getElementById('modal-tab-addday'); if (_foodAdTab) _foodAdTab.style.display = '';
   _currentModalContext = {key: key, type: 'food', name: d.name};
+  const enrichBtn = document.getElementById('modal-enrich-btn');
+  if (enrichBtn) { enrichBtn.style.display = ''; enrichBtn.onclick = function() { openAiResearch('enrich', _currentModalContext); }; }
   switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
@@ -9672,6 +9959,7 @@ document.addEventListener('visibilitychange', () => {
       <div class="hotel-modal-title" id="hotel-modal-name"></div>
       <div class="hotel-modal-sub" id="hotel-modal-sub"></div>
     </div>
+    <button class="modal-enrich-btn" id="modal-enrich-btn" style="display:none">✨ Enrich</button>
     <button class="hotel-modal-close" onclick="closeHotelDetail()">✕</button>
   </div>
   <div class="modal-subnav">
@@ -9992,6 +10280,13 @@ function closeAttachmentViewer() {
 <div class="day-detail-sheet" id="day-detail-sheet"><!-- content injected by openDayDetail() --></div>
 <div class="ev-info-overlay" id="ev-info-overlay" onclick="closeEvInfo()"></div>
 <div class="ev-info-sheet" id="ev-info-sheet"></div>
+
+<!-- AI Research Sheet -->
+<div class="ai-sheet-overlay" id="ai-sheet-overlay" onclick="closeAiResearch()"></div>
+<div class="ai-sheet" id="ai-sheet">
+  <div class="ai-sheet-handle"></div>
+  <div class="ai-sheet-body" id="ai-sheet-body"></div>
+</div>
 
 <!-- City filter modal -->
 <div class="filter-modal-overlay" id="filter-modal-overlay" onclick="closeFilterModal()"></div>
