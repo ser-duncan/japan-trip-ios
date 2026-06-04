@@ -6785,8 +6785,35 @@ async function runAiResearch() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(reqBody),
     });
-    const data = await res.json();
-    if (!res.ok || data.error) throw new Error(data.error || 'Research failed');
+    const startData = await res.json();
+    if (!res.ok || startData.error) throw new Error(startData.error || 'Research failed');
+
+    let data = startData;
+    if (startData.jobId) {
+      // Async job — update loading text and poll until done
+      const loadingSub = body.querySelector('.ai-loading-sub');
+      if (loadingSub) loadingSub.textContent = 'Searching the web…';
+      const jobId = startData.jobId;
+      let done = false;
+      for (let i = 0; i < 60 && !done; i++) {
+        await new Promise(function(r) { setTimeout(r, 3000); });
+        const pollRes = await fetch(AI_RESEARCH_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'poll', jobId: jobId }),
+        });
+        const pollData = await pollRes.json();
+        if (pollData.status === 'done') {
+          data = pollData;
+          done = true;
+        } else if (pollData.status === 'error') {
+          throw new Error(pollData.error || 'Research failed');
+        }
+        // status === 'pending' → keep polling
+      }
+      if (!done) throw new Error('Research timed out after 3 minutes');
+    }
+
     if (data.results && Array.isArray(data.results)) {
       _aiLastResults = data.results;
       _aiLastResult = null;
