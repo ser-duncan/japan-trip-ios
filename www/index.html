@@ -629,10 +629,10 @@
   .ev-info-action-btn:active { background: rgba(255,255,255,0.13); }
 
   /* AI Research Sheet */
-  .ai-sheet-overlay { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: opacity 0.22s; }
+  .ai-sheet-overlay { position: fixed; inset: 0; z-index: 1100; background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: opacity 0.22s; }
   .ai-sheet-overlay.open { opacity: 1; pointer-events: auto; }
   .ai-sheet {
-    position: fixed; z-index: 601; bottom: 0; left: 0; right: 0;
+    position: fixed; z-index: 1101; bottom: 0; left: 0; right: 0;
     background: rgba(22,22,30,0.94); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
     border-top: 1px solid rgba(255,255,255,0.1); border-radius: 22px 22px 0 0;
     transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.34,1.4,0.64,1);
@@ -1663,6 +1663,7 @@
     border-radius: 2px;
     margin: 12px auto 0;
     flex-shrink: 0;
+    touch-action: none;
   }
   .hotel-modal-header {
     display: flex;
@@ -1672,6 +1673,7 @@
     border-bottom: 1px solid var(--border);
     gap: 12px;
     flex-shrink: 0;
+    touch-action: none;
   }
   .hotel-modal-badge { margin-bottom: 6px; }
   .hotel-modal-title { font-size: 18px; font-weight: 700; }
@@ -5308,12 +5310,17 @@
 
     modal.addEventListener('touchstart', function(e) {
       startY = e.touches[0].clientY;
+      isDragging = false;
+      // If touch started on the handle or header (not the scrollable body), always allow drag
+      if (!e.target.closest('.hotel-modal-body')) {
+        startScroll = -1; // sentinel: guarantees drag even at scroll top
+        return;
+      }
       // Read scroll from the active content pane, not the modal (which no longer scrolls)
       const pane = document.getElementById('modal-pane-docs').style.display === 'none'
         ? document.getElementById('modal-pane-details')
         : document.getElementById('modal-pane-docs');
       startScroll = pane ? pane.scrollTop : 0;
-      isDragging = false;
     }, { passive: true });
 
     modal.addEventListener('touchmove', function(e) {
@@ -6979,7 +6986,10 @@ function _showShareToast(msg) {
 function _buildDetail(result) {
   // Result already has native sections[] format matching renderModalSections
   // Inject a Maps link into Getting There if mapQuery is set and no Maps row exists yet
-  var mapsUrl = result.mapQuery ? 'https://maps.google.com/?q=' + encodeURIComponent(result.mapQuery) : null;
+  var mapCoords = (result.lat && result.lng) ? (result.lat + ',' + result.lng) : null;
+  var mapsUrl = mapCoords
+    ? 'https://maps.google.com/?q=' + encodeURIComponent(mapCoords)
+    : (result.mapQuery ? 'https://maps.google.com/?q=' + encodeURIComponent(result.mapQuery) : null);
   var sections = (result.sections || []).map(function(sec) {
     if (mapsUrl && sec.title === 'Getting There') {
       var hasMap = (sec.rows || []).some(function(r) { return /map/i.test(r.label); });
@@ -7007,6 +7017,7 @@ function _buildDetail(result) {
     city: city,
     sections: sections,
     mapQuery: result.mapQuery || result.name || '',
+    mapCoords: mapCoords,
     _note: note,
     _aiGenerated: true,
   };
@@ -8224,7 +8235,7 @@ function buildMapReminder(dayId) {
 // Food guide items are in DEFAULT_ACTIVITIES (type:'food')
 
 const FOOD_DETAILS = {
-  ichiran: { name:'Ichiran Ramen', city:'tokyo', badge:'🗼 Tokyo', price:'¥1,200–1,800', sections:[
+  ichiran: { name:'Ichiran Ramen', city:'tokyo', badge:'🗼 Tokyo', price:'¥1,200–1,800', mapCoords:'35.6614,139.6986', sections:[
     { title:'Details', rows:[
       { label:'Address', value:'Multiple Shibuya locations; nearest 1-22-7 Jinnan, Shibuya-ku' },
       { label:'Hours', value:'Open 24 hours' },
@@ -8244,7 +8255,7 @@ const FOOD_DETAILS = {
       { label:'📍 Getting there', value:'5-min walk from Shibuya Crossing toward Jinnan area' },
     ]},
   ]},
-  gyukatsu: { name:'Gyukatsu Motomura', city:'tokyo', badge:'🗼 Tokyo', price:'¥1,500–2,200', sections:[
+  gyukatsu: { name:'Gyukatsu Motomura', city:'tokyo', badge:'🗼 Tokyo', price:'¥1,500–2,200', mapCoords:'35.6617,139.6987', sections:[
     { title:'Details', rows:[
       { label:'Address', value:'Multiple locations; Shibuya: 1-22-11 Jinnan, Shibuya-ku' },
       { label:'Hours', value:'11:00–23:00 daily' },
@@ -8263,7 +8274,7 @@ const FOOD_DETAILS = {
       { label:'🥩 Cook it', value:'The stone arrives very hot — cook to your preference, medium is the sweet spot' },
     ]},
   ]},
-  sushi: { name:'Conveyor Belt Sushi', city:'tokyo', badge:'🗼 Tokyo', price:'¥1,000–2,000', sections:[
+  sushi: { name:'Conveyor Belt Sushi', city:'tokyo', badge:'🗼 Tokyo', price:'¥1,000–2,000', mapCoords:'35.6607,139.7003', sections:[
     { title:'Details', rows:[
       { label:'Chains', value:'Kurazushi, Genki Sushi, Sushiro — all excellent, all near Shibuya' },
       { label:'Price', value:'¥165–330 per plate (2 pieces)' },
@@ -8300,7 +8311,7 @@ const FOOD_DETAILS = {
       { label:'🕘 Best time', value:'7–10 PM is peak izakaya energy — loud, fun, full of locals' },
     ]},
   ]},
-  blackeggs: { name:'Owakudani Black Eggs', city:'hakone', badge:'🏔 Hakone', price:'¥500 for 5 eggs', sections:[
+  blackeggs: { name:'Owakudani Black Eggs', city:'hakone', badge:'🏔 Hakone', price:'¥500 for 5 eggs', mapCoords:'35.2485,139.0214', sections:[
     { title:'Details', rows:[
       { label:'Location', value:'Owakudani station / volcanic valley — on the Hakone Ropeway route' },
       { label:'Price', value:'¥500 for a bag of 5 kuro-tamago' },
@@ -8318,7 +8329,7 @@ const FOOD_DETAILS = {
       { label:'👃 Smell', value:'Strong sulfur smell throughout the area — totally normal, not dangerous' },
     ]},
   ]},
-  nishiki: { name:'Nishiki Market', city:'kyoto', badge:'⛩ Kyoto', price:'¥200–800 per snack', sections:[
+  nishiki: { name:'Nishiki Market', city:'kyoto', badge:'⛩ Kyoto', price:'¥200–800 per snack', mapCoords:'35.0047,135.7649', sections:[
     { title:'Details', rows:[
       { label:'Location', value:'Nishiki-kōji, Nakagyo Ward — central Kyoto, parallel to Shijo St' },
       { label:'Hours', value:'Most stalls 9:00–18:00; some close Monday' },
@@ -8337,7 +8348,7 @@ const FOOD_DETAILS = {
       { label:'📍 After', value:'Connects to Gion area — great pre-dinner walk through Teramachi arcade' },
     ]},
   ]},
-  matcha: { name:'Gion Tsujiri', city:'kyoto', badge:'⛩ Kyoto', price:'¥800–1,500', sections:[
+  matcha: { name:'Gion Tsujiri', city:'kyoto', badge:'⛩ Kyoto', price:'¥800–1,500', mapCoords:'35.0044,135.7715', sections:[
     { title:'Details', rows:[
       { label:'Location', value:'Gion area, Kyoto — multiple locations, main branch near Shijo/Gion-Shijo' },
       { label:'Founded', value:'1860 — one of Kyoto\'s most historic matcha shops' },
@@ -8355,7 +8366,7 @@ const FOOD_DETAILS = {
       { label:'🛍 Souvenirs', value:'Pick up matcha powder or matcha KitKats — high quality and good gifts' },
     ]},
   ]},
-  takoyaki: { name:'Takoyaki — Wanaka', city:'osaka', badge:'🦀 Osaka', price:'¥600–900', sections:[
+  takoyaki: { name:'Takoyaki — Wanaka', city:'osaka', badge:'🦀 Osaka', price:'¥600–900', mapCoords:'34.6686,135.5005', sections:[
     { title:'Details', rows:[
       { label:'Location', value:'Dotonbori area, Osaka — Wanaka has multiple Dotonbori stalls' },
       { label:'Price', value:'8 pieces for ¥600–700' },
@@ -8373,7 +8384,7 @@ const FOOD_DETAILS = {
       { label:'🗺 Explore', value:'There are 5+ takoyaki stalls on Dotonbori — try a few and compare' },
     ]},
   ]},
-  okonomiyaki: { name:'Okonomiyaki — Mizuno', city:'osaka', badge:'🦀 Osaka', price:'¥1,000–1,800', sections:[
+  okonomiyaki: { name:'Okonomiyaki — Mizuno', city:'osaka', badge:'🦀 Osaka', price:'¥1,000–1,800', mapCoords:'34.6688,135.5002', sections:[
     { title:'Details', rows:[
       { label:'Location', value:'1-4-15 Dotonbori, Chuo Ward, Osaka' },
       { label:'Founded', value:'1945 — one of Osaka\'s most storied okonomiyaki spots' },
@@ -8392,7 +8403,7 @@ const FOOD_DETAILS = {
       { label:'🍺 Pair with', value:'Cold Sapporo or Asahi on tap completes the experience perfectly' },
     ]},
   ]},
-  nakamise: { name:'Nakamise Shopping Street', city:'tokyo', badge:'🗼 Tokyo', price:'¥200–1,500 per snack', sections:[
+  nakamise: { name:'Nakamise Shopping Street', city:'tokyo', badge:'🗼 Tokyo', price:'¥200–1,500 per snack', mapCoords:'35.7146,139.7967', sections:[
     { title:'Details', rows:[
       { label:'Location', value:'Nakamise-dori, Asakusa, Taito City, Tokyo (inside Senso-ji approach)' },
       { label:'Hours', value:'Most shops 10:00–18:00; busiest midday' },
@@ -8430,7 +8441,7 @@ const FOOD_DETAILS = {
       { label:'🏧 ATM', value:'7-Eleven ATMs accept international cards and are the most reliable for foreign cards' },
     ]},
   ]},
-  scramble: { name:'Shibuya Scramble Area', city:'tokyo', badge:'🗼 Tokyo', price:'¥800–2,500 per meal', sections:[
+  scramble: { name:'Shibuya Scramble Area', city:'tokyo', badge:'🗼 Tokyo', price:'¥800–2,500 per meal', mapCoords:'35.6594,139.7005', sections:[
     { title:'Strategy', rows:[
       { label:'The Secret', value:'Skip ground floor tourist traps. Restaurant floors start on level 3+ of most buildings.' },
       { label:'Best Buildings', value:'Shibuya Hikarie (floors 6–7), Shibuya Stream, Mag\'s Park above Shibuya 109' },
@@ -8482,7 +8493,7 @@ const FOOD_DETAILS = {
       { label:'🍶 Sobayu', value:'At the end, the server may bring sobayu (soba cooking water) — pour it into your remaining tsuyu and drink' },
     ]},
   ]},
-  'kyoto-ramen': { name:'Musoshin Ramen', city:'kyoto', badge:'🏯 Kyoto', price:'¥900–1,400', sections:[
+  'kyoto-ramen': { name:'Musoshin Ramen', city:'kyoto', badge:'🏯 Kyoto', price:'¥900–1,400', mapCoords:'34.9916,135.7584', sections:[
     { title:'Details', rows:[
       { label:'Location', value:'Near Kyoto Station — easy stop before or after sightseeing' },
       { label:'Specialty', value:'Tori paitan — creamy white chicken bone broth, distinctly different from Tokyo tonkotsu' },
@@ -8517,7 +8528,7 @@ const FOOD_DETAILS = {
       { label:'📅 Lunch only', value:'Most obanzai specialists only serve lunch; book ahead for popular spots' },
     ]},
   ]},
-  'nara-mochi': { name:'Nara Street Food', city:'kyoto', badge:'🦌 Nara (Day 8)', price:'¥300–800 per item', sections:[
+  'nara-mochi': { name:'Nara Street Food', city:'kyoto', badge:'🦌 Nara (Day 8)', price:'¥300–800 per item', mapCoords:'34.6840,135.8318', sections:[
     { title:'Mochi Pounding', rows:[
       { label:'Nakatanido', value:'The most famous spot — staff pound mochi at incredible speed, you can eat it fresh. Line moves fast.' },
       { label:'Location', value:'A short walk from Kintetsu Nara Station toward Todai-ji' },
@@ -8535,7 +8546,7 @@ const FOOD_DETAILS = {
       { label:'📸 Photos', value:'Early morning near Todai-ji is magical — mist, deer, no crowds' },
     ]},
   ]},
-  'kani-doraku': { name:'Kani Doraku', city:'osaka', badge:'🦀 Osaka', price:'¥3,000–8,000 per person', sections:[
+  'kani-doraku': { name:'Kani Doraku', city:'osaka', badge:'🦀 Osaka', price:'¥3,000–8,000 per person', mapCoords:'34.6688,135.5007', sections:[
     { title:'Details', rows:[
       { label:'Location', value:'1-6-18 Dotonbori, Chuo Ward, Osaka (famous moving crab sign)' },
       { label:'Hours', value:'11:00–23:00 daily' },
@@ -8554,7 +8565,7 @@ const FOOD_DETAILS = {
       { label:'💡 Budget', value:'Lunch here is genuinely good value for the quality — consider lunch over dinner to save ¥1,500–2,000 pp' },
     ]},
   ]},
-  kinryu: { name:'Kinryu Ramen', city:'osaka', badge:'🍜 Osaka', price:'¥700–900', sections:[
+  kinryu: { name:'Kinryu Ramen', city:'osaka', badge:'🍜 Osaka', price:'¥700–900', mapCoords:'34.6686,135.5013', sections:[
     { title:'Details', rows:[
       { label:'Location', value:'Dotonbori, Chuo Ward, Osaka — look for the giant gold dragon (kinryu = "golden dragon")' },
       { label:'Hours', value:'24 hours, 365 days' },
@@ -8572,7 +8583,7 @@ const FOOD_DETAILS = {
       { label:'💰 Cash', value:'Very cheap, cash preferred — have coins/small bills ready' },
     ]},
   ]},
-  kuromon: { name:'Kuromon Ichiba Market', city:'osaka', badge:'🦀 Osaka', price:'¥500–3,000 per item', sections:[
+  kuromon: { name:'Kuromon Ichiba Market', city:'osaka', badge:'🦀 Osaka', price:'¥500–3,000 per item', mapCoords:'34.6628,135.5079', sections:[
     { title:'Details', rows:[
       { label:'Location', value:'2-4-1 Nipponbashi, Chuo Ward, Osaka (near Namba)' },
       { label:'Hours', value:'Most stalls 9:00–18:00; some open earlier' },
@@ -8594,7 +8605,7 @@ const FOOD_DETAILS = {
 
   // ── Kyoto Gluten Free ─────────────────────────────────────────────────────
 
-  toshoan: { name:'Toshoan (登志庵)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥1,500–2,500 · Breakfast / Snack', sections:[
+  toshoan: { name:'Toshoan (登志庵)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥1,500–2,500 · Breakfast / Snack', mapCoords:'35.0116,135.7535', sections:[
     { title:'Gluten Free Status', rows:[
       { label:'✓ 100% Dedicated GF Kitchen', value:'Every item on the menu is gluten-free — pancakes, cream puffs, choux pastry, cookies, anko sweets, sponge cake. No wheat on the premises.' },
     ]},
@@ -8623,7 +8634,7 @@ const FOOD_DETAILS = {
     ]},
   ]},
 
-  'waco-crepes': { name:'waco crepes', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥800–1,500 · Snack / Breakfast', sections:[
+  'waco-crepes': { name:'waco crepes', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥800–1,500 · Snack / Breakfast', mapCoords:'34.9975,135.7839', sections:[
     { title:'Gluten Free Status', rows:[
       { label:'✓ 100% GF + Vegan', value:'All crepes made with rice flour — fully gluten-free and vegan. No wheat on the premises.' },
     ]},
@@ -8653,7 +8664,7 @@ const FOOD_DETAILS = {
     ]},
   ]},
 
-  'teuchi-soba': { name:'Teuchi Toru Soba (手打ちとおる)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥1,000 · Lunch Only', sections:[
+  'teuchi-soba': { name:'Teuchi Toru Soba (手打ちとおる)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥1,000 · Lunch Only', mapCoords:'35.0084,135.7580', sections:[
     { title:'Gluten Free Status', rows:[
       { label:'✓ 100% GF — Celiac Safe', value:'Owner mills his own buckwheat flour on-site — eliminates shared-mill cross-contamination. GF soy sauce available on request. The safest soba for celiacs in Kyoto.' },
     ]},
@@ -8681,7 +8692,7 @@ const FOOD_DETAILS = {
     ]},
   ]},
 
-  'gion-ramen': { name:'Gion Soy Milk Ramen', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥1,200–2,000 · Lunch / Dinner', sections:[
+  'gion-ramen': { name:'Gion Soy Milk Ramen', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥1,200–2,000 · Lunch / Dinner', mapCoords:'34.9981,135.7810', sections:[
     { title:'Gluten Free Status', rows:[
       { label:'✓ 100% GF + Vegan', value:"The only dedicated gluten-free ramen restaurant in Japan. All ramen, gyoza, croquettes, curries, and desserts are GF and plant-based. Run by the world's only soymilk patissier." },
     ]},
@@ -8711,7 +8722,7 @@ const FOOD_DETAILS = {
     ]},
   ]},
 
-  'choice-kyoto': { name:'CHOICE (チョイス)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥1,200–2,500 · All Day', sections:[
+  'choice-kyoto': { name:'CHOICE (チョイス)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥1,200–2,500 · All Day', mapCoords:'35.0091,135.7737', sections:[
     { title:'Gluten Free Status', rows:[
       { label:'✓ ~100% GF + Vegan', value:'Almost entire menu is GF and vegan. Uses tamari (GF soy sauce) throughout. Fish-free broth. Run by a medical doctor with deep understanding of celiac disease.' },
     ]},
@@ -8741,7 +8752,7 @@ const FOOD_DETAILS = {
     ]},
   ]},
 
-  ikkakuju: { name:'Ikkakuju Karasuma (いっかくじゅう)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥3,000–6,000 · Lunch (wknd) / Dinner', sections:[
+  ikkakuju: { name:'Ikkakuju Karasuma (いっかくじゅう)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥3,000–6,000 · Lunch (wknd) / Dinner', mapCoords:'35.0004,135.7596', sections:[
     { title:'Gluten Free Status', rows:[
       { label:'✓ 100% GF Kitchen', value:'Entire menu is gluten-free including soy sauce. Uses Nikkomaru rice flour for okonomiyaki. Private rooms reduce any cross-contact risk further.' },
     ]},
@@ -8771,7 +8782,7 @@ const FOOD_DETAILS = {
     ]},
   ]},
 
-  sugarhill: { name:'Sugarhill Kyoto', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥2,000–4,000 · Dinner', sections:[
+  sugarhill: { name:'Sugarhill Kyoto', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥2,000–4,000 · Dinner', mapCoords:'34.9969,135.7633', sections:[
     { title:'Gluten Free Status', rows:[
       { label:'✓ GF Menu + Celiac-Aware Kitchen', value:'GF dishes clearly labeled on menu. Owner extensively trained on celiac disease and cross-contact protocols. Separate cooking equipment for GF preparations.' },
     ]},
@@ -8801,7 +8812,7 @@ const FOOD_DETAILS = {
     ]},
   ]},
 
-  'kappa-italian': { name:'Oshokuya Kappa (5Kappa)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥3,000–8,000 · Lunch / Dinner', sections:[
+  'kappa-italian': { name:'Oshokuya Kappa (5Kappa)', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥3,000–8,000 · Lunch / Dinner', mapCoords:'34.9993,135.7578', sections:[
     { title:'Gluten Free Status', rows:[
       { label:'✓ 100% GF — Certified', value:'Kyoto\'s only certified GF Italian restaurant. Certified by the Japan Vegetable Sommelier Association. Every dish is GF: focaccia, fresh pasta, all sauces, all desserts.' },
     ]},
@@ -8832,7 +8843,7 @@ const FOOD_DETAILS = {
     ]},
   ]},
 
-  'musubi-sweets': { name:'Musubi Sweets Factory', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥500–1,200 · Snack / Dessert', sections:[
+  'musubi-sweets': { name:'Musubi Sweets Factory', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥500–1,200 · Snack / Dessert', mapCoords:'35.0143,135.6791', sections:[
     { title:'Gluten Free Status', rows:[
       { label:'✓ 100% GF + Vegan', value:'All desserts and coffee drinks are gluten-free and vegan. Home-roasted specialty coffee. No wheat on premises.' },
     ]},
@@ -8862,7 +8873,7 @@ const FOOD_DETAILS = {
     ]},
   ]},
 
-  'maccha-house': { name:'MACCHA HOUSE (抹茶館)', city:'kyoto', badge:'⛩ Kyoto · GF options', price:'¥600–1,800 · Snack / Matcha', sections:[
+  'maccha-house': { name:'MACCHA HOUSE (抹茶館)', city:'kyoto', badge:'⛩ Kyoto · GF options', price:'¥600–1,800 · Snack / Matcha', mapCoords:'34.9985,135.7843', sections:[
     { title:'Gluten Free Status', rows:[
       { label:'⚠ GF Options — Not Dedicated Kitchen', value:'Many items are naturally GF but this is not a dedicated GF facility. Suitable for gluten-sensitive travelers. Celiacs: inform staff and stick to the safe items listed below.' },
       { label:'✓ Safe GF Items', value:'Matcha soft serve (order in a CUP not cone) · Matcha latte (hot or iced) · Matcha caramel affogato latte · Ask staff to confirm before ordering anything else.' },
@@ -8891,7 +8902,7 @@ const FOOD_DETAILS = {
     ]},
   ]},
 
-  'gen-kyoto': { name:'Gen (玄gen) Takeout', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥800–1,500 · Lunch / Snack', sections:[
+  'gen-kyoto': { name:'Gen (玄gen) Takeout', city:'kyoto', badge:'⛩ Kyoto · ✓ GF', price:'¥800–1,500 · Lunch / Snack', mapCoords:'35.0243,135.7478', sections:[
     { title:'Gluten Free Status', rows:[
       { label:'✓ 100% GF + Vegan', value:'Entire menu is GF and vegan — no wheat, dairy, meat, fish, eggs, white sugar, or chemical additives.' },
     ]},
@@ -8919,7 +8930,7 @@ const FOOD_DETAILS = {
       { label:'💴 Budget-friendly', value:'Best value GF meal in Kyoto.' },
     ]},
   ]},
-  'genji-soba': { name:'Genji-soba (源氏そば)', city:'osaka', badge:'🦀 Osaka · 100% GF Kitchen', price:'¥800–1,500', sections:[
+  'genji-soba': { name:'Genji-soba (源氏そば)', city:'osaka', badge:'🦀 Osaka · 100% GF Kitchen', price:'¥800–1,500', mapCoords:'34.6650,135.5063', sections:[
     { title:'Overview', rows:[
       { label:'About', value:'Dedicated 100% gluten-free kitchen in Namba. Pure buckwheat soba (no wheat flour) served hot or cold. GF tempura also available with separate utensils and fryer. Celiac-safe.' },
       { label:'Must order', value:'Cold seiro soba with tsuyu dipping broth · GF tempura set · Ask for kakesoba (hot) in cool weather.' },
@@ -8932,7 +8943,7 @@ const FOOD_DETAILS = {
       { label:'Maps', value:'<a href="https://maps.google.com/?q=4-5-8+Namba+Naniwa+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
     ]},
   ]},
-  'oko': { name:'OKO Restaurant', city:'osaka', badge:'🦀 Osaka · GF-Friendly', price:'¥800–2,000', sections:[
+  'oko': { name:'OKO Restaurant', city:'osaka', badge:'🦀 Osaka · GF-Friendly', price:'¥800–2,000', mapCoords:'34.6725,135.5024', sections:[
     { title:'Overview', rows:[
       { label:'About', value:'5-floor restaurant near Shinsaibashi with dedicated GF options. Specializes in GF vegetarian takoyaki (rice flour batter) and kushikatsu (separate fryer). Great for the whole group.' },
       { label:'GF menu', value:'GF takoyaki · GF kushikatsu · GF okonomiyaki — all cooked in a dedicated gluten-free fryer. Mention GF when ordering.' },
@@ -8948,7 +8959,7 @@ const FOOD_DETAILS = {
 };
 
 const ACTIVITY_DETAILS = {
-  a0: { name:'Shibuya Crossing', badge:'🗼 Tokyo · Must-do', price:'Free', sections:[
+  a0: { name:'Shibuya Crossing', badge:'🗼 Tokyo · Must-do', price:'Free', mapCoords:'35.6594,139.7004', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"The world's busiest intersection — thousands of people cross from all directions simultaneously on the green light. Best at evening rush hour (5–8 PM) or Saturday night." },
       { label:'Hours', value:'Open 24/7. Best: 5–8 PM weekdays or Saturday evening.' },
@@ -8964,7 +8975,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a1: { name:'Shinjuku Neon District + Omoide Yokocho', badge:'🗼 Tokyo · Must-do', price:'Free + ¥1,500–3,000 food', sections:[
+  a1: { name:'Shinjuku Neon District + Omoide Yokocho', badge:'🗼 Tokyo · Must-do', price:'Free + ¥1,500–3,000 food', mapCoords:'35.6922,139.6997', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Shinjuku at night is quintessential Tokyo neon-and-chaos. Omoide Yokocho ('Memory Lane') is a tiny alley of yakitori stalls under the train tracks — paper lanterns, grilled chicken, beer." },
       { label:'Best time', value:'After 7 PM — Omoide Yokocho is dinner only; neon district is best after dark.' },
@@ -8980,7 +8991,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a2: { name:'Meiji Shrine', badge:'🗼 Tokyo · Must-do', price:'Free', sections:[
+  a2: { name:'Meiji Shrine', badge:'🗼 Tokyo · Must-do', price:'Free', mapCoords:'35.6763,139.6993', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Serene forested Shinto shrine dedicated to Emperor Meiji and Empress Shoken. A 10-min walk from Harajuku Station takes you from Tokyo's fashion district into 170 acres of quiet cedar forest." },
       { label:'Hours', value:'Sunrise to sunset (~5:00 AM – 6:00 PM, varies by season)' },
@@ -8998,7 +9009,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a3: { name:'Harajuku Takeshita Street', badge:'🗼 Tokyo · Must-do', price:'Free to browse', sections:[
+  a3: { name:'Harajuku Takeshita Street', badge:'🗼 Tokyo · Must-do', price:'Free to browse', mapCoords:'35.6720,139.7027', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Narrow pedestrian street packed with youth fashion boutiques, kawaii shops, crepe stands, and cosplay stores. The birthplace of Harajuku street fashion — colorful, chaotic, fun for all ages." },
       { label:'Hours', value:'Most shops 10 AM – 8 PM daily. Busiest on weekends.' },
@@ -9016,7 +9027,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a4: { name:'teamLab Planets TOKYO', badge:'🗼 Tokyo · Booked ✓', price:'¥3,200/adult · BOOKED', sections:[
+  a4: { name:'teamLab Planets TOKYO', badge:'🗼 Tokyo · Booked ✓', price:'¥3,200/adult · BOOKED', mapCoords:'35.6430,139.7944', sections:[
     { title:'Your Booking', rows:[
       { label:'✓ Confirmed', value:'Klook booking ABT743615 · 5 persons' },
       { label:'Date', value:'Thu · May 28 · teamLab Planets, Toyosu' },
@@ -9038,7 +9049,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a5: { name:'Tokyo Skytree', badge:'🗼 Tokyo · Optional', price:'¥2,100–3,400/person', sections:[
+  a5: { name:'Tokyo Skytree', badge:'🗼 Tokyo · Optional', price:'¥2,100–3,400/person', mapCoords:'35.7101,139.8107', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"World's tallest tower at 634 m. Two observation decks: Tembo Deck at 350 m and Tembo Galleria at 450 m. On a clear day, Mt. Fuji is visible. Solamachi mall in the base has great food." },
       { label:'Hours', value:'10 AM – 10 PM daily (last entry 9 PM)' },
@@ -9056,7 +9067,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a6: { name:'Tsukiji Outer Market', badge:'🗼 Tokyo · Optional', price:'Free to browse', sections:[
+  a6: { name:'Tsukiji Outer Market', badge:'🗼 Tokyo · Optional', price:'Free to browse', mapCoords:'35.6654,139.7707', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"The old Tsukiji fish market's outer section — best place in Tokyo for fresh seafood breakfast or brunch. Hundreds of stalls: tamagoyaki, sea urchin, tuna sashimi, grilled oysters." },
       { label:'Hours', value:'Most stalls 5 AM – 2 PM. Arrive before 11 AM for the best selection.' },
@@ -9073,7 +9084,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a7: { name:'Pokémon Center', badge:'🗼 Tokyo · Shopping', price:'Free entry', sections:[
+  a7: { name:'Pokémon Center', badge:'🗼 Tokyo · Shopping', price:'Free entry', mapCoords:'35.6627,139.6988', sections:[
     { title:'Overview', rows:[
       { label:'About', value:"Official Pokémon merchandise — plush, trading cards, clothing, accessories, stationery, Japan-exclusive items. Multiple Tokyo locations. Shibuya and Ikebukuro are most convenient." },
       { label:'Hours', value:'11 AM – 8 PM daily' },
@@ -9089,7 +9100,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a9: { name:'Hakone Ropeway', badge:'🏔 Hakone · Must-do', price:'¥1,000–1,600/person', sections:[
+  a9: { name:'Hakone Ropeway', badge:'🏔 Hakone · Must-do', price:'¥1,000–1,600/person', mapCoords:'35.2377,139.0141', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Aerial ropeway passing over Owakudani volcanic valley — dramatic views of steam vents and on clear days Mt. Fuji. Part of the circular Hakone sightseeing route." },
       { label:'Hours', value:'9 AM – 5 PM (last car 4:45 PM)' },
@@ -9105,7 +9116,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a10: { name:'Owakudani Valley', badge:'🏔 Hakone · Must-do', price:'¥500 eggs', sections:[
+  a10: { name:'Owakudani Valley', badge:'🏔 Hakone · Must-do', price:'¥500 eggs', mapCoords:'35.2485,139.0214', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Active volcanic valley with billowing sulphur vents and bubbling ponds. Famous for kuro-tamago (black eggs). Dramatic moonscape quality with excellent mountain views." },
       { label:'Note', value:'Strong sulphur smell. Walking path may close during elevated volcanic activity — check conditions.' },
@@ -9120,7 +9131,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a11: { name:'Lake Ashi Pirate Ship Cruise', badge:'🏔 Hakone · Must-do', price:'¥1,000–1,200/person', sections:[
+  a11: { name:'Lake Ashi Pirate Ship Cruise', badge:'🏔 Hakone · Must-do', price:'¥1,000–1,200/person', mapCoords:'35.2029,139.0266', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Pleasure cruise on scenic Lake Ashi aboard elaborately designed pirate-ship boats. The lake sits in Hakone's ancient volcanic caldera — Mt. Fuji views on clear days." },
       { label:'Hours', value:'Boats run 9:30 AM – 4:30 PM, every 25–30 minutes' },
@@ -9162,7 +9173,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a14: { name:'Fushimi Inari Shrine', badge:'⛩ Kyoto · Must-do', price:'Free', sections:[
+  a14: { name:'Fushimi Inari Shrine', badge:'⛩ Kyoto · Must-do', price:'Free', mapCoords:'34.9671,135.7727', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Famous for thousands of vermilion torii gates winding up Mt. Inari. The full hike to the summit is 4 km and takes 2–3 hours. Most visitors hike to the halfway point (Yotsutsuji intersection, ~45 min) for great views." },
       { label:'Hours', value:'Open 24/7 — the shrine is always accessible.' },
@@ -9181,7 +9192,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a15: { name:'Arashiyama Bamboo Grove', badge:'⛩ Kyoto · Must-do', price:'Free', sections:[
+  a15: { name:'Arashiyama Bamboo Grove', badge:'⛩ Kyoto · Must-do', price:'Free', mapCoords:'35.0170,135.6726', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"A narrow path through towering bamboo stalks that creak and sway. The filtered light creates an otherworldly atmosphere. One of Kyoto's most photographed spots — and it earns it." },
       { label:'Hours', value:'Open 24/7 — accessible at all times.' },
@@ -9199,7 +9210,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a16: { name:'Kinkaku-ji (Golden Pavilion)', badge:'⛩ Kyoto · Must-do', price:'¥500/person', sections:[
+  a16: { name:'Kinkaku-ji (Golden Pavilion)', badge:'⛩ Kyoto · Must-do', price:'¥500/person', mapCoords:'35.0394,135.7292', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Iconic 3-story pavilion covered in gold leaf, reflected in Kyōkochi Pond. Originally a 14th-century Ashikaga shogun's villa, converted to a Zen temple. One of Japan's most recognizable images." },
       { label:'Hours', value:'9 AM – 5 PM daily (last entry 4:30 PM)' },
@@ -9217,7 +9228,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a17: { name:'Gion District', badge:'⛩ Kyoto · Must-do', price:'Free to explore', sections:[
+  a17: { name:'Gion District', badge:'⛩ Kyoto · Must-do', price:'Free to explore', mapCoords:'35.0037,135.7747', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Kyoto's most famous geisha district — preserved Edo-period streets lined with traditional machiya townhouses, tea houses (ochaya), and restaurants. Hanamikoji Street is the main promenade." },
       { label:'Best time', value:'Evening 5–9 PM for the highest chance of seeing geiko and maiko walking to appointments.' },
@@ -9234,7 +9245,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a18: { name:'Nishiki Market', badge:'⛩ Kyoto · Must-do', price:'Free to browse', sections:[
+  a18: { name:'Nishiki Market', badge:'⛩ Kyoto · Must-do', price:'Free to browse', mapCoords:'35.0047,135.7649', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Narrow 400-m covered market with 100+ stalls selling Kyoto specialties: pickled vegetables, tofu, fresh produce, street snacks, and local condiments. Called 'Kyoto's Kitchen.'" },
       { label:'Hours', value:'Most shops 9 AM – 6 PM. Some close Wednesdays.' },
@@ -9293,7 +9304,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a21: { name:"Philosopher's Path", badge:'⛩ Kyoto · Optional', price:'Free', sections:[
+  a21: { name:"Philosopher's Path", badge:'⛩ Kyoto · Optional', price:'Free', mapCoords:'35.0270,135.7947', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"A 2 km stone path alongside a cherry-tree-lined canal, from Ginkaku-ji (Silver Pavilion) to Nanzen-ji temple. Named after philosopher Nishida Kitaro who meditated here daily. One of Kyoto's most pleasant walks." },
       { label:'Hours', value:'Open at all times — no entrance gate.' },
@@ -9310,7 +9321,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a22: { name:'Nijo Castle', badge:'⛩ Kyoto · Optional', price:'¥1,030/person', sections:[
+  a22: { name:'Nijo Castle', badge:'⛩ Kyoto · Optional', price:'¥1,030/person', mapCoords:'35.0142,135.7483', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"1603 Tokugawa shogunate castle with UNESCO World Heritage status. Famous for 'nightingale floors' (uguisubari) — corridors that squeak to detect intruders. Magnificent kara-mon gate and Ninomaru Palace." },
       { label:'Hours', value:'8:45 AM – 5 PM (last entry 4 PM). Closed Tue in Dec–Feb.' },
@@ -9328,7 +9339,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a23: { name:'Dotonbori', badge:'🦀 Osaka · Must-do', price:'Free to explore', sections:[
+  a23: { name:'Dotonbori', badge:'🦀 Osaka · Must-do', price:'Free to explore', mapCoords:'34.6687,135.5014', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Osaka's famous entertainment and street food district — neon-lit canal promenade with giant moving ad signs, dozens of restaurants, and the iconic Glico Running Man billboard. Evening is best." },
       { label:'Best time', value:'From 6 PM when all the neon is lit. Busy until midnight on weekends.' },
@@ -9345,7 +9356,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a24: { name:'Osaka Castle', badge:'🦀 Osaka · Must-do', price:'¥600/person', sections:[
+  a24: { name:'Osaka Castle', badge:'🦀 Osaka · Must-do', price:'¥600/person', mapCoords:'34.6873,135.5262', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Iconic 16th-century castle rebuilt in 1931 with a modern museum inside. The castle park is one of Osaka's best green spaces. Famous for cherry blossoms in spring." },
       { label:'Hours', value:'9 AM – 5 PM (last entry 4:30 PM). Castle park is free and open at all times.' },
@@ -9362,7 +9373,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a25: { name:'Shinsekai District', badge:'🦀 Osaka · Must-do', price:'Free to explore', sections:[
+  a25: { name:'Shinsekai District', badge:'🦀 Osaka · Must-do', price:'Free to explore', mapCoords:'34.6525,135.5062', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Retro 1920s entertainment district built to evoke New York and Paris. Now wonderfully gritty and nostalgic — full of kushikatsu restaurants, old-school arcades, and Tsutenkaku Tower." },
       { label:'Best time', value:'Afternoon into evening — restaurants open for lunch, lively until 10 PM.' },
@@ -9407,7 +9418,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a28: { name:'Universal Studios Japan', badge:'🦀 Osaka · Optional', price:'¥8,600+ day ticket', sections:[
+  a28: { name:'Universal Studios Japan', badge:'🦀 Osaka · Optional', price:'¥8,600+ day ticket', mapCoords:'34.6654,135.4323', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Full-scale theme park with The Wizarding World of Harry Potter, Super Nintendo World, Minions Land, and more. A full day is needed." },
       { label:'Hours', value:'9 AM – 9 PM (varies by season — check usj.co.jp)' },
@@ -9425,7 +9436,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a29: { name:'Pokémon Café Osaka', badge:'🦀 Osaka · Optional', price:'¥500 cover + food', sections:[
+  a29: { name:'Pokémon Café Osaka', badge:'🦀 Osaka · Optional', price:'¥500 cover + food', mapCoords:'34.7046,135.4982', sections:[
     { title:'Overview', rows:[
       { label:'About', value:"Backup since the Tokyo café is closed during your trip dates. Located in Grand Front Osaka — themed food, limited merchandise, and Pokémon décor throughout." },
       { label:'Hours', value:'10:30 AM – 9:30 PM (last orders 8:30 PM).' },
@@ -9441,7 +9452,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a30: { name:'Shinsaibashi-suji Arcade', badge:'🦀 Osaka · Shopping', price:'Free to browse', sections:[
+  a30: { name:'Shinsaibashi-suji Arcade', badge:'🦀 Osaka · Shopping', price:'Free to browse', mapCoords:'34.6718,135.4994', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"One of Japan's longest covered shopping arcades — stretches south from Shinsaibashi toward Dotonbori. Fashion, cosmetics, drugstores, fast food, snack shops, quirky Japan goods. Excellent for teens." },
       { label:'Vibe', value:'Mix of high street, beauty brands (Loft, Plaza, drugstores), fast fashion (Uniqlo, GU), anime goods, and local snack stops. Busy but sheltered from rain.' },
@@ -9460,7 +9471,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a31: { name:'Tombori River Cruise', badge:'🦀 Osaka · Experience', price:'¥2,000/adult', sections:[
+  a31: { name:'Tombori River Cruise', badge:'🦀 Osaka · Experience', price:'¥2,000/adult', mapCoords:'34.6688,135.5006', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"20-minute scenic cruise along the Dotonbori River under the neon signs, bridges, and glowing facades. Best at night when the reflections turn the canal into a mirror of color." },
       { label:'Hours', value:'11:00 AM – 9:00 PM daily. Departs every 30 minutes (:00 and :30).' },
@@ -9484,7 +9495,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a32: { name:'Round1 Stadium Sennichimae', badge:'🦀 Osaka · Entertainment', price:'¥2,890 Spo-Cha pass', sections:[
+  a32: { name:'Round1 Stadium Sennichimae', badge:'🦀 Osaka · Entertainment', price:'¥2,890 Spo-Cha pass', mapCoords:'34.6655,135.5028', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Massive multi-story entertainment complex near Namba — arcade, bowling, skating, sports simulators, claw machines, karaoke, go-karts, and more. The definitive teen energy-burn spot in Osaka." },
       { label:'Hours', value:'Arcade: 6:00 AM – 12:50 AM. Bowling: 24 hours. Facility open 24 hours.' },
@@ -9502,7 +9513,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a33: { name:'Namba Parks', badge:'🦀 Osaka · Shopping', price:'Free to enter', sections:[
+  a33: { name:'Namba Parks', badge:'🦀 Osaka · Shopping', price:'Free to enter', mapCoords:'34.6567,135.4994', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Multi-level open-air shopping mall built in a dramatic canyon-like architectural style, with a famous rooftop garden — 10,000 plants across 500 species. About 250 stores plus multiple dining floors." },
       { label:'Hours', value:'Shops: 11:00 AM – 9:00 PM. Restaurants: 11:00 AM – 11:00 PM.' },
@@ -9520,7 +9531,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a34: { name:'Hep Five Umeda', badge:'🦀 Osaka · Shopping + Fun', price:'Free entry · ¥1,000 ferris wheel', sections:[
+  a34: { name:'Hep Five Umeda', badge:'🦀 Osaka · Shopping + Fun', price:'Free entry · ¥1,000 ferris wheel', mapCoords:'34.7040,135.4979', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"7-story youth fashion mall in Umeda (north Osaka) topped by an iconic giant red Ferris wheel rising 106m above the city. The wheel reopened April 2026 after renovation — should be fully operational for your visit." },
       { label:'Hours', value:'Shopping: 11 AM–9 PM. Restaurants: 11 AM–10:30 PM. Amusement (8F–9F): 11 AM–11 PM. Ferris Wheel: 11 AM–10:45 PM last boarding.' },
@@ -9543,7 +9554,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a35: { name:'Orange Street, Horie', badge:'🦀 Osaka · Streetwear Shopping', price:'Free to browse', sections:[
+  a35: { name:'Orange Street, Horie', badge:'🦀 Osaka · Streetwear Shopping', price:'Free to browse', mapCoords:'34.6768,135.4942', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Osaka's coolest streetwear corridor — ~800m strip (Tachibana-dori, Minami-Horie) lined with vintage shops, sneaker boutiques, indie Japanese fashion, interior design showrooms, and specialty coffee. Less touristy, more local than Shinsaibashi." },
       { label:'Vibe', value:'Americana, hip-hop, skate, Japanese streetwear aesthetic. Where Osaka\'s fashion-forward youth actually shop. Teens into Supreme, Bape, vintage or Japanese brands will love this.' },
@@ -9566,7 +9577,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a36: { name:'Amerikamura (Amerika-mura)', badge:'🦀 Osaka · Street Culture', price:'Free to browse', sections:[
+  a36: { name:'Amerikamura (Amerika-mura)', badge:'🦀 Osaka · Street Culture', price:'Free to browse', mapCoords:'34.6719,135.4985', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Short for 'American Village' — a few square blocks west of Shinsaibashi packed with youth fashion, streetwear, vintage, music culture, and quirky teen-friendly shops. More concentrated and edgy than the covered arcade." },
       { label:'Vibe', value:'Hip-hop, punk, skate, street art. Triangle Park at the center is the social hub — food stalls, buskers, teens hanging out. Very lively on weekends.' },
@@ -9579,7 +9590,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a37: { name:'Rinku Premium Outlets', badge:'🦀 Osaka · Outlet Shopping', price:'Free entry · discounts 40–60%', sections:[
+  a37: { name:'Rinku Premium Outlets', badge:'🦀 Osaka · Outlet Shopping', price:'Free entry · discounts 40–60%', mapCoords:'34.4287,135.3002', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Japan's most scenic outlet mall — waterfront setting directly across Osaka Bay from KIX Airport. 210–250 stores with international luxury and premium brands at 40–60% discount. Worth a half-day if the group is into outlet shopping." },
       { label:'Hours', value:'10:00 AM – 8:00 PM (most of year). 10:00 AM – 7:00 PM (February only).' },
@@ -9600,7 +9611,7 @@ const ACTIVITY_DETAILS = {
     ]},
   ]},
 
-  a38: { name:'Expo City Suita', badge:'🦀 Osaka · Full-Day Family', price:'NIFREL ¥2,200 · Osaka Wheel ¥1,000', sections:[
+  a38: { name:'Expo City Suita', badge:'🦀 Osaka · Full-Day Family', price:'NIFREL ¥2,200 · Osaka Wheel ¥1,000', mapCoords:'34.8042,135.5277', sections:[
     { title:'Overview', rows:[
       { label:'Description', value:"Major family entertainment complex in northern Osaka suburb — NIFREL (unique aqua-zoo-art hybrid), Redhorse Osaka Wheel (Japan's tallest at 123m), LaLaport EXPOCITY mall with ~300 stores including a Pokémon Center, and the historic Expo '70 park next door." },
       { label:'⚠ Distance note', value:'60–75 min from Namba. This is a dedicated full-day destination — not a quick add-on.' },
@@ -9625,7 +9636,7 @@ const ACTIVITY_DETAILS = {
       { label:'Maps', value:'<a href="https://maps.google.com/?q=ExpoCity+Suita+Osaka" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
     ]},
   ]},
-  a39: { name:'Sensō-ji Temple (浅草寺)', badge:'🗼 Tokyo · Must-do', price:'Free entry', sections:[
+  a39: { name:'Sensō-ji Temple (浅草寺)', badge:'🗼 Tokyo · Must-do', price:'Free entry', mapCoords:'35.7148,139.7967', sections:[
     { title:'Overview', rows:[
       { label:'About', value:"Tokyo's oldest temple, founded 628 AD. The iconic Kaminarimon (Thunder Gate) with its giant red lantern is one of Japan's most photographed spots. Free to enter the grounds any time." },
       { label:'Best time', value:'Early morning (before 8 AM) for peaceful atmosphere — crowds build by 10 AM. The 5-story pagoda is stunning at sunrise.' },
@@ -9642,7 +9653,7 @@ const ACTIVITY_DETAILS = {
       { label:'Maps', value:'<a href="https://maps.google.com/?q=Senso-ji+Temple+Asakusa+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
     ]},
   ]},
-  a40: { name:'Akihabara Electric Town (秋葉原)', badge:'🗼 Tokyo · Must-do', price:'Free to explore', sections:[
+  a40: { name:'Akihabara Electric Town (秋葉原)', badge:'🗼 Tokyo · Must-do', price:'Free to explore', mapCoords:'35.7023,139.7731', sections:[
     { title:'Overview', rows:[
       { label:'About', value:"Tokyo's legendary otaku district — anime, manga, gaming, electronics, and gachapon machines on every corner. Multi-floor arcades, figure stores, rare merchandise, and maid cafés." },
       { label:'Best spots', value:'SEGA Akihabara (5 floors of arcade games) · Yodobashi Akiba (8 floors of electronics) · Animate (anime merch) · Mandarake Complex (used manga + figures)' },
@@ -9658,7 +9669,7 @@ const ACTIVITY_DETAILS = {
       { label:'Maps', value:'<a href="https://maps.google.com/?q=Akihabara+Electric+Town+Tokyo" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
     ]},
   ]},
-  a41: { name:'Shibuya Sky (渋谷スカイ)', badge:'🗼 Tokyo · Booked ✓', price:'¥2,000/adult · ¥1,600 teen · ¥1,000 child', sections:[
+  a41: { name:'Shibuya Sky (渋谷スカイ)', badge:'🗼 Tokyo · Booked ✓', price:'¥2,000/adult · ¥1,600 teen · ¥1,000 child', mapCoords:'35.6584,139.7022', sections:[
     { title:'Booking', rows:[
       { label:'Reservation ref', value:'RBA473737 (Klook)' },
       { label:'Date & time', value:'Thu May 28 · 7:40 PM entry' },
@@ -9676,7 +9687,7 @@ const ACTIVITY_DETAILS = {
       { label:'Maps', value:'<a href="https://maps.google.com/?q=Shibuya+Sky+Tokyo+渋谷スカイ" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
     ]},
   ]},
-  a42: { name:'Odaiba — Waterfront District', badge:'🗼 Tokyo · Optional', price:'Free (some attractions paid)', sections:[
+  a42: { name:'Odaiba — Waterfront District', badge:'🗼 Tokyo · Optional', price:'Free (some attractions paid)', mapCoords:'35.6196,139.7790', sections:[
     { title:'Overview', rows:[
       { label:'About', value:"Futuristic artificial island in Tokyo Bay with Rainbow Bridge views, life-size Gundam statue, shopping malls, and teamLab Borderless (world's largest digital art museum nearby)." },
       { label:'Life-size Gundam', value:'18m RX-78-2 Gundam statue at DiverCity Tokyo Plaza — free to view from outside. One of the most iconic geek attractions in Japan.' },
@@ -9693,7 +9704,7 @@ const ACTIVITY_DETAILS = {
       { label:'Maps', value:'<a href="https://maps.google.com/?q=DiverCity+Tokyo+Odaiba" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
     ]},
   ]},
-  a43: { name:'Nara — Tōdai-ji & Deer Park', badge:'🦌 Nara · Day Trip from Kyoto', price:'¥600/adult · ¥300 child (Tōdai-ji)', sections:[
+  a43: { name:'Nara — Tōdai-ji & Deer Park', badge:'🦌 Nara · Day Trip from Kyoto', price:'¥600/adult · ¥300 child (Tōdai-ji)', mapCoords:'34.6887,135.8397', sections:[
     { title:'Highlights', rows:[
       { label:'Great Buddha (Daibutsu)', value:'15m bronze Buddha — the world\'s largest bronze statue. Inside Tōdai-ji\'s Daibutsuden (Great Buddha Hall), the world\'s largest wooden building. Utterly massive in person.' },
       { label:'Bowing deer', value:'500+ wild sika deer roam freely through Nara Park. Buy shika senbei (deer crackers) for ¥200 — they literally bow to ask for food. Respectful but persistent.' },
@@ -9711,7 +9722,7 @@ const ACTIVITY_DETAILS = {
       { label:'Maps', value:'<a href="https://maps.google.com/?q=Todaiji+Temple+Nara+東大寺" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
     ]},
   ]},
-  a44: { name:'Kiyomizudera Temple (清水寺)', badge:'⛩ Kyoto · Must-do', price:'¥500/adult · ¥200 child', sections:[
+  a44: { name:'Kiyomizudera Temple (清水寺)', badge:'⛩ Kyoto · Must-do', price:'¥500/adult · ¥200 child', mapCoords:'34.9949,135.7851', sections:[
     { title:'Highlights', rows:[
       { label:'The Wooden Stage', value:'Butai — an enormous wooden platform extending 13m over the forested hillside, built without a single nail. UNESCO World Heritage. The views of Kyoto below are spectacular.' },
       { label:'Benkei\'s Spear', value:"Warrior monk Musashibō Benkei's iron naginata (~96 kg) is enshrined at the temple. Legend says if you can lift it, you'll prosper. Jake is an absolute badass." },
@@ -9729,7 +9740,7 @@ const ACTIVITY_DETAILS = {
       { label:'Maps', value:'<a href="https://maps.google.com/?q=Kiyomizudera+Temple+Kyoto+清水寺" target="_blank" rel="noopener" style="color:#7EB0FF">Open in Google Maps ↗</a>' },
     ]},
   ]},
-  a45: { name:'Osaka Aquarium Kaiyukan (海遊館)', badge:'🦀 Osaka · Booked ✓', price:'¥2,400 adults · ¥1,200 ages 7–15 · ¥600 ages 4–6', sections:[
+  a45: { name:'Osaka Aquarium Kaiyukan (海遊館)', badge:'🦀 Osaka · Booked ✓', price:'¥2,400 adults · ¥1,200 ages 7–15 · ¥600 ages 4–6', mapCoords:'34.6553,135.4311', sections:[
     { title:'Overview', rows:[
       { label:'About', value:"One of the world's largest aquariums — 15 zones representing Pacific Rim ecosystems from the Japan Forest to the Antarctic. The main Pacific Ocean tank holds 5,400 tons of water and is stunning." },
       { label:'Whale shark', value:'The centerpiece — the largest fish in the world, gliding through the massive central tank alongside manta rays, schools of fish, and a huge variety of Pacific life.' },
@@ -9913,7 +9924,7 @@ function openActivityDetail(id, tab) {
   const docsTab = document.getElementById('modal-tab-docs'); if (docsTab) docsTab.style.display = '';
   const adTab = document.getElementById('modal-tab-addday'); if (adTab) adTab.style.display = '';
   const mapQuery = d.mapQuery || (d.name + (d.city ? ' ' + d.city : '') + ' Japan');
-  _currentModalContext = {key: id, type: 'activity', name: d.name, mapQuery: mapQuery};
+  _currentModalContext = {key: id, type: 'activity', name: d.name, mapQuery: mapQuery, mapCoords: d.mapCoords || null};
   const mapTabEl = document.getElementById('modal-tab-map');
   if (mapTabEl) mapTabEl.style.display = '';
   const mapContainer = document.getElementById('hotel-modal-map-container');
@@ -10004,7 +10015,7 @@ function openFoodDetail(key, tab) {
   const _foodDt = document.getElementById('modal-tab-docs'); if (_foodDt) _foodDt.style.display = '';
   const _foodAdTab = document.getElementById('modal-tab-addday'); if (_foodAdTab) _foodAdTab.style.display = '';
   const mapQuery = d.mapQuery || (d.name + (d.city ? ' ' + d.city : '') + ' Japan');
-  _currentModalContext = {key: key, type: 'food', name: d.name, mapQuery: mapQuery};
+  _currentModalContext = {key: key, type: 'food', name: d.name, mapQuery: mapQuery, mapCoords: d.mapCoords || null};
   const mapTabEl = document.getElementById('modal-tab-map');
   if (mapTabEl) mapTabEl.style.display = '';
   const mapContainer = document.getElementById('hotel-modal-map-container');
@@ -10606,8 +10617,14 @@ function switchModalTab(tab) {
   if (tab === 'map') {
     const mapContainer = document.getElementById('hotel-modal-map-container');
     if (mapContainer && !mapContainer.querySelector('iframe')) {
+      const mapCoords = _currentModalContext && _currentModalContext.mapCoords;
       const mapQuery = _currentModalContext && _currentModalContext.mapQuery;
-      if (mapQuery) {
+      if (mapCoords) {
+        const encodedCoords = encodeURIComponent(mapCoords);
+        mapContainer.innerHTML =
+          '<iframe src="https://maps.google.com/maps?q=' + encodedCoords + '&output=embed" class="map-embed-frame" allowfullscreen loading="lazy"></iframe>'
+          + '<a href="https://maps.google.com/?q=' + encodedCoords + '" target="_blank" rel="noopener" class="map-open-btn">Open in Maps App ↗</a>';
+      } else if (mapQuery) {
         const encoded = encodeURIComponent(mapQuery);
         mapContainer.innerHTML =
           '<iframe src="https://maps.google.com/maps?q=' + encoded + '&output=embed" class="map-embed-frame" allowfullscreen loading="lazy"></iframe>'
