@@ -2875,6 +2875,41 @@
   }
   .inbox-tab.active { color: var(--text); border-bottom-color: #7EB0FF; }
 
+  /* ── Research Jobs tab ── */
+  .rj-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+  }
+  .rj-card-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+  .rj-action-pill {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+    padding: 2px 7px; border-radius: 99px; background: rgba(126,176,255,0.15); color: #7EB0FF;
+  }
+  .rj-status-pill {
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px;
+  }
+  .rj-status-pill.running { background: rgba(251,191,36,0.15); color: #fbbf24; }
+  .rj-status-pill.done    { background: rgba(52,211,153,0.15); color: #34d399; }
+  .rj-status-pill.failed  { background: rgba(248,113,113,0.15); color: #f87171; }
+  .rj-status-pill.timeout { background: rgba(156,163,175,0.15); color: #9ca3af; }
+  .rj-time { font-size: 11px; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
+  .rj-query {
+    font-size: 13px; font-weight: 500; line-height: 1.4;
+    overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+    word-break: break-word; margin-bottom: 4px;
+  }
+  .rj-query.expandable { cursor: pointer; }
+  .rj-query.expandable::after { content: ' — more'; font-weight: 400; opacity: 0.5; font-size: 11px; }
+  .rj-query.expanded { -webkit-line-clamp: unset; overflow: visible; }
+  .rj-query.expanded::after { content: ' — less'; }
+  .rj-result-name { font-size: 12px; color: #34d399; margin-top: 3px; }
+  .rj-error { font-size: 12px; color: #f87171; margin-top: 3px; }
+  .rj-count { font-size: 12px; color: var(--text-muted); }
+  .rj-clear-btn {
+    background: none; border: none; color: var(--text-muted); font-size: 12px;
+    cursor: pointer; padding: 4px 0; margin-top: 4px; text-decoration: underline;
+  }
+
   /* ── Modal Details / Documents subnav ──────────────────────────────────── */
   .modal-subnav {
     display: flex; padding: 0 20px; flex-shrink: 0;
@@ -11011,6 +11046,7 @@ function closeAttachmentViewer() {
     <button class="inbox-tab active" id="inbox-tab-updates" onclick="switchInboxTab('updates')">Updates</button>
     <button class="inbox-tab" id="inbox-tab-log" onclick="switchInboxTab('log')">Run Log</button>
     <button class="inbox-tab" id="inbox-tab-poller" onclick="switchInboxTab('poller')">Poller</button>
+    <button class="inbox-tab" id="inbox-tab-research" onclick="switchInboxTab('research')">Research</button>
   </div>
   <div class="inbox-sheet-body" id="inbox-sheet-body">
     <div class="inbox-empty">Loading…</div>
@@ -11115,6 +11151,7 @@ function _rjRemove(jobId) {
   _saveResearchJobs();
 }
 
+
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
@@ -11167,8 +11204,10 @@ function switchInboxTab(tab) {
   document.getElementById('inbox-tab-updates').classList.toggle('active', tab === 'updates');
   document.getElementById('inbox-tab-log').classList.toggle('active', tab === 'log');
   document.getElementById('inbox-tab-poller').classList.toggle('active', tab === 'poller');
+  document.getElementById('inbox-tab-research').classList.toggle('active', tab === 'research');
   if (tab === 'updates') renderInboxItems();
   else if (tab === 'log') renderRunLog();
+  else if (tab === 'research') renderResearchJobs();
   else renderPollerRuns();
 }
 
@@ -11183,6 +11222,7 @@ function openInbox() {
 
   if (inboxActiveTab === 'updates') renderInboxItems();
   else if (inboxActiveTab === 'log') renderRunLog();
+  else if (inboxActiveTab === 'research') renderResearchJobs();
   else renderPollerRuns();
 }
 
