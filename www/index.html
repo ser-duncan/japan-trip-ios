@@ -6596,21 +6596,31 @@ function saveSelectedAiResults() {
     const detail = _buildDetail(r);
     const id = 'ai-' + Date.now() + '-' + idx;
     const badge = (r.badge || '').toLowerCase();
-    appState.activities = appState.activities || [];
-    appState.activities.push({
+    const isFoodBadge = badge.includes('food') || badge.includes('restaurant') || badge.includes('ramen') || badge.includes('sushi') || badge.includes('cafe') || badge.includes('dining');
+    const actType = r.type || (isFoodBadge ? 'food' : 'must');
+    const isFood = actType === 'food';
+    const act = {
       id: id,
       name: detail.name,
       note: detail._note,
-      type: (badge.includes('food') || badge.includes('restaurant') || badge.includes('ramen') || badge.includes('sushi') || badge.includes('cafe') || badge.includes('dining')) ? 'food' : 'activity',
+      type: actType,
       city: detail.city || (['tokyo','hakone','kyoto','osaka'].includes(appState.cityFilter) ? appState.cityFilter : 'tokyo'),
       assignedDay: null,
-    });
+    };
+    if (isFood) {
+      if (r.dish) act.dish = r.dish;
+      if (r.icon) act.icon = r.icon;
+      if (r.tags) act.tags = r.tags;
+    }
+    appState.activities = appState.activities || [];
+    appState.activities.push(act);
     appState.customDetails = appState.customDetails || {};
     appState.customDetails[id] = detail;
     saved++;
   });
   saveAppState();
   renderActivities();
+  renderFoodGuide();
   closeAiResearch();
   if (saved > 0) {
     const toast = document.createElement('div');
@@ -6650,6 +6660,8 @@ async function runAiResearch() {
       if (query) reqBody.query = query;
     } else if (action === 'new') {
       reqBody.query = query || 'interesting activity in Japan';
+      const hint = _aiCtx && _aiCtx.ctx && _aiCtx.ctx.contextHint;
+      if (hint) reqBody.contextHint = hint;
     } else {
       reqBody.query = ((_aiCtx.ctx && _aiCtx.ctx.name) || '') + (query ? ' — ' + query : '');
     }
@@ -6769,21 +6781,30 @@ function saveAiResult() {
   } else if (action === 'new') {
     const id = 'ai-' + Date.now();
     const badge = (_aiLastResult.badge || '').toLowerCase();
+    const isFoodBadge = badge.includes('food') || badge.includes('restaurant') || badge.includes('ramen') || badge.includes('sushi') || badge.includes('cafe') || badge.includes('dining');
+    const actType = _aiLastResult.type || (isFoodBadge ? 'food' : 'must');
+    const isFood = actType === 'food';
     const newAct = {
       id: id,
       name: detail.name,
       note: detail._note,
-      type: (badge.includes('food') || badge.includes('restaurant') || badge.includes('ramen') || badge.includes('sushi')) ? 'food' : 'activity',
+      type: actType,
       city: detail.city || (['tokyo','hakone','kyoto','osaka'].includes(appState.cityFilter) ? appState.cityFilter : 'tokyo'),
       assignedDay: null,
     };
+    if (isFood) {
+      if (_aiLastResult.dish) newAct.dish = _aiLastResult.dish;
+      if (_aiLastResult.icon) newAct.icon = _aiLastResult.icon;
+      if (_aiLastResult.tags) newAct.tags = _aiLastResult.tags;
+    }
     appState.activities = appState.activities || [];
     appState.activities.push(newAct);
     appState.customDetails[id] = detail;
     saveAppState();
     renderActivities();
+    if (isFood) renderFoodGuide();
     closeAiResearch();
-    setTimeout(function() { openActivityDetail(id); }, 300);
+    setTimeout(function() { if (isFood) openFoodDetail(id); else openActivityDetail(id); }, 300);
   } else if (action === 'event') {
     const ev = _aiCtx.ctx && _aiCtx.ctx.ev;
     const dayId = _aiCtx.ctx && _aiCtx.ctx.dayId;
