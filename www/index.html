@@ -6662,6 +6662,20 @@ async function runAiResearch() {
       reqBody.query = query || 'interesting activity in Japan';
       const hint = _aiCtx && _aiCtx.ctx && _aiCtx.ctx.contextHint;
       if (hint) reqBody.contextHint = hint;
+      // Attach today's itinerary + city so the model can resolve contextual references
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const todayDay = appState.days && appState.days.find(d => d.date === todayStr);
+      if (todayDay) {
+        reqBody.tripContext = {
+          todayDateLabel: todayDay.dateLabel,
+          todayCity: todayDay.city,
+          todayTitle: todayDay.title || null,
+          todayEvents: (todayDay.events || [])
+            .filter(e => e.type === 'event' || e.type === 'callout')
+            .map(e => ({ time: e.time || null, text: e.text, note: e.note || null })),
+          currentCity: appState.cityFilter !== 'all' ? appState.cityFilter : null,
+        };
+      }
     } else {
       reqBody.query = ((_aiCtx.ctx && _aiCtx.ctx.name) || '') + (query ? ' — ' + query : '');
     }
