@@ -181,7 +181,7 @@
   /* Floating AI FAB — always visible, context-aware */
   .ai-fab {
     position: fixed; right: 20px;
-    bottom: calc(160px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(104px + env(safe-area-inset-bottom, 0px));
     width: 44px; height: 44px; border-radius: 50%;
     background: rgba(30,30,40,0.88);
     backdrop-filter: blur(12px) saturate(160%);
@@ -790,6 +790,8 @@
   .activity-item-body { flex: 1; min-width: 0; }
   .activity-name { font-size: 15px; font-weight: 600; }
   .activity-note { font-size: 13px; color: var(--text-muted); margin-top: 5px; line-height: 1.45; }
+  .activity-dish { font-size: 13px; color: var(--text-muted); margin-top: 1px; font-style: italic; }
+  .activity-staff-btn { font-size: 12px; padding: 4px 10px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; color: var(--text-muted); cursor: pointer; }
   .activity-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
   .activity-tag {
     font-size: 11px; font-weight: 600; padding: 2px 8px;
@@ -2504,7 +2506,7 @@
 
   /* Floating edit pencil */
   .day-edit-fab {
-    position: fixed; bottom: calc(104px + env(safe-area-inset-bottom, 0px)); right: 20px;
+    position: fixed; bottom: calc(160px + env(safe-area-inset-bottom, 0px)); right: 20px;
     width: 44px; height: 44px; border-radius: 50%;
     background: rgba(30,30,40,0.88); backdrop-filter: blur(12px) saturate(160%);
     -webkit-backdrop-filter: blur(12px) saturate(160%);
@@ -3509,76 +3511,7 @@
   <div id="section-hotels" class="section">
     <div class="section-title">🏠 Accommodation</div>
 
-    <div class="card hotel-card" onclick="openHotelDetail('koala')">
-      <div class="card-header">
-        <div>
-          <div class="card-title">KOALA BLDG. SHINJUKU</div>
-          <div class="card-sub">2-chōme-11-12 Yoyogi 3F, Shibuya, Tokyo 151-0053 <button class="copy-addr-btn" data-copy="2-chōme-11-12 Yoyogi 3F, Shibuya, Tokyo 151-0053" onclick="event.stopPropagation();copyAddr(this)">⎘</button></div>
-        </div>
-        <span class="badge badge-tokyo">🗼 Tokyo</span>
-      </div>
-      <div class="info-grid">
-        <div class="info-item"><span class="info-label">Check-in</span><span class="info-value">May 25 · 3:00 PM</span></div>
-        <div class="info-item"><span class="info-label">Check-out</span><span class="info-value">May 29 · 10:00 AM</span></div>
-        <div class="info-item"><span class="info-label">Duration</span><span class="info-value">4 nights</span></div>
-        <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="conf-code">HMBQZPZ3QA</span></span></div>
-      </div>
-      <div class="hotel-card-footer">Check-in details &amp; PIN codes ›</div>
-    </div>
-
-    <div class="card hotel-card" onclick="openHotelDetail('hakone')">
-      <div class="card-header">
-        <div>
-          <div class="card-title">箱根芦ノ湖ゴルフ Villa</div>
-          <div class="card-sub">249-3 Hakone, Ashigarashimo District, Kanagawa 250-0521 <button class="copy-addr-btn" data-copy="249-3 Hakone, Ashigarashimo District, Kanagawa 250-0521" onclick="event.stopPropagation();copyAddr(this)">⎘</button></div>
-        </div>
-        <span class="badge badge-hakone">🏔 Hakone</span>
-      </div>
-      <div class="info-grid">
-        <div class="info-item"><span class="info-label">Check-in</span><span class="info-value">May 29 · 1:00 PM</span></div>
-        <div class="info-item"><span class="info-label">Check-out</span><span class="info-value">May 30 · 12:00 PM</span></div>
-        <div class="info-item"><span class="info-label">Duration</span><span class="info-value">1 night</span></div>
-        <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="conf-code">HMMAPSFSTQ</span></span></div>
-        <div class="info-item"><span class="info-label">Host phone</span><span class="info-value">+81 80-3544-1056</span></div>
-        <div class="info-item"><span class="info-label">Amenities</span><span class="info-value">♨ Onsen included</span></div>
-      </div>
-      <div class="hotel-card-footer">View details ›</div>
-    </div>
-
-    <div class="card hotel-card" onclick="openHotelDetail('kyoto')">
-      <div class="card-header">
-        <div>
-          <div class="card-title">515 Yamadachō</div>
-          <div class="card-sub">515 Yamadachō, Nakagyo Ward, Kyoto 604-8237 <button class="copy-addr-btn" data-copy="515 Yamadachō, Nakagyo Ward, Kyoto 604-8237" onclick="event.stopPropagation();copyAddr(this)">⎘</button></div>
-        </div>
-        <span class="badge badge-kyoto">⛩ Kyoto</span>
-      </div>
-      <div class="info-grid">
-        <div class="info-item"><span class="info-label">Check-in</span><span class="info-value">May 30 · 4:00 PM</span></div>
-        <div class="info-item"><span class="info-label">Check-out</span><span class="info-value">June 3 · 11:00 AM</span></div>
-        <div class="info-item"><span class="info-label">Duration</span><span class="info-value">4 nights</span></div>
-        <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="conf-code">HMQ2MS55BF</span></span></div>
-      </div>
-      <div class="hotel-card-footer">View details ›</div>
-    </div>
-
-    <div class="card hotel-card" onclick="openHotelDetail('osaka')">
-      <div class="card-header">
-        <div>
-          <div class="card-title">Lien de premier リアンドプルミエ</div>
-          <div class="card-sub">2-7-12 四貫島, Osaka 554-0014 <button class="copy-addr-btn" data-copy="2-7-12 四貫島, Osaka 554-0014" onclick="event.stopPropagation();copyAddr(this)">⎘</button></div>
-        </div>
-        <span class="badge badge-osaka">🦀 Osaka</span>
-      </div>
-      <div class="info-grid">
-        <div class="info-item"><span class="info-label">Check-in</span><span class="info-value">June 3 · 4:00 PM</span></div>
-        <div class="info-item"><span class="info-label">Check-out</span><span class="info-value">June 5 · 10:00 AM</span></div>
-        <div class="info-item"><span class="info-label">Duration</span><span class="info-value">2 nights</span></div>
-        <div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="conf-code">HMR98ZMTST</span></span></div>
-        <div class="info-item"><span class="info-label">Under</span><span class="info-value">Jacob</span></div>
-      </div>
-      <div class="hotel-card-footer">View details ›</div>
-    </div>
+    <div id="hotels-list"></div>
   </div>
 
   <!-- ─────────────── TRANSIT ─────────────── -->
@@ -3595,77 +3528,7 @@
     <div id="transit-trains-section">
     <div class="section-title" style="margin-top:0">🚄 Train Bookings</div>
 
-    <div class="train-card hotel-card" onclick="openTrainDetail('romancecar')">
-      <div class="train-header">
-        <span class="train-icon">🚃</span>
-        <div>
-          <div class="train-name">Romancecar (Hakone 3 · GSE)</div>
-          <div class="train-route">Shinjuku → Hakone-Yumoto</div>
-        </div>
-        <span class="badge badge-success" style="margin-left:auto">✓ Booked</span>
-      </div>
-      <div class="train-body">
-        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">May 29</div></div>
-        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">10:00 AM</div></div>
-        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">11:27 AM</div></div>
-        <div class="train-cell"><div class="info-label">Car · Seats</div><div class="info-value">Car 2 · 5C 5D 6C 6D 7D</div></div>
-      </div>
-      <div class="hotel-card-footer">Seat details ›</div>
-    </div>
-
-    <div class="train-card hotel-card" onclick="openTrainDetail('shinkansen')">
-      <div class="train-header">
-        <span class="train-icon">🚄</span>
-        <div>
-          <div class="train-name">Shinkansen (Hikari 641)</div>
-          <div class="train-route">Odawara → Kyoto</div>
-        </div>
-        <span class="badge badge-success">✓ Booked</span>
-      </div>
-      <div class="train-body">
-        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">May 30</div></div>
-        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">12:07 PM</div></div>
-        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">2:12 PM</div></div>
-        <div class="train-cell"><div class="info-label">Car · Seats</div><div class="info-value">Car 6 · 14A 14B 14C 15A 15B</div></div>
-      </div>
-      <div class="hotel-card-footer">Seat details ›</div>
-    </div>
-
-    <div class="train-card hotel-card" onclick="openTrainDetail('kyoto-osaka')">
-      <div class="train-header">
-        <span class="train-icon">🚃</span>
-        <div>
-          <div class="train-name">Regional (JR Kyoto Line)</div>
-          <div class="train-route">Kyoto → Osaka</div>
-        </div>
-        <span class="badge badge-info">IC card — no booking</span>
-      </div>
-      <div class="train-body">
-        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">June 3</div></div>
-        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">Midday</div></div>
-        <div class="train-cell"><div class="info-label">Duration</div><div class="info-value">~75 min</div></div>
-        <div class="train-cell"><div class="info-label">Ticket</div><div class="info-value">Tap IC card</div></div>
-      </div>
-      <div class="hotel-card-footer">Route info ›</div>
-    </div>
-
-    <div class="train-card hotel-card" onclick="openTrainDetail('haruka')">
-      <div class="train-header">
-        <span class="train-icon">🚄</span>
-        <div>
-          <div class="train-name">HARUKA 25</div>
-          <div class="train-route">Tennoji → Kansai Airport (KIX)</div>
-        </div>
-        <span class="badge badge-success">✓ Booked</span>
-      </div>
-      <div class="train-body">
-        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">June 5</div></div>
-        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">12:47 PM</div></div>
-        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">1:20 PM</div></div>
-        <div class="train-cell"><div class="info-label">Ref</div><div class="info-value">YMB549238</div></div>
-      </div>
-      <div class="hotel-card-footer">Journey details ›</div>
-    </div>
+    <div id="transit-trains-list"></div>
 
     <div class="section-title" style="margin-top:36px; font-size:18px;">📅 Booking Reminders</div>
     <div class="card">
@@ -3697,81 +3560,7 @@
 
     <!-- ── Flights ── -->
     <div id="transit-flights-section">
-    <div class="section-title" style="margin-top:0">✈️ Outbound — To Japan</div>
-
-    <div class="train-card hotel-card" onclick="openFlightDetail('ua5408')">
-      <div class="train-header">
-        <span class="train-icon">✈️</span>
-        <div>
-          <div class="train-name">UA5408 · United Express</div>
-          <div class="train-route">Salt Lake City → Los Angeles</div>
-        </div>
-        <span class="badge badge-success">✓ Booked</span>
-      </div>
-      <div class="train-body">
-        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">May 24</div></div>
-        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">8:00 AM SLC</div></div>
-        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">9:27 AM LAX</div></div>
-        <div class="train-cell"><div class="info-label">Conf.</div><div class="info-value">AYCCBN</div></div>
-      </div>
-      <div class="hotel-card-footer">Seats + details ›</div>
-    </div>
-
-    <div class="train-card hotel-card" onclick="openFlightDetail('ua39')">
-      <div class="train-header">
-        <span class="train-icon">✈️</span>
-        <div>
-          <div class="train-name">UA39 · 12h Transpacific</div>
-          <div class="train-route">Los Angeles → Tokyo Haneda</div>
-        </div>
-        <span class="badge badge-success">✓ Booked</span>
-      </div>
-      <div class="train-body">
-        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">May 24–25</div></div>
-        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">11:40 AM LAX</div></div>
-        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">3:05 PM HND</div></div>
-        <div class="train-cell"><div class="info-label">Conf.</div><div class="info-value">AYCCBN</div></div>
-      </div>
-      <div class="hotel-card-footer">Seats + long-haul tips ›</div>
-    </div>
-
-    <div class="section-title" style="margin-top:24px; font-size:18px;">✈️ Return — Home</div>
-
-    <div class="train-card hotel-card" onclick="openFlightDetail('ua34')">
-      <div class="train-header">
-        <span class="train-icon">✈️</span>
-        <div>
-          <div class="train-name">UA34 · 10h Transpacific</div>
-          <div class="train-route">Kansai Airport → San Francisco</div>
-        </div>
-        <span class="badge badge-success">✓ Booked</span>
-      </div>
-      <div class="train-body">
-        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">Jun 5</div></div>
-        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">4:55 PM KIX</div></div>
-        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">11:05 AM SFO</div></div>
-        <div class="train-cell"><div class="info-label">Conf.</div><div class="info-value">AYCCBN</div></div>
-      </div>
-      <div class="hotel-card-footer">Seats + departure tips ›</div>
-    </div>
-
-    <div class="train-card hotel-card" onclick="openFlightDetail('ua2017')">
-      <div class="train-header">
-        <span class="train-icon">✈️</span>
-        <div>
-          <div class="train-name">UA2017 · United Airlines</div>
-          <div class="train-route">San Francisco → Salt Lake City</div>
-        </div>
-        <span class="badge badge-success">✓ Booked</span>
-      </div>
-      <div class="train-body">
-        <div class="train-cell"><div class="info-label">Date</div><div class="info-value">Jun 5</div></div>
-        <div class="train-cell"><div class="info-label">Departs</div><div class="info-value">1:50 PM SFO</div></div>
-        <div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">4:50 PM SLC</div></div>
-        <div class="train-cell"><div class="info-label">Conf.</div><div class="info-value">AYCCBN</div></div>
-      </div>
-      <div class="hotel-card-footer">Seats + details ›</div>
-    </div>
+    <div id="transit-flights-list"></div>
     </div><!-- end transit-flights-section -->
 
   </div><!-- end section-trains -->
@@ -4097,90 +3886,19 @@
     <!-- ── Essentials ── -->
     <div id="log-view-essentials">
       <div class="section-title" style="margin-top:28px; font-size:18px;">🗒 Essentials</div>
-      <div class="logistics-grid">
-        <div class="logistics-item">
-          <span class="logistics-icon">💳</span>
-          <div>
-            <div class="logistics-title">Suica Card</div>
-            <div class="logistics-body">Add to Apple Wallet before departure. Load a starting balance — used for trains, buses, and many convenience stores.</div>
-          </div>
-        </div>
-        <div class="logistics-item">
-          <span class="logistics-icon">🗺</span>
-          <div>
-            <div class="logistics-title">Navigation</div>
-            <div class="logistics-body">Google Maps as primary. Use JR West route finder for train connections and regional journeys.</div>
-          </div>
-        </div>
-        <div class="logistics-item">
-          <span class="logistics-icon">🚃</span>
-          <div>
-            <div class="logistics-title">Kyoto → Osaka</div>
-            <div class="logistics-body">IC card day-of, no advance booking needed. Easy regional train ride.</div>
-          </div>
-        </div>
-        <div class="logistics-item">
-          <span class="logistics-icon">🧳</span>
-          <div>
-            <div class="logistics-title">Luggage Forwarding</div>
-            <div class="logistics-body">Consider takuhaibin (luggage forwarding) from Tokyo to Kyoto if you want to travel light on the Romancecar + Shinkansen day.</div>
-          </div>
-        </div>
-      </div>
+      <div id="log-essentials-list"></div>
     </div>
 
     <!-- ── Reservations ── -->
     <div id="log-view-reservations">
       <div class="section-title" style="margin-top:32px; font-size:18px;">🍽 Reservations</div>
-      <div class="reservation-list">
-        <div class="reservation-item">
-          <span class="reservation-icon">🎨</span>
-          <div class="reservation-info">
-            <div class="reservation-name">teamLab Planets TOKYO</div>
-            <div class="reservation-date">Thu · May 28 · Toyosu · 5 persons</div>
-          </div>
-          <span class="reservation-code">ABT743615</span>
-        </div>
-        <div class="reservation-item">
-          <span class="reservation-icon">🌆</span>
-          <div class="reservation-info">
-            <div class="reservation-name">Shibuya Sky</div>
-            <div class="reservation-date">Thu · May 28 · 19:40 · 7 adults</div>
-          </div>
-          <span class="reservation-code">RBA473737</span>
-        </div>
-      </div>
+      <div id="log-reservations-list"></div>
     </div>
 
     <!-- ── Emergency Info ── -->
     <div id="log-view-emergency">
       <div class="section-title" style="margin-top:32px; font-size:18px;">🆘 Emergency Info</div>
-      <div class="emergency-grid">
-        <div class="emergency-card urgent">
-          <span class="e-icon">🚓</span>
-          <div class="e-label">Police</div>
-          <div class="e-number">110</div>
-          <a class="emergency-call-btn" href="tel:110">Call 110</a>
-        </div>
-        <div class="emergency-card urgent">
-          <span class="e-icon">🚑</span>
-          <div class="e-label">Ambulance / Fire</div>
-          <div class="e-number">119</div>
-          <a class="emergency-call-btn" href="tel:119">Call 119</a>
-        </div>
-        <div class="emergency-card">
-          <span class="e-icon">🇺🇸</span>
-          <div class="e-label">US Embassy Tokyo</div>
-          <div class="e-number" style="font-size:16px">+81-3-3224-5000</div>
-          <a class="emergency-call-btn" href="tel:+81332245000">Call Embassy</a>
-        </div>
-        <div class="emergency-card">
-          <span class="e-icon">🇺🇸</span>
-          <div class="e-label">US Consulate Osaka</div>
-          <div class="e-number" style="font-size:16px">+81-6-6315-5900</div>
-          <a class="emergency-call-btn" href="tel:+81663155900">Call Consulate</a>
-        </div>
-      </div>
+      <div id="log-emergency-list"></div>
     </div>
 
     <!-- ── Spend Tracker ── -->
@@ -4216,122 +3934,8 @@
     </div>
     <div id="lang-no-results" class="lang-no-results" style="display:none">No phrases match that search.</div>
 
-    <!-- BASIC LIFE SAVERS -->
-    <div class="lang-section-header">🆘 Basic life savers</div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag lifesaver">Essential</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Konnichiwa</div>
-        <div class="phrase-meaning">Hello / Good afternoon</div>
-      </div>
-      <div class="phrase-kanji">こんにちは</div>
-    </div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag lifesaver">Essential</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Arigatou gozaimasu</div>
-        <div class="phrase-meaning">Thank you (formal)</div>
-      </div>
-      <div class="phrase-kanji">ありがとう<br>ございます</div>
-    </div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag lifesaver">Essential</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Sumimasen</div>
-        <div class="phrase-meaning">Excuse me · Sorry · Help</div>
-      </div>
-      <div class="phrase-kanji">すみません</div>
-    </div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag lifesaver">Essential</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Wakarimasen</div>
-        <div class="phrase-meaning">I don't understand</div>
-      </div>
-      <div class="phrase-kanji">わかりません</div>
-    </div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag lifesaver">Essential</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Eigo wa hanasemasu ka?</div>
-        <div class="phrase-meaning">Do you speak English?</div>
-      </div>
-      <div class="phrase-kanji">英語は<br>話せますか？</div>
-    </div>
-
-    <!-- FOOD -->
-    <div class="lang-section-header">🍜 Food & restaurants</div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag food">Food</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Kore onegaishimasu</div>
-        <div class="phrase-meaning">This please — point at menu item</div>
-      </div>
-      <div class="phrase-kanji">これ<br>お願いします</div>
-    </div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag food">Food</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Menu onegaishimasu</div>
-        <div class="phrase-meaning">Menu please</div>
-      </div>
-      <div class="phrase-kanji">メニュー<br>お願いします</div>
-    </div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag food">Food</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Mizu onegaishimasu</div>
-        <div class="phrase-meaning">Water please</div>
-      </div>
-      <div class="phrase-kanji">水<br>お願いします</div>
-    </div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag food">Food</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Oishii!</div>
-        <div class="phrase-meaning">Delicious! — staff love hearing this</div>
-      </div>
-      <div class="phrase-kanji">美味しい！</div>
-    </div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag food">Food</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">O-kanjo onegaishimasu</div>
-        <div class="phrase-meaning">Check please</div>
-      </div>
-      <div class="phrase-kanji">お勘定<br>お願いします</div>
-    </div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag food">Food</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Osusume wa?</div>
-        <div class="phrase-meaning">What do you recommend?</div>
-      </div>
-      <div class="phrase-kanji">おすすめは？</div>
-    </div>
-
-    <!-- GETTING AROUND -->
-    <div class="lang-section-header">🚃 Getting around</div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag nav">Transit</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Doko desu ka?</div>
-        <div class="phrase-meaning">Where is it? — add place name before</div>
-      </div>
-      <div class="phrase-kanji">どこ<br>ですか？</div>
-    </div>
+    <div id="phrases-container"></div>
+    <div id="lang-builders">
 
     <div class="phrase-row phrase-row-interactive">
       <div class="phrase-row-top">
@@ -4398,65 +4002,7 @@
       </div>
     </div>
 
-    <div class="phrase-row">
-      <span class="phrase-tag nav">Transit</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Toire wa doko desu ka?</div>
-        <div class="phrase-meaning">Where's the bathroom?</div>
-      </div>
-      <div class="phrase-kanji">トイレは<br>どこですか？</div>
-    </div>
-
-    <!-- SHOPPING -->
-    <div class="lang-section-header">🛍 Shopping</div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag shop">Shop</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Ikura desu ka?</div>
-        <div class="phrase-meaning">How much is this?</div>
-      </div>
-      <div class="phrase-kanji">いくら<br>ですか？</div>
-    </div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag shop">Shop</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Kurejitto kaado tsukaemasu ka?</div>
-        <div class="phrase-meaning">Can I pay by card?</div>
-      </div>
-      <div class="phrase-kanji">クレジット<br>カード使えますか？</div>
-    </div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag shop">Shop</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Tax free onegaishimasu</div>
-        <div class="phrase-meaning">Tax free please — show passport</div>
-      </div>
-      <div class="phrase-kanji">—</div>
-    </div>
-
-    <!-- SECRET WEAPONS -->
-    <div class="lang-section-header">🔑 Secret weapons</div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag secret">Pro</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Yukkuri onegaishimasu</div>
-        <div class="phrase-meaning">Please slow down — if someone speaks too fast</div>
-      </div>
-      <div class="phrase-kanji">ゆっくり<br>お願いします</div>
-    </div>
-
-    <div class="phrase-row">
-      <span class="phrase-tag secret">Pro</span>
-      <div class="phrase-row-content">
-        <div class="phrase-romanji-big">Daijoubu desu</div>
-        <div class="phrase-meaning">It's okay · No problem · I'm fine</div>
-      </div>
-      <div class="phrase-kanji">大丈夫です</div>
-    </div>
+    </div><!-- end lang-builders -->
 
     <div class="pro-tip">
       <span class="pro-tip-icon">💡</span>
@@ -5008,6 +4554,13 @@
       sub: '2-chōme-11-12 Yoyogi 3F, Shibuya, Tokyo 151-0053',
       badge: '<span class="badge badge-tokyo">🗼 Tokyo</span>',
       note: 'Self check-in — no staff on site. 1-min walk from Shinjuku Station. Quiet after 9:00 PM. Strictly no smoking (¥50,000 fine).',
+      type: 'apartment',
+      city: 'tokyo',
+      checkIn: 'May 25 · 3:00 PM',
+      checkOut: 'May 29 · 10:00 AM',
+      nights: '4 nights',
+      confirmation: 'HMBQZPZ3QA',
+      address: '2-chōme-11-12 Yoyogi 3F, Shibuya, Tokyo 151-0053',
       sections: [
         {
           title: 'Dates',
@@ -5057,6 +4610,14 @@
       sub: '249-3 Hakone, Ashigarashimo District, Kanagawa 250-0521',
       badge: '<span class="badge badge-hakone">🏔 Hakone</span>',
       note: 'Self check-in via key box. Quiet hours 9:00 PM – 8:00 AM.',
+      type: 'villa',
+      city: 'hakone',
+      checkIn: 'May 29 · 1:00 PM',
+      checkOut: 'May 30 · 12:00 PM',
+      nights: '1 night',
+      confirmation: 'HMMAPSFSTQ',
+      address: '249-3 Hakone, Ashigarashimo District, Kanagawa 250-0521',
+      extraInfo: [{label:'Host phone', value:'+81 80-3544-1056'}, {label:'Amenities', value:'♨ Onsen included'}],
       sections: [
         {
           title: 'Dates',
@@ -5108,6 +4669,13 @@
       sub: '515 Yamadachō, Nakagyo Ward, Kyoto 604-8237',
       badge: '<span class="badge badge-kyoto">⛩ Kyoto</span>',
       note: '100-year-old machiya townhouse. Contact host Derrick to coordinate key exchange. Quiet hours 9:00 PM – 8:00 AM.',
+      type: 'townhouse',
+      city: 'kyoto',
+      checkIn: 'May 30 · 4:00 PM',
+      checkOut: 'June 3 · 11:00 AM',
+      nights: '4 nights',
+      confirmation: 'HMQ2MS55BF',
+      address: '515 Yamadachō, Nakagyo Ward, Kyoto 604-8237',
       sections: [
         {
           title: 'Dates',
@@ -5144,6 +4712,14 @@
       sub: '2-7-12 四貫島, Konohana Ward, Osaka 554-0014',
       badge: '<span class="badge badge-osaka">🦀 Osaka</span>',
       note: 'Self check-in with lockbox. 5-min walk from nearest station. 15-min by train to USJ.',
+      type: 'house',
+      city: 'osaka',
+      checkIn: 'June 3 · 4:00 PM',
+      checkOut: 'June 5 · 10:00 AM',
+      nights: '2 nights',
+      confirmation: 'HMR98ZMTST',
+      address: '2-7-12 四貫島, Osaka 554-0014',
+      extraInfo: [{label:'Under', value:'Jacob'}],
       sections: [
         {
           title: 'Dates',
@@ -5185,6 +4761,16 @@
       name: 'Romancecar · Hakone 3 (GSE)',
       sub: 'Shinjuku → Hakone-Yumoto · May 29',
       badge: '<span class="badge badge-success">✓ Booked</span>',
+      type: 'train',
+      icon: '🚃',
+      date: 'May 29',
+      from: 'Shinjuku',
+      to: 'Hakone-Yumoto',
+      departure: '10:00 AM',
+      arrival: '11:27 AM',
+      seats: 'Car 2 · 5C 5D 6C 6D 7D',
+      status: 'booked',
+      footerLabel: 'Seat details',
       sections: [
         {
           title: 'Journey',
@@ -5259,6 +4845,16 @@
       name: 'Shinkansen · Hikari 641',
       sub: 'Odawara → Kyoto · May 30',
       badge: '<span class="badge badge-success">✓ Booked</span>',
+      type: 'train',
+      icon: '🚄',
+      date: 'May 30',
+      from: 'Odawara',
+      to: 'Kyoto',
+      departure: '12:07 PM',
+      arrival: '2:12 PM',
+      seats: 'Car 6 · 14A 14B 14C 15A 15B',
+      status: 'booked',
+      footerLabel: 'Seat details',
       sections: [
         {
           title: 'Journey',
@@ -5333,6 +4929,16 @@
       sub: 'Kyoto → Osaka · June 3',
       badge: '<span class="badge badge-info">No booking needed</span>',
       note: 'No reservation required — just tap your IC card (Suica/PASMO) at the gate.',
+      type: 'train',
+      icon: '🚃',
+      date: 'June 3',
+      from: 'Kyoto',
+      to: 'Osaka',
+      departure: 'Midday',
+      arrival: '—',
+      seats: 'Tap IC card',
+      status: 'ic',
+      footerLabel: 'Route info',
       sections: [
         {
           title: 'Journey',
@@ -5392,6 +4998,16 @@
       sub: 'Tennoji → Kansai Airport (KIX) · June 5',
       badge: '<span class="badge badge-success">✓ Booked · Klook YMB549238</span>',
       note: 'Reserved seat · Ordinary Car · Adult x 5 · US$85 total',
+      type: 'train',
+      icon: '🚄',
+      date: 'June 5',
+      from: 'Tennoji',
+      to: 'Kansai Airport (KIX)',
+      departure: '12:47 PM',
+      arrival: '1:20 PM',
+      seats: 'Ref YMB549238',
+      status: 'booked',
+      footerLabel: 'Journey details',
       sections: [
         {
           title: 'Journey',
@@ -5948,6 +5564,69 @@ const DEFAULT_DAYS = [
   ]},
 ];
 
+const LOGISTICS_ESSENTIALS = [
+  {icon:'💳', title:'Suica Card', body:'Add to Apple Wallet before departure. Load a starting balance — used for trains, buses, and many convenience stores.'},
+  {icon:'🗺', title:'Navigation', body:'Google Maps as primary. Use JR West route finder for train connections and regional journeys.'},
+  {icon:'🚃', title:'Kyoto → Osaka', body:'IC card day-of, no advance booking needed. Easy regional train ride.'},
+  {icon:'🧳', title:'Luggage Forwarding', body:'Consider takuhaibin (luggage forwarding) from Tokyo to Kyoto if you want to travel light on the Romancecar + Shinkansen day.'},
+];
+
+const LOGISTICS_RESERVATIONS = [
+  {icon:'🎨', name:'teamLab Planets TOKYO', date:'Thu · May 28 · Toyosu · 5 persons', code:'ABT743615'},
+  {icon:'🌆', name:'Shibuya Sky', date:'Thu · May 28 · 19:40 · 7 adults', code:'RBA473737'},
+];
+
+const LOGISTICS_EMERGENCY = [
+  {emoji:'🚓', label:'Police', number:'110', tel:'110', urgent:true},
+  {emoji:'🚑', label:'Ambulance / Fire', number:'119', tel:'119', urgent:true},
+  {emoji:'🇺🇸', label:'US Embassy Tokyo', number:'+81-3-3224-5000', tel:'+81332245000', urgent:false},
+  {emoji:'🇺🇸', label:'US Consulate Osaka', number:'+81-6-6315-5900', tel:'+81663155900', urgent:false},
+];
+
+const PHRASES = [
+  // Basics
+  {id:'p0', section:'basics', sectionLabel:'🆘 Basic life savers', tag:'lifesaver', tagLabel:'Essential',
+   romaji:'Konnichiwa', meaning:'Hello / Good afternoon', kanji:'こんにちは'},
+  {id:'p1', section:'basics', sectionLabel:'🆘 Basic life savers', tag:'lifesaver', tagLabel:'Essential',
+   romaji:'Arigatou gozaimasu', meaning:'Thank you (formal)', kanji:'ありがとう\nございます'},
+  {id:'p2', section:'basics', sectionLabel:'🆘 Basic life savers', tag:'lifesaver', tagLabel:'Essential',
+   romaji:'Sumimasen', meaning:'Excuse me · Sorry · Help', kanji:'すみません'},
+  {id:'p3', section:'basics', sectionLabel:'🆘 Basic life savers', tag:'lifesaver', tagLabel:'Essential',
+   romaji:'Wakarimasen', meaning:"I don't understand", kanji:'わかりません'},
+  {id:'p4', section:'basics', sectionLabel:'🆘 Basic life savers', tag:'lifesaver', tagLabel:'Essential',
+   romaji:'Eigo wa hanasemasu ka?', meaning:'Do you speak English?', kanji:'英語は\n話せますか？'},
+  // Food
+  {id:'p5', section:'food', sectionLabel:'🍜 Food & restaurants', tag:'food', tagLabel:'Food',
+   romaji:'Kore onegaishimasu', meaning:'This please — point at menu item', kanji:'これ\nお願いします'},
+  {id:'p6', section:'food', sectionLabel:'🍜 Food & restaurants', tag:'food', tagLabel:'Food',
+   romaji:'Menu onegaishimasu', meaning:'Menu please', kanji:'メニュー\nお願いします'},
+  {id:'p7', section:'food', sectionLabel:'🍜 Food & restaurants', tag:'food', tagLabel:'Food',
+   romaji:'Mizu onegaishimasu', meaning:'Water please', kanji:'水\nお願いします'},
+  {id:'p8', section:'food', sectionLabel:'🍜 Food & restaurants', tag:'food', tagLabel:'Food',
+   romaji:'Oishii!', meaning:'Delicious! — staff love hearing this', kanji:'美味しい！'},
+  {id:'p9', section:'food', sectionLabel:'🍜 Food & restaurants', tag:'food', tagLabel:'Food',
+   romaji:'O-kanjo onegaishimasu', meaning:'Check please', kanji:'お勘定\nお願いします'},
+  {id:'p10', section:'food', sectionLabel:'🍜 Food & restaurants', tag:'food', tagLabel:'Food',
+   romaji:'Osusume wa?', meaning:'What do you recommend?', kanji:'おすすめは？'},
+  // Transit
+  {id:'p11', section:'transit', sectionLabel:'🚃 Getting around', tag:'nav', tagLabel:'Transit',
+   romaji:'Doko desu ka?', meaning:'Where is it? — add place name before', kanji:'どこ\nですか？'},
+  {id:'p12', section:'transit', sectionLabel:'🚃 Getting around', tag:'nav', tagLabel:'Transit',
+   romaji:'Toire wa doko desu ka?', meaning:"Where's the bathroom?", kanji:'トイレは\nどこですか？'},
+  // Shopping
+  {id:'p13', section:'shopping', sectionLabel:'🛍 Shopping', tag:'shop', tagLabel:'Shop',
+   romaji:'Ikura desu ka?', meaning:'How much is this?', kanji:'いくら\nですか？'},
+  {id:'p14', section:'shopping', sectionLabel:'🛍 Shopping', tag:'shop', tagLabel:'Shop',
+   romaji:'Kurejitto kaado tsukaemasu ka?', meaning:'Can I pay by card?', kanji:'クレジット\nカード使えますか？'},
+  {id:'p15', section:'shopping', sectionLabel:'🛍 Shopping', tag:'shop', tagLabel:'Shop',
+   romaji:'Tax free onegaishimasu', meaning:'Tax free please — show passport', kanji:'—'},
+  // Secret weapons
+  {id:'p16', section:'secret', sectionLabel:'🔑 Secret weapons', tag:'secret', tagLabel:'Pro',
+   romaji:'Yukkuri onegaishimasu', meaning:'Please slow down — if someone speaks too fast', kanji:'ゆっくり\nお願いします'},
+  {id:'p17', section:'secret', sectionLabel:'🔑 Secret weapons', tag:'secret', tagLabel:'Pro',
+   romaji:'Daijoubu desu', meaning:"It's okay · No problem · I'm fine", kanji:'大丈夫です'},
+];
+
 const DEFAULT_ACTIVITIES = [
   {id:'a0',name:'Shibuya Crossing',note:'Iconic scramble intersection',type:'must',city:'tokyo',assignedDay:null},
   {id:'a1',name:'Shinjuku neon district + Omoide Yokocho',note:null,type:'must',city:'tokyo',assignedDay:null},
@@ -6000,6 +5679,38 @@ const DEFAULT_ACTIVITIES = [
   {id:'a43',name:'Nara — Tōdai-ji & Deer Park',note:'Day trip from Kyoto · Giant Buddha · 500 free-roaming deer',type:'must',city:'kyoto',assignedDay:null},
   {id:'a44',name:'Kiyomizudera Temple',note:'UNESCO Heritage · wooden stage · Benkei\'s iron spear',type:'must',city:'kyoto',assignedDay:null},
   {id:'a45',name:'Osaka Aquarium Kaiyukan',note:'One of world\'s largest · whale shark · Booked',type:'optional',city:'osaka',assignedDay:null},
+  // ── Food Guide items ──
+  {id:'f0',type:'food',city:'tokyo',name:'Ichiran Ramen',dish:'Solo-booth tonkotsu ramen',note:'Private booths — order on a form, zero Japanese needed. Shibuya branch is closest.',tags:['must','budget'],key:'ichiran',icon:'🍜',assignedDay:null},
+  {id:'f1',type:'food',city:'tokyo',name:'Gyukatsu Motomura',dish:'Beef cutlet set',note:'Cook your own beef cutlet on a hot stone. Excellent value, big portions, consistently amazing.',tags:['must'],key:'gyukatsu',icon:'🥩',assignedDay:null},
+  {id:'f2',type:'food',city:'tokyo',name:'Conveyor Belt Sushi',dish:'Kaiten-zushi',note:'Kurazushi or Genki Sushi — order via touchscreen. ¥165–330/plate. Great for picky eaters.',tags:['budget','quick'],key:'sushi',icon:'🍣',assignedDay:null},
+  {id:'f3',type:'food',city:'tokyo',name:'Nakamise Street (Asakusa)',dish:'Street snacks',note:'Ningyo-yaki (fish-shaped cakes), melonpan, fresh yakitori. Perfect for Day 2 walkthrough.',tags:['quick','budget'],icon:'🍡',assignedDay:null},
+  {id:'f4',type:'food',city:'tokyo',name:'Konbini meal',dish:'7-Eleven / Lawson onigiri',note:'This is not a downgrade — Japanese convenience stores are legendary. Egg salad sandos, hot snacks, incredible.',tags:['budget','quick'],icon:'🍱',assignedDay:null},
+  {id:'f5',type:'food',city:'tokyo',name:'Izakaya night',dish:'Japanese pub food',note:'Find any izakaya near Shibuya — gyoza, karaage, edamame, draft beer. Great energy, cheap. Look for red lanterns outside.',tags:['must'],key:'izakaya',icon:'🎌',assignedDay:null},
+  {id:'f6',type:'food',city:'tokyo',name:'Shibuya Scramble area',dish:'Any restaurant, floors 3-8',note:'Restaurant floors above street level are often cheaper and better than ground floor. Look up!',tags:['quick'],key:'scramble',icon:'🐣',assignedDay:null},
+  {id:'f7',type:'food',city:'hakone',name:'Ryokan kaiseki',dish:'Multi-course Japanese dinner',note:'Your villa dinner is included both nights — a proper kaiseki spread. Save your appetite.',tags:['must','splurge'],key:'kaiseki',icon:'🍱',assignedDay:null},
+  {id:'f8',type:'food',city:'hakone',name:'Owakudani Black Eggs',dish:'Kuro-tamago',note:'Hard-boiled eggs cooked in sulfuric hot springs, shells turn black. ¥500 for 5. Legend says each egg adds 7 years to your life.',tags:['must','quick'],key:'blackeggs',icon:'🥚',jp:'くろたまご',en:'Black eggs please',assignedDay:null},
+  {id:'f9',type:'food',city:'hakone',name:'Hakone Soba',dish:'Handmade buckwheat noodles',note:'Mountain soba is special here — cold (zaru) or hot. Near Hakone-Yumoto station.',tags:['must','budget'],key:'hakone-soba',icon:'🍜',assignedDay:null},
+  {id:'f10',type:'food',city:'kyoto',name:'Nishiki Market',dish:'Food market crawl',note:'The "kitchen of Kyoto." Try: fresh yudofu (tofu), yakitori, matcha soft-serve, pickles. Go hungry.',tags:['must','budget'],key:'nishiki',icon:'🛒',assignedDay:null},
+  {id:'f11',type:'food',city:'kyoto',name:'Gion Tsujiri',dish:'Matcha parfait / soft serve',note:'Best matcha sweets in Gion. The parfait is incredible — multiple textures of matcha in one glass. Worth the line.',tags:['must'],key:'matcha',icon:'🍵',assignedDay:null},
+  {id:'f12',type:'food',city:'kyoto',name:'Musoshin Ramen',dish:'Tori paitan (chicken) ramen',note:'Different from Tokyo — lighter chicken broth, unique to Kyoto. Near Kyoto Station, excellent value.',tags:['must','budget'],key:'kyoto-ramen',icon:'🍜',assignedDay:null},
+  {id:'f13',type:'food',city:'kyoto',name:'Obanzai lunch set',dish:'Traditional Kyoto small dishes',note:'Vegetable-forward, beautifully presented. Many lunch spots in Gion offer ¥1,200–2,000 sets. Worth experiencing once.',tags:['splurge'],key:'obanzai',icon:'🍱',assignedDay:null},
+  {id:'f14',type:'food',city:'kyoto',name:'Nara snacks (Day 8)',dish:'Mochi pounding street food',note:'On your Nara day trip — look for shops pounding fresh mochi by hand. Also: deer crackers (shika senbei) to feed the bowing deer.',tags:['must','quick'],key:'nara-mochi',icon:'🦌',assignedDay:null},
+  {id:'f15',type:'food',city:'kyoto',name:'Toshoan (登志庵)',dish:'100% GF soufflé pancakes + sweets',note:'One of the only places in Japan serving fully GF soufflé pancakes. Entire menu is gluten-free — pancakes, cream puffs, matcha sweets. 30-min wait but worth it. Nakagyo Ward.',tags:['gf','must'],key:'toshoan',icon:'🥞',assignedDay:null},
+  {id:'f16',type:'food',city:'kyoto',name:'waco crepes',dish:'100% GF + vegan rice flour crepes',note:'Tiny 6-seat creperie near Kiyomizudera — all crepes made with rice flour. Try salmon + cream cheese or azuki soy milk cream. Kids love it. #45 Dessert Spots in Kyoto.',tags:['gf','quick'],key:'waco-crepes',icon:'🫔',assignedDay:null},
+  {id:'f17',type:'food',city:'kyoto',name:'Teuchi Toru Soba (手打ちとおる)',dish:'100% buckwheat soba — celiac safe',note:'Owner mills his own buckwheat on-site — zero cross-contact possible. 7 counter seats, cash only, lunch only. Called "a must for celiacs" in every GF Japan guide. ¥1,000.',tags:['gf','budget'],key:'teuchi-soba',icon:'🍜',assignedDay:null},
+  {id:'f18',type:'food',city:'kyoto',name:'Gion Soy Milk Ramen',dish:"Japan's only 100% GF ramen",note:'The only dedicated GF ramen restaurant in Japan — rich soy milk broth, rice noodles, GF gyoza. TripAdvisor 4.6/5. In Gion near Shijo Station. A celiac landmark.',tags:['gf','must'],key:'gion-ramen',icon:'🍜',assignedDay:null},
+  {id:'f19',type:'food',city:'kyoto',name:'CHOICE (チョイス)',dish:'GF + vegan all-day cafe',note:'Doctor-run cafe where nearly the whole menu is GF and vegan — pancakes, brown rice risotto, fermented vegan cheese, raw cakes. English menu. 1 min from Sanjo Keihan.',tags:['gf'],key:'choice-kyoto',icon:'🌿',assignedDay:null},
+  {id:'f20',type:'food',city:'kyoto',name:'Ikkakuju Karasuma (いっかくじゅう)',dish:'100% GF okonomiyaki + teppanyaki',note:'Entire menu is GF — standout yuba okonomiyaki in private sunken kotatsu rooms. Perfect family dinner. Kid plastic plates, tatami seating. Reserve ahead.',tags:['gf','must'],key:'ikkakuju',icon:'🥞',assignedDay:null},
+  {id:'f21',type:'food',city:'kyoto',name:'Sugarhill Kyoto',dish:'Japanese-Western fusion, GF menu labeled',note:'Ranked #44 of 16,000+ Kyoto restaurants overall. GF dishes labeled on menu, celiac-aware kitchen and staff. Best splurge dinner in Kyoto for GF travelers. Dinner only.',tags:['gf','splurge'],key:'sugarhill',icon:'🍽',assignedDay:null},
+  {id:'f22',type:'food',city:'kyoto',name:'Oshokuya Kappa (5Kappa)',dish:"Kyoto's only 100% GF Italian",note:"Every dish is GF — handmade rice flour focaccia, fresh rice pasta, Kameoka wagyu, seasonal Kyoto vegetables. Certified GF by Japan Vegetable Sommelier Assoc.",tags:['gf','splurge'],key:'kappa-italian',icon:'🍝',assignedDay:null},
+  {id:'f23',type:'food',city:'kyoto',name:'Musubi Sweets Factory',dish:'100% GF + vegan matcha desserts',note:'Hidden gem in Arashiyama — matcha tofu cheesecake, hojicha cheesecake, GF ice cream sandwich, home-roasted coffee. Air-conditioned. Perfect post-bamboo-grove stop.',tags:['gf','quick'],key:'musubi-sweets',icon:'🍰',assignedDay:null},
+  {id:'f24',type:'food',city:'kyoto',name:'MACCHA HOUSE (抹茶館)',dish:'Matcha cafe — GF options (not dedicated)',note:"Kyoto's most famous matcha cafe — order soft serve in a CUP (not cone) and lattes for GF. Sannenzaka location is beautiful. Not a dedicated GF kitchen — heads up for celiacs.",tags:['gf'],key:'maccha-house',icon:'🍵',assignedDay:null},
+  {id:'f25',type:'food',city:'kyoto',name:'Gen (玄gen) Takeout',dish:'100% GF + vegan bento + curry',note:'Takeout shop in Nishijin — GF vegan bento boxes, spice curry, quiche, rice flour roll cake. Also on Uber Eats. Great for a temple garden picnic lunch. Budget-friendly.',tags:['gf','budget','quick'],key:'gen-kyoto',icon:'🥡',assignedDay:null},
+  {id:'f26',type:'food',city:'osaka',name:'Takoyaki — Wanaka',dish:'Octopus balls (8 for ¥600)',note:'Crispy outside, molten inside. These are THE Osaka snack. Wanaka in Dotonbori is the classic.',tags:['must','quick','budget'],key:'takoyaki',icon:'🐙',jp:'たこ焼き8個ください',en:'8 takoyaki please',assignedDay:null},
+  {id:'f27',type:'food',city:'osaka',name:'Okonomiyaki — Mizuno',dish:'Savory Japanese pancake',note:'Mizuno in Dotonbori has been there since 1945. Get the mixed (mix-yaki). Expect a line but it moves fast.',tags:['must'],key:'okonomiyaki',icon:'🥞',jp:'ミックス焼き一枚ください',en:'One mixed okonomiyaki please',assignedDay:null},
+  {id:'f28',type:'food',city:'osaka',name:'Kani Doraku',dish:'Crab cuisine',note:'The famous giant moving crab sign on Dotonbori. Expensive but the set menus are a proper Osaka splurge dinner.',tags:['splurge'],key:'kani-doraku',icon:'🦀',assignedDay:null},
+  {id:'f29',type:'food',city:'osaka',name:'Kuromon Ichiba Market',dish:'Fresh market food stalls',note:'"Osaka\'s Kitchen" — walk through and eat fresh: wagyu skewers, oysters, fugu (puffer fish). Near Namba.',tags:['must'],key:'kuromon',icon:'🍖',assignedDay:null},
+  {id:'f30',type:'food',city:'osaka',name:'Kinryu Ramen',dish:'24hr Dotonbori ramen',note:'Open 24 hours, the giant dragon outside is iconic. Good late-night bowl after walking Dotonbori.',tags:['budget','quick'],key:'kinryu',icon:'🍜',assignedDay:null},
 ];
 
 // ── App state ──
@@ -6253,12 +5964,17 @@ function showSection(id, btn) {
     if (appState.editingMode) document.getElementById('section-activities').classList.add('editing-mode');
     const allBtn = document.getElementById('eatdo-btn-all');
     if (allBtn) filterEatDo('all', allBtn);
+  } else if (id === 'hotels') {
+    renderHotels();
   } else if (id === 'trains') {
     const transitAllBtn = document.getElementById('transit-btn-all');
     if (transitAllBtn) filterTransit('all', transitAllBtn);
+    renderTransit();
   } else if (id === 'logistics') {
     const logAllBtn = document.getElementById('log-btn-all');
     if (logAllBtn) filterLogistics('all', logAllBtn);
+  } else if (id === 'language') {
+    renderPhrases('');
   }
   if (!editable && appState.editingMode) {
     appState.editingMode = false;
@@ -6312,6 +6028,7 @@ function filterLogistics(view, btn) {
     const el = document.getElementById('log-view-' + v);
     if (el) el.style.display = (view === 'all' || view === v) ? '' : 'none';
   });
+  renderLogisticsView(view);
 }
 
 function toggleLogisticsMore(triggerBtn) {
@@ -6520,27 +6237,37 @@ function buildActivityHTML(a, typeLabels) {
   var planLabel = planDay ? ('Day ' + getDayNum(a.assignedDay) + ': ' + planDay.dateLabel) : 'Plan it →';
   var planClass = isPlanned ? 'activity-plan-btn planned' : 'activity-plan-btn';
   var noteHtml = a.note ? '<div class="activity-note">' + a.note + '</div>' : '';
+  var dishHtml = a.dish ? '<div class="activity-dish">' + a.dish + '</div>' : '';
   var hasActivityDetail = !!(ACTIVITY_DETAILS && ACTIVITY_DETAILS[a.id]);
+  var hasFoodDetail = !!(typeof FOOD_DETAILS !== 'undefined' && a.key && FOOD_DETAILS[a.key]);
   var hasShoppingDetail = !!(typeof SHOPPING_DETAILS !== 'undefined' && SHOPPING_DETAILS[a.id]);
-  var hasDetail = hasActivityDetail || hasShoppingDetail;
-  var detailOnclick = hasActivityDetail
+  var hasCustomDetail = !!(appState.customDetails && appState.customDetails[a.id]);
+  var hasDetail = hasActivityDetail || hasFoodDetail || hasShoppingDetail || hasCustomDetail;
+  var detailOnclick = hasActivityDetail || hasCustomDetail
     ? 'openActivityDetail(\'' + a.id + '\');event.stopPropagation()'
+    : hasFoodDetail
+    ? 'openFoodDetail(\'' + a.key + '\');event.stopPropagation()'
     : hasShoppingDetail
     ? 'openShoppingDetail(\'' + a.id + '\');event.stopPropagation()'
     : '';
   var detailBtn = hasDetail
     ? '<button class="activity-detail-btn" onclick="' + detailOnclick + '">Details + map →</button>'
     : '';
+  var staffBtn = a.jp
+    ? '<button class="activity-staff-btn" onclick="openStaffCard(\'' + (a.jp||'').replace(/'/g,"\\'") + '\',\'' + (a.en||'').replace(/'/g,"\\'") + '\');event.stopPropagation()">📱 Show to staff</button>'
+    : '';
   var typeIcons = {must:'⭐',optional:'📌',shopping:'🛍️',cultural:'⛩️',food:'🍜',included:'✅'};
-  var icon = typeIcons[a.type] || '📍';
+  var icon = a.icon || typeIcons[a.type] || '📍';
   return '<div class="activity-item" data-activity-id="' + a.id + '">'
     + '<span class="activity-item-icon">' + icon + '</span>'
     + '<div class="activity-item-body">'
     + '<div class="activity-name">' + a.name + '</div>'
+    + dishHtml
     + noteHtml
     + '<div class="activity-tags"><span class="activity-tag ' + a.type + '">' + (typeLabels[a.type]||a.type) + '</span></div>'
     + '<div class="activity-item-actions">'
     + '<button class="' + planClass + '" onclick="openAssignModal(\'' + a.id + '\');event.stopPropagation()">' + planLabel + '</button>'
+    + staffBtn
     + detailBtn
     + '<button class="activity-edit-btn" onclick="openActivityModal(\'' + a.id + '\',null);event.stopPropagation()">⋯</button>'
     + '</div>'
@@ -6869,21 +6596,31 @@ function saveSelectedAiResults() {
     const detail = _buildDetail(r);
     const id = 'ai-' + Date.now() + '-' + idx;
     const badge = (r.badge || '').toLowerCase();
-    appState.activities = appState.activities || [];
-    appState.activities.push({
+    const isFoodBadge = badge.includes('food') || badge.includes('restaurant') || badge.includes('ramen') || badge.includes('sushi') || badge.includes('cafe') || badge.includes('dining');
+    const actType = r.type || (isFoodBadge ? 'food' : 'must');
+    const isFood = actType === 'food';
+    const act = {
       id: id,
       name: detail.name,
       note: detail._note,
-      type: (badge.includes('food') || badge.includes('restaurant') || badge.includes('ramen') || badge.includes('sushi') || badge.includes('cafe') || badge.includes('dining')) ? 'food' : 'activity',
+      type: actType,
       city: detail.city || (['tokyo','hakone','kyoto','osaka'].includes(appState.cityFilter) ? appState.cityFilter : 'tokyo'),
       assignedDay: null,
-    });
+    };
+    if (isFood) {
+      if (r.dish) act.dish = r.dish;
+      if (r.icon) act.icon = r.icon;
+      if (r.tags) act.tags = r.tags;
+    }
+    appState.activities = appState.activities || [];
+    appState.activities.push(act);
     appState.customDetails = appState.customDetails || {};
     appState.customDetails[id] = detail;
     saved++;
   });
   saveAppState();
   renderActivities();
+  renderFoodGuide();
   closeAiResearch();
   if (saved > 0) {
     const toast = document.createElement('div');
@@ -6923,6 +6660,8 @@ async function runAiResearch() {
       if (query) reqBody.query = query;
     } else if (action === 'new') {
       reqBody.query = query || 'interesting activity in Japan';
+      const hint = _aiCtx && _aiCtx.ctx && _aiCtx.ctx.contextHint;
+      if (hint) reqBody.contextHint = hint;
     } else {
       reqBody.query = ((_aiCtx.ctx && _aiCtx.ctx.name) || '') + (query ? ' — ' + query : '');
     }
@@ -7042,21 +6781,30 @@ function saveAiResult() {
   } else if (action === 'new') {
     const id = 'ai-' + Date.now();
     const badge = (_aiLastResult.badge || '').toLowerCase();
+    const isFoodBadge = badge.includes('food') || badge.includes('restaurant') || badge.includes('ramen') || badge.includes('sushi') || badge.includes('cafe') || badge.includes('dining');
+    const actType = _aiLastResult.type || (isFoodBadge ? 'food' : 'must');
+    const isFood = actType === 'food';
     const newAct = {
       id: id,
       name: detail.name,
       note: detail._note,
-      type: (badge.includes('food') || badge.includes('restaurant') || badge.includes('ramen') || badge.includes('sushi')) ? 'food' : 'activity',
+      type: actType,
       city: detail.city || (['tokyo','hakone','kyoto','osaka'].includes(appState.cityFilter) ? appState.cityFilter : 'tokyo'),
       assignedDay: null,
     };
+    if (isFood) {
+      if (_aiLastResult.dish) newAct.dish = _aiLastResult.dish;
+      if (_aiLastResult.icon) newAct.icon = _aiLastResult.icon;
+      if (_aiLastResult.tags) newAct.tags = _aiLastResult.tags;
+    }
     appState.activities = appState.activities || [];
     appState.activities.push(newAct);
     appState.customDetails[id] = detail;
     saveAppState();
     renderActivities();
+    if (isFood) renderFoodGuide();
     closeAiResearch();
-    setTimeout(function() { openActivityDetail(id); }, 300);
+    setTimeout(function() { if (isFood) openFoodDetail(id); else openActivityDetail(id); }, 300);
   } else if (action === 'event') {
     const ev = _aiCtx.ctx && _aiCtx.ctx.ev;
     const dayId = _aiCtx.ctx && _aiCtx.ctx.dayId;
@@ -7933,7 +7681,17 @@ function filterTransit(view, btn) {
 }
 
 const FLIGHT_DETAILS = {
-  'ua5408': { name:'UA5408 — SLC → LAX', badge:'✈️ United Express · May 24', price:'Confirmation: AYCCBN', sections:[
+  'ua5408': { name:'UA5408 — SLC → LAX', badge:'✈️ United Express · May 24', price:'Confirmation: AYCCBN',
+    type: 'flight',
+    date: 'May 24',
+    from: 'Salt Lake City',
+    to: 'Los Angeles',
+    departure: '8:00 AM SLC',
+    arrival: '9:27 AM LAX',
+    confirmation: 'AYCCBN',
+    footerLabel: 'Seats + details',
+    group: 'outbound',
+    sections:[
     { title:'Flight Info', rows:[
       { label:'Route', value:'Salt Lake City (SLC) → Los Angeles (LAX)' },
       { label:'Departs', value:'8:00 AM SLC' },
@@ -7954,7 +7712,17 @@ const FLIGHT_DETAILS = {
       { label:'🔌 Layover', value:'2h 13min at LAX — go straight to Tom Bradley International Terminal (TBIT) for UA39' },
     ]},
   ]},
-  'ua39': { name:'UA39 — LAX → Tokyo Haneda', badge:'✈️ United Airlines · May 24→25', price:'Confirmation: AYCCBN', sections:[
+  'ua39': { name:'UA39 — LAX → Tokyo Haneda', badge:'✈️ United Airlines · May 24→25', price:'Confirmation: AYCCBN',
+    type: 'flight',
+    date: 'May 24–25',
+    from: 'Los Angeles',
+    to: 'Tokyo Haneda',
+    departure: '11:40 AM LAX',
+    arrival: '3:05 PM HND',
+    confirmation: 'AYCCBN',
+    footerLabel: 'Seats + long-haul tips',
+    group: 'outbound',
+    sections:[
     { title:'Flight Info', rows:[
       { label:'Route', value:'Los Angeles (LAX) → Tokyo Haneda (HND)' },
       { label:'Departs', value:'11:40 AM LAX · Sunday May 24' },
@@ -7978,7 +7746,17 @@ const FLIGHT_DETAILS = {
       { label:'🛂 At HND', value:'Haneda immigration is fast and organized. Have passport + Visit Japan QR ready. Bags to baggage claim B.' },
     ]},
   ]},
-  'ua34': { name:'UA34 — KIX → San Francisco', badge:'✈️ United Airlines · Jun 5', price:'Confirmation: AYCCBN', sections:[
+  'ua34': { name:'UA34 — KIX → San Francisco', badge:'✈️ United Airlines · Jun 5', price:'Confirmation: AYCCBN',
+    type: 'flight',
+    date: 'Jun 5',
+    from: 'Kansai Airport',
+    to: 'San Francisco',
+    departure: '4:55 PM KIX',
+    arrival: '11:05 AM SFO',
+    confirmation: 'AYCCBN',
+    footerLabel: 'Seats + departure tips',
+    group: 'return',
+    sections:[
     { title:'Flight Info', rows:[
       { label:'Route', value:'Kansai Airport (KIX) → San Francisco (SFO)' },
       { label:'Departs', value:'4:55 PM KIX · Friday June 5' },
@@ -8000,7 +7778,17 @@ const FLIGHT_DETAILS = {
       { label:'📅 Date magic', value:'You leave Friday evening and arrive Friday morning — you gain 10+ hours crossing the date line eastbound.' },
     ]},
   ]},
-  'ua2017': { name:'UA2017 — SFO → Salt Lake City', badge:'✈️ United Airlines · Jun 5', price:'Confirmation: AYCCBN', sections:[
+  'ua2017': { name:'UA2017 — SFO → Salt Lake City', badge:'✈️ United Airlines · Jun 5', price:'Confirmation: AYCCBN',
+    type: 'flight',
+    date: 'Jun 5',
+    from: 'San Francisco',
+    to: 'Salt Lake City',
+    departure: '1:50 PM SFO',
+    arrival: '4:50 PM SLC',
+    confirmation: 'AYCCBN',
+    footerLabel: 'Seats + details',
+    group: 'return',
+    sections:[
     { title:'Flight Info', rows:[
       { label:'Route', value:'San Francisco (SFO) → Salt Lake City (SLC)' },
       { label:'Departs', value:'1:50 PM SFO' },
@@ -8061,20 +7849,7 @@ function filterEatDoTag(tag, btn) {
 }
 
 function filterPhrases(query) {
-  const q = query.toLowerCase().trim();
-  document.querySelectorAll('#section-language .phrase-row').forEach(row => {
-    row.style.display = (!q || row.textContent.toLowerCase().includes(q)) ? '' : 'none';
-  });
-  document.querySelectorAll('#section-language .lang-section-header').forEach(header => {
-    let sib = header.nextElementSibling, hasVisible = false;
-    while (sib && !sib.classList.contains('lang-section-header')) {
-      if (sib.classList.contains('phrase-row') && sib.style.display !== 'none') { hasVisible = true; break; }
-      sib = sib.nextElementSibling;
-    }
-    header.style.display = (hasVisible || !q) ? '' : 'none';
-  });
-  const noRes = document.getElementById('lang-no-results');
-  if (noRes) noRes.style.display = (q && !document.querySelector('#section-language .phrase-row:not([style*="none"])')) ? '' : 'none';
+  renderPhrases(query);
 }
 
 function convertFromYen() {
@@ -8194,61 +7969,7 @@ function buildMapReminder(dayId) {
     + '</div>';
 }
 
-// ── Food Guide ──
-const FOOD_GUIDE = {
-  tokyo: {
-    emoji: '🗼', label: 'Tokyo',
-    items: [
-      { icon: '🍜', name: 'Ichiran Ramen', dish: 'Solo-booth tonkotsu ramen', note: 'Private booths — order on a form, zero Japanese needed. Shibuya branch is closest.', tags: ['must','budget'] },
-      { icon: '🥩', name: 'Gyukatsu Motomura', dish: 'Beef cutlet set', note: 'Cook your own beef cutlet on a hot stone. Excellent value, big portions, consistently amazing.', tags: ['must'] },
-      { icon: '🍣', name: 'Conveyor Belt Sushi', dish: 'Kaiten-zushi', note: 'Kurazushi or Genki Sushi — order via touchscreen. ¥165–330/plate. Great for picky eaters.', tags: ['budget','quick'] },
-      { icon: '🍡', name: 'Nakamise Street (Asakusa)', dish: 'Street snacks', note: 'Ningyo-yaki (fish-shaped cakes), melonpan, fresh yakitori. Perfect for Day 2 walkthrough.', tags: ['quick','budget'] },
-      { icon: '🍱', name: 'Konbini meal', dish: '7-Eleven / Lawson onigiri', note: 'This is not a downgrade — Japanese convenience stores are legendary. Egg salad sandos, hot snacks, incredible.', tags: ['budget','quick'] },
-      { icon: '🎌', name: 'Izakaya night', dish: 'Japanese pub food', note: 'Find any izakaya near Shibuya — gyoza, karaage, edamame, draft beer. Great energy, cheap. Look for red lanterns outside.', tags: ['must'] },
-      { key:'scramble', icon: '🐣', name: 'Shibuya Scramble area', dish: 'Any restaurant, floors 3-8', note: 'Restaurant floors above street level are often cheaper and better than ground floor. Look up!', tags: ['quick'] },
-    ]
-  },
-  hakone: {
-    emoji: '🏔', label: 'Hakone',
-    items: [
-      { key:'kaiseki', icon: '🍱', name: 'Ryokan kaiseki', dish: 'Multi-course Japanese dinner', note: 'Your villa dinner is included both nights — a proper kaiseki spread. Save your appetite.', tags: ['must','splurge'] },
-      { key:'blackeggs', icon: '🥚', name: 'Owakudani Black Eggs', dish: 'Kuro-tamago', note: 'Hard-boiled eggs cooked in sulfuric hot springs, shells turn black. ¥500 for 5. Legend says each egg adds 7 years to your life.', tags: ['must','quick'], jp: 'くろたまご', en: 'Black eggs please' },
-      { key:'hakone-soba', icon: '🍜', name: 'Hakone Soba', dish: 'Handmade buckwheat noodles', note: 'Mountain soba is special here — cold (zaru) or hot. Near Hakone-Yumoto station.', tags: ['must','budget'] },
-    ]
-  },
-  kyoto: {
-    emoji: '⛩', label: 'Kyoto',
-    items: [
-      { key:'nishiki', icon: '🛒', name: 'Nishiki Market', dish: 'Food market crawl', note: 'The "kitchen of Kyoto." Try: fresh yudofu (tofu), yakitori, matcha soft-serve, pickles. Go hungry.', tags: ['must','budget'] },
-      { key:'matcha', icon: '🍵', name: 'Gion Tsujiri', dish: 'Matcha parfait / soft serve', note: 'Best matcha sweets in Gion. The parfait is incredible — multiple textures of matcha in one glass. Worth the line.', tags: ['must'] },
-      { key:'kyoto-ramen', icon: '🍜', name: 'Musoshin Ramen', dish: 'Tori paitan (chicken) ramen', note: 'Different from Tokyo — lighter chicken broth, unique to Kyoto. Near Kyoto Station, excellent value.', tags: ['must','budget'] },
-      { key:'obanzai', icon: '🍱', name: 'Obanzai lunch set', dish: 'Traditional Kyoto small dishes', note: 'Vegetable-forward, beautifully presented. Many lunch spots in Gion offer ¥1,200–2,000 sets. Worth experiencing once.', tags: ['splurge'] },
-      { key:'nara-mochi', icon: '🦌', name: 'Nara snacks (Day 8)', dish: 'Mochi pounding street food', note: 'On your Nara day trip — look for shops pounding fresh mochi by hand. Also: deer crackers (shika senbei) to feed the bowing deer.', tags: ['must','quick'] },
-      // ── Gluten Free picks ──────────────────────────────────────────────
-      { key:'toshoan', icon: '🥞', name: 'Toshoan (登志庵)', dish: '100% GF soufflé pancakes + sweets', note: 'One of the only places in Japan serving fully GF soufflé pancakes. Entire menu is gluten-free — pancakes, cream puffs, matcha sweets. 30-min wait but worth it. Nakagyo Ward.', tags: ['gf','must'] },
-      { key:'waco-crepes', icon: '🫔', name: 'waco crepes', dish: '100% GF + vegan rice flour crepes', note: 'Tiny 6-seat creperie near Kiyomizudera — all crepes made with rice flour. Try salmon + cream cheese or azuki soy milk cream. Kids love it. #45 Dessert Spots in Kyoto.', tags: ['gf','quick'] },
-      { key:'teuchi-soba', icon: '🍜', name: 'Teuchi Toru Soba (手打ちとおる)', dish: '100% buckwheat soba — celiac safe', note: 'Owner mills his own buckwheat on-site — zero cross-contact possible. 7 counter seats, cash only, lunch only. Called "a must for celiacs" in every GF Japan guide. ¥1,000.', tags: ['gf','budget'] },
-      { key:'gion-ramen', icon: '🍜', name: 'Gion Soy Milk Ramen', dish: "Japan's only 100% GF ramen", note: 'The only dedicated GF ramen restaurant in Japan — rich soy milk broth, rice noodles, GF gyoza. TripAdvisor 4.6/5. In Gion near Shijo Station. A celiac landmark.', tags: ['gf','must'] },
-      { key:'choice-kyoto', icon: '🌿', name: 'CHOICE (チョイス)', dish: 'GF + vegan all-day cafe', note: 'Doctor-run cafe where nearly the whole menu is GF and vegan — pancakes, brown rice risotto, fermented vegan cheese, raw cakes. English menu. 1 min from Sanjo Keihan.', tags: ['gf'] },
-      { key:'ikkakuju', icon: '🥞', name: 'Ikkakuju Karasuma (いっかくじゅう)', dish: '100% GF okonomiyaki + teppanyaki', note: 'Entire menu is GF — standout yuba okonomiyaki in private sunken kotatsu rooms. Perfect family dinner. Kid plastic plates, tatami seating. Reserve ahead.', tags: ['gf','must'] },
-      { key:'sugarhill', icon: '🍽', name: 'Sugarhill Kyoto', dish: 'Japanese-Western fusion, GF menu labeled', note: 'Ranked #44 of 16,000+ Kyoto restaurants overall. GF dishes labeled on menu, celiac-aware kitchen and staff. Best splurge dinner in Kyoto for GF travelers. Dinner only.', tags: ['gf','splurge'] },
-      { key:'kappa-italian', icon: '🍝', name: 'Oshokuya Kappa (5Kappa)', dish: "Kyoto's only 100% GF Italian", note: 'Every dish is GF — handmade rice flour focaccia, fresh rice pasta, Kameoka wagyu, seasonal Kyoto vegetables. Certified GF by Japan Vegetable Sommelier Assoc.', tags: ['gf','splurge'] },
-      { key:'musubi-sweets', icon: '🍰', name: 'Musubi Sweets Factory', dish: '100% GF + vegan matcha desserts', note: 'Hidden gem in Arashiyama — matcha tofu cheesecake, hojicha cheesecake, GF ice cream sandwich, home-roasted coffee. Air-conditioned. Perfect post-bamboo-grove stop.', tags: ['gf','quick'] },
-      { key:'maccha-house', icon: '🍵', name: 'MACCHA HOUSE (抹茶館)', dish: 'Matcha cafe — GF options (not dedicated)', note: "Kyoto's most famous matcha cafe — order soft serve in a CUP (not cone) and lattes for GF. Sannenzaka location is beautiful. Not a dedicated GF kitchen — heads up for celiacs.", tags: ['gf'] },
-      { key:'gen-kyoto', icon: '🥡', name: 'Gen (玄gen) Takeout', dish: '100% GF + vegan bento + curry', note: 'Takeout shop in Nishijin — GF vegan bento boxes, spice curry, quiche, rice flour roll cake. Also on Uber Eats. Great for a temple garden picnic lunch. Budget-friendly.', tags: ['gf','budget','quick'] },
-    ]
-  },
-  osaka: {
-    emoji: '🦀', label: 'Osaka',
-    items: [
-      { key:'takoyaki', icon: '🐙', name: 'Takoyaki — Wanaka', dish: 'Octopus balls (8 for ¥600)', note: 'Crispy outside, molten inside. These are THE Osaka snack. Wanaka in Dotonbori is the classic.', tags: ['must','quick','budget'], jp: 'たこ焼き8個ください', en: '8 takoyaki please' },
-      { key:'okonomiyaki', icon: '🥞', name: 'Okonomiyaki — Mizuno', dish: 'Savory Japanese pancake', note: 'Mizuno in Dotonbori has been there since 1945. Get the mixed (mix-yaki). Expect a line but it moves fast.', tags: ['must'], jp: 'ミックス焼き一枚ください', en: 'One mixed okonomiyaki please' },
-      { key:'kani-doraku', icon: '🦀', name: 'Kani Doraku', dish: 'Crab cuisine', note: 'The famous giant moving crab sign on Dotonbori. Expensive but the set menus are a proper Osaka splurge dinner.', tags: ['splurge'] },
-      { key:'kuromon', icon: '🍖', name: 'Kuromon Ichiba Market', dish: 'Fresh market food stalls', note: '"Osaka\'s Kitchen" — walk through and eat fresh: wagyu skewers, oysters, fugu (puffer fish). Near Namba.', tags: ['must'] },
-      { key:'kinryu', icon: '🍜', name: 'Kinryu Ramen', dish: '24hr Dotonbori ramen', note: 'Open 24 hours, the giant dragon outside is iconic. Good late-night bowl after walking Dotonbori.', tags: ['budget','quick'] },
-    ]
-  }
-};
+// Food guide items are in DEFAULT_ACTIVITIES (type:'food')
 
 const FOOD_DETAILS = {
   ichiran: { name:'Ichiran Ramen', city:'tokyo', badge:'🗼 Tokyo', price:'¥1,200–1,800', sections:[
@@ -10034,37 +9755,51 @@ function openFoodDetail(key) {
 
 function renderFoodGuide() {
   const container = document.getElementById('food-guide-container');
-  if (!container) return;
+  if (!container || !appState.activities) return;
   const cityFilter = appState.cityFilter || 'all';
   const tagFilter = appState.tagFilter || 'all';
   const foodTagFilters = new Set(['gf','must','budget','splurge','quick']);
   const cities = ['tokyo','hakone','kyoto','osaka'];
+  const cityMeta = {
+    tokyo: {emoji:'🗼', label:'Tokyo'},
+    hakone: {emoji:'🏔', label:'Hakone'},
+    kyoto: {emoji:'⛩', label:'Kyoto'},
+    osaka: {emoji:'🦀', label:'Osaka'},
+  };
   let html = '';
   cities.forEach(city => {
     if (cityFilter !== 'all' && cityFilter !== city) return;
-    const c = FOOD_GUIDE[city];
-    // When tag is an activity-only type, hide all food items; when it's a food tag, filter normally
-    let items = c.items;
+    const m = cityMeta[city];
+    let items = appState.activities.filter(a => a.type === 'food' && a.city === city);
     if (tagFilter !== 'all') {
       if (!foodTagFilters.has(tagFilter)) { items = []; }
       else { items = items.filter(item => (item.tags || []).includes(tagFilter)); }
     }
     if (!items.length) return;
     html += '<div class="food-city-section">'
-      + '<div class="food-city-title">' + c.emoji + ' ' + c.label + '</div>'
+      + '<div class="food-city-title">' + m.emoji + ' ' + m.label + '</div>'
       + '<div class="food-items-list">'
       + items.map(item => {
           const tagLabels = { must:'must', budget:'budget', splurge:'splurge', quick:'quick', gf:'✓ Gluten Free' };
-          const tags = (item.tags || []).map(t => '<span class="food-tag ' + t + '">' + (tagLabels[t]||t) + '</span>').join('');
-          const staffBtn = item.jp ? '<button class="food-staff-btn" onclick="openStaffCard(\'' + item.jp.replace(/'/g,"\\'") + '\',\'' + (item.en||'').replace(/'/g,"\\'") + '\');event.stopPropagation()">📱 Show to staff</button>' : '';
-          const detailBtn = item.key && FOOD_DETAILS[item.key] ? '<button class="food-detail-btn" onclick="openFoodDetail(\'' + item.key + '\');event.stopPropagation()">Details + map →</button>' : '';
+          const itemTags = (item.tags || []).map(t => '<span class="food-tag ' + t + '">' + (tagLabels[t]||t) + '</span>').join('');
+          const icon = item.icon || '🍜';
+          const dishHtml = item.dish ? '<div class="food-item-dish">' + item.dish + '</div>' : '';
+          const noteHtml = item.note ? '<div class="food-item-note">' + item.note + '</div>' : '';
+          const staffBtn = item.jp ? '<button class="food-staff-btn" onclick="openStaffCard(\'' + (item.jp||'').replace(/'/g,"\\'") + '\',\'' + (item.en||'').replace(/'/g,"\\'") + '\');event.stopPropagation()">📱 Show to staff</button>' : '';
+          const hasFoodDetail = !!(item.key && typeof FOOD_DETAILS !== 'undefined' && FOOD_DETAILS[item.key]);
+          const hasCustomDetail = !!(appState.customDetails && appState.customDetails[item.id]);
+          const detailBtn = hasFoodDetail
+            ? '<button class="food-detail-btn" onclick="openFoodDetail(\'' + item.key + '\');event.stopPropagation()">Details + map →</button>'
+            : hasCustomDetail
+            ? '<button class="food-detail-btn" onclick="openFoodDetail(\'' + item.id + '\');event.stopPropagation()">Details + map →</button>'
+            : '';
           return '<div class="food-item">'
-            + '<span class="food-item-icon">' + item.icon + '</span>'
+            + '<span class="food-item-icon">' + icon + '</span>'
             + '<div class="food-item-body">'
             + '<div class="food-item-name">' + item.name + '</div>'
-            + '<div class="food-item-dish">' + item.dish + '</div>'
-            + '<div class="food-item-note">' + item.note + '</div>'
-            + '<div class="food-tags">' + tags + '</div>'
+            + dishHtml
+            + noteHtml
+            + '<div class="food-tags">' + itemTags + '</div>'
             + '<div class="food-item-actions">' + staffBtn + detailBtn + '</div>'
             + '</div>'
             + '</div>';
@@ -10074,6 +9809,197 @@ function renderFoodGuide() {
   });
   if (!html) html = '<p style="color:var(--text-muted);padding:16px 0">No food suggestions for this city filter.</p>';
   container.innerHTML = html;
+}
+
+// ── Hotel/Transit/Logistics/Phrases render functions ──
+
+function renderHotels() {
+  const container = document.getElementById('hotels-list');
+  if (!container) return;
+  const cityBadge = {
+    tokyo: '<span class="badge badge-tokyo">🗼 Tokyo</span>',
+    hakone: '<span class="badge badge-hakone">🏔 Hakone</span>',
+    kyoto: '<span class="badge badge-kyoto">⛩ Kyoto</span>',
+    osaka: '<span class="badge badge-osaka">🦀 Osaka</span>',
+  };
+  let html = '';
+  Object.entries(HOTEL_DETAILS).forEach(([key, h]) => {
+    const extras = (h.extraInfo || []).map(e =>
+      '<div class="info-item"><span class="info-label">' + e.label + '</span><span class="info-value">' + e.value + '</span></div>'
+    ).join('');
+    html += '<div class="card hotel-card" onclick="openHotelDetail(\'' + key + '\')">'
+      + '<div class="card-header">'
+      + '<div>'
+      + '<div class="card-title">' + h.name + '</div>'
+      + '<div class="card-sub">' + h.address + ' <button class="copy-addr-btn" data-copy="' + h.address + '" onclick="event.stopPropagation();copyAddr(this)">⎘</button></div>'
+      + '</div>'
+      + (cityBadge[h.city] || '')
+      + '</div>'
+      + '<div class="info-grid">'
+      + '<div class="info-item"><span class="info-label">Check-in</span><span class="info-value">' + h.checkIn + '</span></div>'
+      + '<div class="info-item"><span class="info-label">Check-out</span><span class="info-value">' + h.checkOut + '</span></div>'
+      + '<div class="info-item"><span class="info-label">Duration</span><span class="info-value">' + h.nights + '</span></div>'
+      + '<div class="info-item"><span class="info-label">Confirmation</span><span class="info-value"><span class="conf-code">' + h.confirmation + '</span></span></div>'
+      + extras
+      + '</div>'
+      + '<div class="hotel-card-footer">Check-in details &amp; PIN codes ›</div>'
+      + '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function renderTransit() {
+  const trainList = document.getElementById('transit-trains-list');
+  const flightList = document.getElementById('transit-flights-list');
+
+  if (trainList) {
+    const statusBadge = {
+      booked: '<span class="badge badge-success" style="margin-left:auto">✓ Booked</span>',
+      ic: '<span class="badge badge-info">IC card — no booking</span>',
+    };
+    let html = '';
+    Object.entries(TRAIN_DETAILS).forEach(([key, t]) => {
+      const col4Label = t.status === 'ic' ? 'Ticket' : 'Car · Seats';
+      html += '<div class="train-card hotel-card" onclick="openTrainDetail(\'' + key + '\')">'
+        + '<div class="train-header">'
+        + '<span class="train-icon">' + (t.icon||'🚃') + '</span>'
+        + '<div>'
+        + '<div class="train-name">' + t.name.split('·')[0].trim() + '</div>'
+        + '<div class="train-route">' + t.from + ' → ' + t.to + '</div>'
+        + '</div>'
+        + (statusBadge[t.status] || '')
+        + '</div>'
+        + '<div class="train-body">'
+        + '<div class="train-cell"><div class="info-label">Date</div><div class="info-value">' + t.date + '</div></div>'
+        + '<div class="train-cell"><div class="info-label">Departs</div><div class="info-value">' + t.departure + '</div></div>'
+        + '<div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">' + (t.arrival || '—') + '</div></div>'
+        + '<div class="train-cell"><div class="info-label">' + col4Label + '</div><div class="info-value">' + t.seats + '</div></div>'
+        + '</div>'
+        + '<div class="hotel-card-footer">' + t.footerLabel + ' ›</div>'
+        + '</div>';
+    });
+    trainList.innerHTML = html;
+  }
+
+  if (flightList) {
+    let html = '<div class="section-title" style="margin-top:0; font-size:18px;">✈️ Outbound — To Japan</div>';
+    let shownReturn = false;
+    Object.entries(FLIGHT_DETAILS).forEach(([key, f]) => {
+      if (f.group === 'return' && !shownReturn) {
+        html += '<div class="section-title" style="margin-top:24px; font-size:18px;">✈️ Return — Home</div>';
+        shownReturn = true;
+      }
+      html += '<div class="train-card hotel-card" onclick="openFlightDetail(\'' + key + '\')">'
+        + '<div class="train-header">'
+        + '<span class="train-icon">✈️</span>'
+        + '<div>'
+        + '<div class="train-name">' + f.name + '</div>'
+        + '<div class="train-route">' + f.from + ' → ' + f.to + '</div>'
+        + '</div>'
+        + '<span class="badge badge-success">✓ Booked</span>'
+        + '</div>'
+        + '<div class="train-body">'
+        + '<div class="train-cell"><div class="info-label">Date</div><div class="info-value">' + f.date + '</div></div>'
+        + '<div class="train-cell"><div class="info-label">Departs</div><div class="info-value">' + f.departure + '</div></div>'
+        + '<div class="train-cell"><div class="info-label">Arrives</div><div class="info-value">' + f.arrival + '</div></div>'
+        + '<div class="train-cell"><div class="info-label">Conf.</div><div class="info-value">' + f.confirmation + '</div></div>'
+        + '</div>'
+        + '<div class="hotel-card-footer">' + f.footerLabel + ' ›</div>'
+        + '</div>';
+    });
+    flightList.innerHTML = html;
+  }
+}
+
+function renderLogisticsView(view) {
+  // Essentials
+  const essEl = document.getElementById('log-essentials-list');
+  if (essEl && (view === 'all' || view === 'essentials')) {
+    essEl.innerHTML = '<div class="logistics-grid">'
+      + LOGISTICS_ESSENTIALS.map(e =>
+          '<div class="logistics-item">'
+          + '<span class="logistics-icon">' + e.icon + '</span>'
+          + '<div><div class="logistics-title">' + e.title + '</div>'
+          + '<div class="logistics-body">' + e.body + '</div></div>'
+          + '</div>'
+        ).join('')
+      + '</div>';
+  }
+  // Reservations
+  const resEl = document.getElementById('log-reservations-list');
+  if (resEl && (view === 'all' || view === 'reservations')) {
+    resEl.innerHTML = '<div class="reservation-list">'
+      + LOGISTICS_RESERVATIONS.map(r =>
+          '<div class="reservation-item">'
+          + '<span class="reservation-icon">' + r.icon + '</span>'
+          + '<div class="reservation-info">'
+          + '<div class="reservation-name">' + r.name + '</div>'
+          + '<div class="reservation-date">' + r.date + '</div>'
+          + '</div>'
+          + '<span class="reservation-code">' + r.code + '</span>'
+          + '</div>'
+        ).join('')
+      + '</div>';
+  }
+  // Emergency
+  const emEl = document.getElementById('log-emergency-list');
+  if (emEl && (view === 'all' || view === 'emergency')) {
+    emEl.innerHTML = '<div class="emergency-grid">'
+      + LOGISTICS_EMERGENCY.map(e =>
+          '<div class="emergency-card' + (e.urgent ? ' urgent' : '') + '">'
+          + '<span class="e-icon">' + e.emoji + '</span>'
+          + '<div class="e-label">' + e.label + '</div>'
+          + '<div class="e-number"' + (e.urgent ? '' : ' style="font-size:16px"') + '>' + e.number + '</div>'
+          + '<a class="emergency-call-btn" href="tel:' + e.tel + '">Call ' + (e.urgent ? e.number : e.label.replace('US ','')) + '</a>'
+          + '</div>'
+        ).join('')
+      + '</div>';
+  }
+}
+
+function renderPhrases(filter) {
+  const container = document.getElementById('phrases-container');
+  if (!container) return;
+  const q = (filter || '').toLowerCase().trim();
+  const sections = ['basics','food','transit','shopping','secret'];
+  const sectionHeaders = {
+    basics: '🆘 Basic life savers',
+    food: '🍜 Food & restaurants',
+    transit: '🚃 Getting around',
+    shopping: '🛍 Shopping',
+    secret: '🔑 Secret weapons',
+  };
+  let html = '';
+  let seenSections = new Set();
+  PHRASES.forEach(p => {
+    const matchesSearch = !q || (p.romaji + p.meaning + p.kanji).toLowerCase().includes(q);
+    if (!matchesSearch) return;
+    if (!seenSections.has(p.section)) {
+      html += '<div class="lang-section-header">' + sectionHeaders[p.section] + '</div>';
+      seenSections.add(p.section);
+    }
+    html += '<div class="phrase-row">'
+      + '<span class="phrase-tag ' + p.tag + '">' + p.tagLabel + '</span>'
+      + '<div class="phrase-row-content">'
+      + '<div class="phrase-romanji-big">' + p.romaji + '</div>'
+      + '<div class="phrase-meaning">' + p.meaning + '</div>'
+      + '</div>'
+      + '<div class="phrase-kanji">' + p.kanji.replace(/\n/g,'<br>') + '</div>'
+      + '</div>';
+  });
+  container.innerHTML = html;
+  // Show/hide no-results
+  const noRes = document.getElementById('lang-no-results');
+  if (noRes) noRes.style.display = (!html && q) ? '' : 'none';
+  // Show/hide interactive builders based on search
+  const builders = document.getElementById('lang-builders');
+  if (builders) {
+    if (!q) { builders.style.display = ''; }
+    else {
+      const builderMatch = ['kore wa','ikitai','station','subway','bus','taxi','airport','hotel','exit','shibuya','shinjuku','asakusa','akihabara','harajuku','fushimi','dotonbori','kyoto','osaka','nara'].some(w => w.includes(q) || q.includes(w.substring(0,3)));
+      builders.style.display = builderMatch ? '' : 'none';
+    }
+  }
 }
 
 // ── App init ──
@@ -10108,6 +10034,10 @@ document.addEventListener('DOMContentLoaded', async function() {
   renderActivities();
   renderExpenses();
   renderFoodGuide();
+  renderHotels();
+  renderTransit();
+  renderLogisticsView('all');
+  renderPhrases('');
   initWeather();
   const fab = document.getElementById('today-fab');
   if (fab) fab.classList.add('visible');
