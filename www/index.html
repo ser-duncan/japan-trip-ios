@@ -2875,6 +2875,41 @@
   }
   .inbox-tab.active { color: var(--text); border-bottom-color: #7EB0FF; }
 
+  /* ── Research Jobs tab ── */
+  .rj-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+  }
+  .rj-card-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+  .rj-action-pill {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+    padding: 2px 7px; border-radius: 99px; background: rgba(126,176,255,0.15); color: #7EB0FF;
+  }
+  .rj-status-pill {
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px;
+  }
+  .rj-status-pill.running { background: rgba(251,191,36,0.15); color: #fbbf24; }
+  .rj-status-pill.done    { background: rgba(52,211,153,0.15); color: #34d399; }
+  .rj-status-pill.failed  { background: rgba(248,113,113,0.15); color: #f87171; }
+  .rj-status-pill.timeout { background: rgba(156,163,175,0.15); color: #9ca3af; }
+  .rj-time { font-size: 11px; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
+  .rj-query {
+    font-size: 13px; font-weight: 500; line-height: 1.4;
+    overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+    word-break: break-word; margin-bottom: 4px;
+  }
+  .rj-query.expandable { cursor: pointer; }
+  .rj-query.expandable::after { content: ' — more'; font-weight: 400; opacity: 0.5; font-size: 11px; }
+  .rj-query.expanded { -webkit-line-clamp: unset; overflow: visible; }
+  .rj-query.expanded::after { content: ' — less'; }
+  .rj-result-name { font-size: 12px; color: #34d399; margin-top: 3px; }
+  .rj-error { font-size: 12px; color: #f87171; margin-top: 3px; }
+  .rj-count { font-size: 12px; color: var(--text-muted); }
+  .rj-clear-btn {
+    background: none; border: none; color: var(--text-muted); font-size: 12px;
+    cursor: pointer; padding: 4px 0; margin-top: 4px; text-decoration: underline;
+  }
+
   /* ── Modal Details / Documents subnav ──────────────────────────────────── */
   .modal-subnav {
     display: flex; padding: 0 20px; flex-shrink: 0;
@@ -6809,18 +6844,20 @@ async function runAiResearch() {
     if (!res.ok || startData.error) throw new Error(startData.error || 'Research failed');
 
     let data = startData;
+    let _rjJobId = null;
     if (startData.jobId) {
-      // Async job — update loading text and poll until done
+      // Async job — record in research jobs history and poll until done
+      _rjJobId = startData.jobId;
+      _rjPush({ jobId: _rjJobId, query: displayQuery, action: action, status: 'running', startedAt: new Date().toISOString() });
       const loadingSub = body.querySelector('.ai-loading-sub');
       if (loadingSub) loadingSub.textContent = 'Searching the web…';
-      const jobId = startData.jobId;
       let done = false;
       for (let i = 0; i < 60 && !done; i++) {
         await new Promise(function(r) { setTimeout(r, 3000); });
         const pollRes = await fetch(AI_RESEARCH_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'poll', jobId: jobId }),
+          body: JSON.stringify({ action: 'poll', jobId: _rjJobId }),
         });
         const pollData = await pollRes.json();
         if (pollData.status === 'done') {
@@ -6831,14 +6868,20 @@ async function runAiResearch() {
         }
         // status === 'pending' → keep polling
       }
-      if (!done) throw new Error('Research timed out after 3 minutes');
+      if (!done) {
+        _rjUpdate(_rjJobId, { status: 'timeout', completedAt: new Date().toISOString() });
+        throw new Error('Research timed out after 3 minutes');
+      }
     }
 
     if (data.results && Array.isArray(data.results)) {
+      if (_rjJobId) _rjUpdate(_rjJobId, { status: 'done', completedAt: new Date().toISOString(), resultCount: data.results.length });
       _aiLastResults = data.results;
       _aiLastResult = null;
       _showAiResultList(data.results);
     } else {
+      const resultName = data.result && data.result.name ? data.result.name : null;
+      if (_rjJobId) _rjUpdate(_rjJobId, { status: 'done', completedAt: new Date().toISOString(), resultName: resultName });
       _aiLastResult = data.result;
       _aiLastResults = null;
       if (autoSave) {
@@ -6848,6 +6891,9 @@ async function runAiResearch() {
       }
     }
   } catch (err) {
+    if (typeof _rjJobId !== 'undefined' && _rjJobId) {
+      _rjUpdate(_rjJobId, { status: 'failed', completedAt: new Date().toISOString(), error: err.message });
+    }
     body.innerHTML = '<div style="text-align:center;padding:20px 0">'
       + '<div style="font-size:28px;margin-bottom:10px">⚠️</div>'
       + '<div style="font-size:15px;font-weight:600;margin-bottom:6px">Research failed</div>'
@@ -10986,6 +11032,7 @@ function closeAttachmentViewer() {
     <button class="inbox-tab active" id="inbox-tab-updates" onclick="switchInboxTab('updates')">Updates</button>
     <button class="inbox-tab" id="inbox-tab-log" onclick="switchInboxTab('log')">Run Log</button>
     <button class="inbox-tab" id="inbox-tab-poller" onclick="switchInboxTab('poller')">Poller</button>
+    <button class="inbox-tab" id="inbox-tab-research" onclick="switchInboxTab('research')">Research</button>
   </div>
   <div class="inbox-sheet-body" id="inbox-sheet-body">
     <div class="inbox-empty">Loading…</div>
@@ -11064,6 +11111,27 @@ let inboxLogItems = [];
 let pollerRunItems = [];
 let inboxActiveTab = 'updates';
 
+const RJ_KEY = 'japan-research-jobs';
+const RJ_MAX = 50;
+let _researchJobs = (function() {
+  try { return JSON.parse(localStorage.getItem(RJ_KEY) || '[]'); } catch(e) { return []; }
+})();
+
+function _saveResearchJobs() {
+  try { localStorage.setItem(RJ_KEY, JSON.stringify(_researchJobs.slice(0, RJ_MAX))); } catch(e) {}
+}
+
+function _rjPush(entry) {
+  _researchJobs.unshift(entry);
+  if (_researchJobs.length > RJ_MAX) _researchJobs.length = RJ_MAX;
+  _saveResearchJobs();
+}
+
+function _rjUpdate(jobId, patch) {
+  const idx = _researchJobs.findIndex(j => j.jobId === jobId);
+  if (idx !== -1) { Object.assign(_researchJobs[idx], patch); _saveResearchJobs(); }
+}
+
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
@@ -11116,8 +11184,10 @@ function switchInboxTab(tab) {
   document.getElementById('inbox-tab-updates').classList.toggle('active', tab === 'updates');
   document.getElementById('inbox-tab-log').classList.toggle('active', tab === 'log');
   document.getElementById('inbox-tab-poller').classList.toggle('active', tab === 'poller');
+  document.getElementById('inbox-tab-research').classList.toggle('active', tab === 'research');
   if (tab === 'updates') renderInboxItems();
   else if (tab === 'log') renderRunLog();
+  else if (tab === 'research') renderResearchJobs();
   else renderPollerRuns();
 }
 
@@ -11132,6 +11202,7 @@ function openInbox() {
 
   if (inboxActiveTab === 'updates') renderInboxItems();
   else if (inboxActiveTab === 'log') renderRunLog();
+  else if (inboxActiveTab === 'research') renderResearchJobs();
   else renderPollerRuns();
 }
 
@@ -11333,6 +11404,59 @@ function renderPollerRuns() {
   }).join('');
 
   body.innerHTML = triggerRow + listHtml;
+}
+
+function renderResearchJobs() {
+  const body = document.getElementById('inbox-sheet-body');
+  if (!_researchJobs.length) {
+    body.innerHTML = '<div class="inbox-empty">No research jobs yet.<br><span style="font-size:12px;opacity:0.6">Jobs appear here when you use the ✨ research button.</span></div>';
+    return;
+  }
+
+  const ACTION_LABELS = { new: '✨ new', enrich: '🔍 enrich', refine: '💬 refine', event: '📅 event' };
+  const STATUS_LABELS = { running: '⟳ Running', done: '✓ Done', failed: '✗ Failed', timeout: '⏱ Timed out' };
+
+  const cardsHtml = _researchJobs.map(function(j, idx) {
+    const actionLabel = ACTION_LABELS[j.action] || j.action || '✨';
+    const statusLabel = STATUS_LABELS[j.status] || j.status;
+    const statusCls = j.status === 'running' ? 'running' : j.status === 'done' ? 'done' : j.status === 'failed' ? 'failed' : 'timeout';
+    const timeStr = j.startedAt ? timeAgo(j.startedAt) : '';
+
+    const q = j.query || '';
+    const queryCls = q.length > 60 ? ' expandable' : '';
+    const queryOnclick = q.length > 60 ? ' onclick="this.classList.toggle(\'expanded\')"' : '';
+    const queryHtml = '<div class="rj-query' + queryCls + '"' + queryOnclick + '>' + q + '</div>';
+
+    let bottomLine = '';
+    if (j.status === 'done' && j.resultName) {
+      bottomLine = '<div class="rj-result-name">→ ' + j.resultName + '</div>';
+    } else if (j.status === 'done' && j.resultCount) {
+      bottomLine = '<div class="rj-count">→ ' + j.resultCount + ' results</div>';
+    } else if (j.status === 'failed' && j.error) {
+      bottomLine = '<div class="rj-error">' + j.error + '</div>';
+    } else if (j.status === 'timeout') {
+      bottomLine = '<div class="rj-error">No response after 3 minutes</div>';
+    }
+
+    return '<div class="rj-card">'
+      + '<div class="rj-card-header">'
+      + '<span class="rj-action-pill">' + actionLabel + '</span>'
+      + '<span class="rj-status-pill ' + statusCls + '">' + statusLabel + '</span>'
+      + '<span class="rj-time">' + timeStr + '</span>'
+      + '</div>'
+      + queryHtml
+      + bottomLine
+      + '</div>';
+  }).join('');
+
+  const clearBtn = '<div style="text-align:right"><button class="rj-clear-btn" onclick="_clearResearchJobs()">Clear history</button></div>';
+  body.innerHTML = cardsHtml + clearBtn;
+}
+
+function _clearResearchJobs() {
+  _researchJobs = [];
+  _saveResearchJobs();
+  renderResearchJobs();
 }
 
 // Swipe-to-close for inbox sheet
