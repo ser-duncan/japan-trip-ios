@@ -651,7 +651,24 @@
     -webkit-overflow-scrolling: touch;
   }
   .ai-sheet-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
-  .ai-sheet-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.4; }
+  .ai-sheet-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4; }
+  .ai-ctx-scope { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .ai-ctx-chip {
+    padding: 5px 13px; border-radius: 99px; font-size: 12px; font-weight: 600;
+    border: 1px solid var(--border); background: none; color: var(--text-muted); cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .ai-ctx-chip.active { background: rgba(126,176,255,0.15); color: #7EB0FF; border-color: rgba(126,176,255,0.4); }
+  .ai-ctx-info-chip {
+    padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 600;
+    background: rgba(126,176,255,0.08); color: rgba(126,176,255,0.7);
+    border: 1px solid rgba(126,176,255,0.2); display: inline-block; margin-bottom: 14px;
+  }
+  .day-ai-btn {
+    background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px 6px;
+    line-height: 1; color: var(--text-muted); -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+  }
+  .day-ai-btn:active { opacity: 0.6; }
   .ai-sheet-textarea {
     width: 100%; box-sizing: border-box; min-height: 80px; padding: 12px 14px;
     background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
@@ -6601,7 +6618,8 @@ function closeEvInfo() {
 const AI_RESEARCH_URL = 'https://ubtzeulovzfguazmdchp.supabase.co/functions/v1/research';
 let _aiCtx = null;
 let _aiLastResult = null;
-let _aiLastResults = null; // array for multi-item results
+let _aiLastResults = null;
+let _aiItineraryScope = 'trip'; // 'day' | 'trip'
 
 // Context-aware AI FAB entry point
 function openAiContextual() {
@@ -6610,17 +6628,65 @@ function openAiContextual() {
   const ctxKey = (section === 'activities')
     ? (view === 'food' ? 'food' : view === 'activities' ? 'activities' : 'eatdo')
     : section;
+
+  // Itinerary: route through day-aware opener so scope chips render correctly
+  if (ctxKey === 'itinerary') {
+    _aiItineraryScope = _openDetailDayId ? 'day' : 'trip';
+    const dayCount = (appState.days || []).length;
+    const viewDay = _openDetailDayId && appState.days && appState.days.find(d => d.id === _openDetailDayId);
+    openAiResearch('new', {
+      contextHint: 'itinerary',
+      sub: viewDay ? 'Adding to ' + viewDay.dateLabel : 'Research for your Japan trip',
+      placeholder: '"sunset spot after Arashiyama", "dinner near Gion tonight"',
+      viewingDayId: _openDetailDayId || null,
+      dayCount,
+    });
+    return;
+  }
+
   const CTXMAP = {
-    itinerary:   { sub: 'Add or research events for your itinerary',          placeholder: '"sunset at Fushimi Inari", "dinner near hotel on Day 3"' },
-    hotels:      { sub: 'Research hotels, lodging, or neighborhoods',          placeholder: '"ryokan in Hakone", "what\'s near our Kyoto hotel"' },
-    trains:      { sub: 'Research transit, passes, or train routes',           placeholder: '"Shinkansen Tokyo to Kyoto", "IC card vs JR Pass for 5 people"' },
-    logistics:   { sub: 'Research logistics, reservations, or practicalities', placeholder: '"currency exchange in Namba", "tourist SIM card options"' },
-    food:        { sub: 'Find restaurants, ramen, cafes, or food experiences', placeholder: '"best breakfast near Dotonbori", "top 3 ramen in Tokyo"' },
-    activities:  { sub: 'Find activities, attractions, or hidden gems',        placeholder: '"teamLab Planets Tokyo", "top 5 things to do in Kyoto"' },
-    eatdo:       { sub: 'Find food spots, activities, or attractions',         placeholder: '"best ramen near Osaka station", "family activities in Tokyo"' },
+    hotels:    { sub: 'Research hotels, lodging, or neighborhoods',          placeholder: '"ryokan in Hakone", "what\'s near our Kyoto hotel"' },
+    trains:    { sub: 'Research transit, passes, or train routes',           placeholder: '"Shinkansen Tokyo to Kyoto", "IC card vs JR Pass for 5 people"' },
+    logistics: { sub: 'Research logistics, reservations, or practicalities', placeholder: '"currency exchange in Namba", "tourist SIM card options"' },
+    food:      { sub: 'Find restaurants, ramen, cafes, or food experiences', placeholder: '"best breakfast near Dotonbori", "top 3 ramen in Tokyo"' },
+    activities:{ sub: 'Find activities, attractions, or hidden gems',        placeholder: '"teamLab Planets Tokyo", "top 5 things to do in Kyoto"' },
+    eatdo:     { sub: 'Find food spots, activities, or attractions',         placeholder: '"best ramen near Osaka station", "family activities in Tokyo"' },
   };
   const ctx = CTXMAP[ctxKey] || CTXMAP.eatdo;
   openAiResearch('new', { contextHint: ctxKey, sub: ctx.sub, placeholder: ctx.placeholder });
+}
+
+// Open AI research scoped to a specific day (from day detail ✨ button)
+function openAiFromDayDetail(dayId) {
+  const day = appState.days && appState.days.find(d => d.id === dayId);
+  if (!day) return;
+  _aiItineraryScope = 'day';
+  const dayCount = (appState.days || []).length;
+  openAiResearch('new', {
+    contextHint: 'itinerary',
+    sub: 'Adding to ' + day.dateLabel + ' · ' + (day.city || 'Japan'),
+    placeholder: '"best dinner near our hotel", "sunset spot after afternoon activities"',
+    viewingDayId: dayId,
+    dayCount,
+  });
+}
+
+// Toggle itinerary scope in the AI sheet
+function _setAiScope(scope) {
+  _aiItineraryScope = scope;
+  const dayChip  = document.getElementById('ai-scope-day');
+  const tripChip = document.getElementById('ai-scope-trip');
+  if (dayChip)  dayChip.classList.toggle('active',  scope === 'day');
+  if (tripChip) tripChip.classList.toggle('active', scope === 'trip');
+  const sub = document.querySelector('#ai-sheet-body .ai-sheet-sub');
+  if (!sub) return;
+  const viewDay = _openDetailDayId && appState.days && appState.days.find(d => d.id === _openDetailDayId);
+  if (scope === 'day' && viewDay) {
+    sub.textContent = 'Using ' + viewDay.dateLabel + ' context';
+  } else {
+    const dayCount = (appState.days || []).length;
+    sub.textContent = 'Using full trip context (' + dayCount + ' days)';
+  }
 }
 
 function _getExistingDetail(key, type) {
@@ -6641,7 +6707,7 @@ function openAiResearch(action, ctx) {
   const body = document.getElementById('ai-sheet-body');
   if (!body) return;
 
-  let title, sub, inputLabel, placeholder, btnLabel;
+  let title, sub, inputLabel, placeholder, btnLabel, scopeHtml = '';
   if (action === 'enrich') {
     title = '✨ Enrich with AI';
     sub = ctx && ctx.name ? ctx.name : 'Enrich this entry';
@@ -6654,6 +6720,22 @@ function openAiResearch(action, ctx) {
     inputLabel = 'What do you want to research?';
     placeholder = (ctx && ctx.placeholder) || 'e.g. "best ramen in Osaka", "teamLab Planets Tokyo", "top 5 things to do in Kyoto"';
     btnLabel = '✨ Research';
+
+    // Build itinerary scope chips when applicable
+    if (ctx && ctx.contextHint === 'itinerary') {
+      const viewDay = ctx.viewingDayId && appState.days && appState.days.find(d => d.id === ctx.viewingDayId);
+      const dayCount = ctx.dayCount || (appState.days || []).length;
+      if (viewDay) {
+        // Two-chip toggle: this day vs full trip
+        scopeHtml = '<div class="ai-ctx-scope">'
+          + '<button class="ai-ctx-chip' + (_aiItineraryScope === 'day' ? ' active' : '') + '" id="ai-scope-day" onclick="_setAiScope(\'day\')">📅 ' + viewDay.dateLabel + '</button>'
+          + '<button class="ai-ctx-chip' + (_aiItineraryScope === 'trip' ? ' active' : '') + '" id="ai-scope-trip" onclick="_setAiScope(\'trip\')">🗓 Full trip (' + dayCount + ' days)</button>'
+          + '</div>';
+      } else {
+        // No specific day open — show informational chip
+        scopeHtml = '<div class="ai-ctx-scope"><span class="ai-ctx-info-chip">🗓 Full trip context · ' + dayCount + ' days</span></div>';
+      }
+    }
   } else {
     title = '✨ Research This Event';
     sub = ctx && ctx.name ? ctx.name : 'Itinerary event';
@@ -6664,6 +6746,7 @@ function openAiResearch(action, ctx) {
 
   body.innerHTML = '<div class="ai-sheet-title">' + title + '</div>'
     + '<div class="ai-sheet-sub">' + sub + '</div>'
+    + scopeHtml
     + '<div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px">' + inputLabel + '</div>'
     + '<textarea class="ai-sheet-textarea" id="ai-query-input" placeholder="' + placeholder + '"></textarea>'
     + '<label class="ai-autosave-label"><input type="checkbox" id="ai-autosave"> Auto-save — skip the preview and save directly</label>'
@@ -6818,20 +6901,61 @@ async function runAiResearch() {
       reqBody.query = query || 'interesting activity in Japan';
       const hint = _aiCtx && _aiCtx.ctx && _aiCtx.ctx.contextHint;
       if (hint) reqBody.contextHint = hint;
-      // Attach today's itinerary + city so the model can resolve contextual references
+
+      // Full itinerary — compact summary of all days
+      const fullItinerary = (appState.days || []).map(function(d) {
+        return {
+          dateLabel: d.dateLabel,
+          city: d.city,
+          title: d.title || null,
+          events: (d.events || [])
+            .filter(function(e) { return e.type === 'event' || e.type === 'callout'; })
+            .map(function(e) { return (e.time ? e.time + ' ' : '') + e.text + (e.note ? ' (' + e.note + ')' : ''); }),
+        };
+      });
+
+      // Today's day (for context about what's real-time "today")
       const todayStr = new Date().toISOString().slice(0, 10);
-      const todayDay = appState.days && appState.days.find(d => d.date === todayStr);
-      if (todayDay) {
-        reqBody.tripContext = {
-          todayDateLabel: todayDay.dateLabel,
-          todayCity: todayDay.city,
-          todayTitle: todayDay.title || null,
-          todayEvents: (todayDay.events || [])
-            .filter(e => e.type === 'event' || e.type === 'callout')
-            .map(e => ({ time: e.time || null, text: e.text, note: e.note || null })),
-          currentCity: appState.cityFilter !== 'all' ? appState.cityFilter : null,
+      const todayDay = appState.days && appState.days.find(function(d) { return d.date === todayStr; });
+
+      // Viewing day — the specific day the user had open (if any), with rich event details
+      const viewingDayId = _aiCtx && _aiCtx.ctx && _aiCtx.ctx.viewingDayId;
+      const viewingDayObj = (viewingDayId || _openDetailDayId) && appState.days &&
+        appState.days.find(function(d) { return d.id === (viewingDayId || _openDetailDayId); });
+
+      let viewingDay = null;
+      if (viewingDayObj && _aiItineraryScope === 'day') {
+        viewingDay = {
+          dateLabel: viewingDayObj.dateLabel,
+          city: viewingDayObj.city,
+          title: viewingDayObj.title || null,
+          events: (viewingDayObj.events || [])
+            .filter(function(e) { return e.type === 'event' || e.type === 'callout'; })
+            .map(function(e) {
+              const ev = { time: e.time || null, text: e.text, note: e.note || null };
+              if (e.detailKey) {
+                const det = _getExistingDetail(e.detailKey, e.detailType);
+                if (det) {
+                  ev.details = {
+                    price: det.price || null,
+                    sections: (det.sections || []).slice(0, 3).map(function(s) {
+                      return { title: s.title, rows: (s.rows || []).slice(0, 4).map(function(r) { return r.label + ': ' + r.value; }) };
+                    }),
+                  };
+                }
+              }
+              return ev;
+            }),
         };
       }
+
+      reqBody.tripContext = {
+        fullItinerary: fullItinerary,
+        todayDateLabel: todayDay ? todayDay.dateLabel : null,
+        todayCity: todayDay ? todayDay.city : null,
+        viewingDay: viewingDay,
+        currentCity: appState.cityFilter !== 'all' ? appState.cityFilter : null,
+      };
     } else {
       reqBody.query = ((_aiCtx.ctx && _aiCtx.ctx.name) || '') + (query ? ' — ' + query : '');
     }
@@ -7780,6 +7904,7 @@ function openDayDetail(dayId) {
     + titleHtml
     + '<div class="day-detail-hdr-sub">' + day.dateLabel + ' · ' + (cityLabel[day.city] || day.city) + '</div>'
     + '</div>'
+    + '<button class="day-ai-btn" onclick="openAiFromDayDetail(\'' + dayId + '\')" title="Research with AI">✨</button>'
     + '<button class="day-share-btn" onclick="shareDayItinerary(\'' + dayId + '\')" title="Share day">📤</button>'
     + '<button class="day-detail-close" onclick="closeDayDetail()">✕</button>'
     + '</div>'
