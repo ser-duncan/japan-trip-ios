@@ -2856,6 +2856,24 @@
   .modal-tab.active { color: var(--text); border-bottom-color: #7EB0FF; }
   .modal-docs-body { padding: 16px 20px 32px; }
   .modal-docs-empty { color: var(--text-muted); font-size: 14px; text-align: center; padding: 32px 0; }
+  .modal-map-body { padding: 16px 16px 32px; overflow-y: auto; }
+  .map-embed-frame { width: 100%; height: 340px; border: 0; border-radius: 14px; display: block; }
+  .map-open-btn {
+    display: block; text-align: center; padding: 13px;
+    background: rgba(126,176,255,0.12); color: var(--accent);
+    border-radius: 12px; text-decoration: none; font-weight: 600;
+    font-size: 14px; margin-top: 12px; transition: background 0.15s;
+  }
+  .map-open-btn:active { background: rgba(126,176,255,0.22); }
+  .food-map-btn, .activity-map-btn {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 11px; font-weight: 600;
+    color: var(--accent); background: rgba(126,176,255,0.1);
+    border: 1px solid rgba(126,176,255,0.25); border-radius: 6px;
+    padding: 3px 8px; cursor: pointer; font-family: inherit;
+    text-decoration: none;
+  }
+  .food-map-btn:active, .activity-map-btn:active { background: rgba(126,176,255,0.2); }
 
   /* ── Attachment thumbnails in modal Documents tab ───────────────────────── */
   .modal-attachments { padding: 4px 0; }
@@ -5211,6 +5229,8 @@
     document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(train.sections);
     const _tdt = document.getElementById('modal-tab-docs'); if (_tdt) _tdt.style.display = '';
     const _tadTab = document.getElementById('modal-tab-addday'); if (_tadTab) _tadTab.style.display = 'none'; _currentModalContext = null;
+    const _tMapTab = document.getElementById('modal-tab-map'); if (_tMapTab) _tMapTab.style.display = 'none';
+    const _tMapCon = document.getElementById('hotel-modal-map-container'); if (_tMapCon) _tMapCon.innerHTML = '';
     const _tEnrich = document.getElementById('modal-enrich-btn'); if (_tEnrich) _tEnrich.style.display = 'none';
     switchModalTab('details');
     document.getElementById('hotel-modal-overlay').classList.add('open');
@@ -5234,6 +5254,8 @@
     document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(hotel.sections);
     const _hdt = document.getElementById('modal-tab-docs'); if (_hdt) _hdt.style.display = '';
     const _hadTab = document.getElementById('modal-tab-addday'); if (_hadTab) _hadTab.style.display = 'none'; _currentModalContext = null;
+    const _hMapTab = document.getElementById('modal-tab-map'); if (_hMapTab) _hMapTab.style.display = 'none';
+    const _hMapCon = document.getElementById('hotel-modal-map-container'); if (_hMapCon) _hMapCon.innerHTML = '';
     const _hEnrich = document.getElementById('modal-enrich-btn'); if (_hEnrich) _hEnrich.style.display = 'none';
     switchModalTab('details');
     document.getElementById('hotel-modal-overlay').classList.add('open');
@@ -5247,6 +5269,10 @@
     document.getElementById('hotel-modal-overlay').classList.remove('open');
     document.getElementById('hotel-modal').classList.remove('open');
     document.body.style.overflow = '';
+    const mapTabEl = document.getElementById('modal-tab-map');
+    if (mapTabEl) { mapTabEl.style.display = 'none'; mapTabEl.classList.remove('active'); }
+    const mapContainer = document.getElementById('hotel-modal-map-container');
+    if (mapContainer) mapContainer.innerHTML = '';
   }
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -6251,8 +6277,19 @@ function buildActivityHTML(a, typeLabels) {
     ? 'openShoppingDetail(\'' + a.id + '\');event.stopPropagation()'
     : '';
   var detailBtn = hasDetail
-    ? '<button class="activity-detail-btn" onclick="' + detailOnclick + '">Details + map →</button>'
+    ? '<button class="activity-detail-btn" onclick="' + detailOnclick + '">Details →</button>'
     : '';
+  var mapDetailOnclick = hasActivityDetail || hasCustomDetail
+    ? 'openActivityDetail(\'' + a.id + '\',\'map\');event.stopPropagation()'
+    : hasFoodDetail
+    ? 'openFoodDetail(\'' + a.key + '\',\'map\');event.stopPropagation()'
+    : hasShoppingDetail
+    ? 'openShoppingDetail(\'' + a.id + '\',\'map\');event.stopPropagation()'
+    : '';
+  var mapGoogleActUrl = 'https://maps.google.com/?q=' + encodeURIComponent(a.name + (a.city ? ' ' + a.city : '') + ' Japan');
+  var mapChipAct = hasDetail
+    ? '<button class="activity-map-btn" onclick="' + mapDetailOnclick + '">📍 Map</button>'
+    : '<a class="activity-map-btn" href="' + mapGoogleActUrl + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">📍 Map</a>';
   var staffBtn = a.jp
     ? '<button class="activity-staff-btn" onclick="openStaffCard(\'' + (a.jp||'').replace(/'/g,"\\'") + '\',\'' + (a.en||'').replace(/'/g,"\\'") + '\');event.stopPropagation()">📱 Show to staff</button>'
     : '';
@@ -6268,6 +6305,7 @@ function buildActivityHTML(a, typeLabels) {
     + '<div class="activity-item-actions">'
     + '<button class="' + planClass + '" onclick="openAssignModal(\'' + a.id + '\');event.stopPropagation()">' + planLabel + '</button>'
     + staffBtn
+    + mapChipAct
     + detailBtn
     + '<button class="activity-edit-btn" onclick="openActivityModal(\'' + a.id + '\',null);event.stopPropagation()">⋯</button>'
     + '</div>'
@@ -7835,6 +7873,8 @@ function openFlightDetail(key) {
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
   const _fltdt = document.getElementById('modal-tab-docs'); if (_fltdt) _fltdt.style.display = '';
   const _fltAdTab = document.getElementById('modal-tab-addday'); if (_fltAdTab) _fltAdTab.style.display = 'none'; _currentModalContext = null;
+  const _fltMapTab = document.getElementById('modal-tab-map'); if (_fltMapTab) _fltMapTab.style.display = 'none';
+  const _fltMapCon = document.getElementById('hotel-modal-map-container'); if (_fltMapCon) _fltMapCon.innerHTML = '';
   const _fltEnrich = document.getElementById('modal-enrich-btn'); if (_fltEnrich) _fltEnrich.style.display = 'none';
   switchModalTab('details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
@@ -9639,7 +9679,7 @@ const SHOPPING_DETAILS = {
   ]},
 };
 
-function openShoppingDetail(key) {
+function openShoppingDetail(key, tab) {
   const d = SHOPPING_DETAILS[key];
   if (!d) return;
   document.getElementById('hotel-modal-name').textContent = d.name;
@@ -9652,8 +9692,11 @@ function openShoppingDetail(key) {
   if (docsTab) docsTab.style.display = 'none';
   const adTab = document.getElementById('modal-tab-addday'); if (adTab) adTab.style.display = '';
   const _sEnrich = document.getElementById('modal-enrich-btn'); if (_sEnrich) _sEnrich.style.display = 'none';
-  _currentModalContext = {key: key, type: 'shopping', name: d.name};
-  switchModalTab('details');
+  const mapQuery = d.mapQuery || (d.name + ' Japan');
+  _currentModalContext = {key: key, type: 'shopping', name: d.name, mapQuery: mapQuery};
+  const _sMapTab = document.getElementById('modal-tab-map'); if (_sMapTab) { _sMapTab.style.display = ''; }
+  const _sMapCon = document.getElementById('hotel-modal-map-container'); if (_sMapCon) _sMapCon.innerHTML = '';
+  switchModalTab(tab || 'details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -9661,7 +9704,7 @@ function openShoppingDetail(key) {
 
 let _currentModalContext = null; // {key, type, name} for add-to-day
 
-function openActivityDetail(id) {
+function openActivityDetail(id, tab) {
   const d = (appState.customDetails && appState.customDetails[id]) || ACTIVITY_DETAILS[id];
   if (!d) return;
   document.getElementById('hotel-modal-name').textContent = d.name;
@@ -9671,10 +9714,15 @@ function openActivityDetail(id) {
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
   const docsTab = document.getElementById('modal-tab-docs'); if (docsTab) docsTab.style.display = '';
   const adTab = document.getElementById('modal-tab-addday'); if (adTab) adTab.style.display = '';
-  _currentModalContext = {key: id, type: 'activity', name: d.name};
+  const mapQuery = d.mapQuery || (d.name + (d.city ? ' ' + d.city : '') + ' Japan');
+  _currentModalContext = {key: id, type: 'activity', name: d.name, mapQuery: mapQuery};
+  const mapTabEl = document.getElementById('modal-tab-map');
+  if (mapTabEl) mapTabEl.style.display = '';
+  const mapContainer = document.getElementById('hotel-modal-map-container');
+  if (mapContainer) mapContainer.innerHTML = '';
   const enrichBtn = document.getElementById('modal-enrich-btn');
   if (enrichBtn) { enrichBtn.style.display = ''; enrichBtn.onclick = function() { openAiResearch('enrich', _currentModalContext); }; }
-  switchModalTab('details');
+  switchModalTab(tab || 'details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -9747,7 +9795,7 @@ function confirmAddToDay(dayId) {
   }
 }
 
-function openFoodDetail(key) {
+function openFoodDetail(key, tab) {
   const d = (appState.customDetails && appState.customDetails[key]) || FOOD_DETAILS[key];
   if (!d) return;
   document.getElementById('hotel-modal-name').textContent = d.name;
@@ -9757,10 +9805,15 @@ function openFoodDetail(key) {
   document.getElementById('hotel-modal-sections').innerHTML = renderModalSections(d.sections);
   const _foodDt = document.getElementById('modal-tab-docs'); if (_foodDt) _foodDt.style.display = '';
   const _foodAdTab = document.getElementById('modal-tab-addday'); if (_foodAdTab) _foodAdTab.style.display = '';
-  _currentModalContext = {key: key, type: 'food', name: d.name};
+  const mapQuery = d.mapQuery || (d.name + (d.city ? ' ' + d.city : '') + ' Japan');
+  _currentModalContext = {key: key, type: 'food', name: d.name, mapQuery: mapQuery};
+  const mapTabEl = document.getElementById('modal-tab-map');
+  if (mapTabEl) mapTabEl.style.display = '';
+  const mapContainer = document.getElementById('hotel-modal-map-container');
+  if (mapContainer) mapContainer.innerHTML = '';
   const enrichBtn = document.getElementById('modal-enrich-btn');
   if (enrichBtn) { enrichBtn.style.display = ''; enrichBtn.onclick = function() { openAiResearch('enrich', _currentModalContext); }; }
-  switchModalTab('details');
+  switchModalTab(tab || 'details');
   document.getElementById('hotel-modal-overlay').classList.add('open');
   document.getElementById('hotel-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -9803,10 +9856,15 @@ function renderFoodGuide() {
           const hasFoodDetail = !!(item.key && typeof FOOD_DETAILS !== 'undefined' && FOOD_DETAILS[item.key]);
           const hasCustomDetail = !!(appState.customDetails && appState.customDetails[item.id]);
           const detailBtn = hasFoodDetail
-            ? '<button class="food-detail-btn" onclick="openFoodDetail(\'' + item.key + '\');event.stopPropagation()">Details + map →</button>'
+            ? '<button class="food-detail-btn" onclick="openFoodDetail(\'' + item.key + '\');event.stopPropagation()">Details →</button>'
             : hasCustomDetail
-            ? '<button class="food-detail-btn" onclick="openFoodDetail(\'' + item.id + '\');event.stopPropagation()">Details + map →</button>'
+            ? '<button class="food-detail-btn" onclick="openFoodDetail(\'' + item.id + '\');event.stopPropagation()">Details →</button>'
             : '';
+          const mapDetailKey = (hasFoodDetail ? item.key : (hasCustomDetail ? item.id : null));
+          const mapGoogleUrl = 'https://maps.google.com/?q=' + encodeURIComponent(item.name + ' ' + item.city + ' Japan');
+          const mapChip = mapDetailKey
+            ? '<button class="food-map-btn" onclick="openFoodDetail(\'' + mapDetailKey + '\',\'map\');event.stopPropagation()">📍 Map</button>'
+            : '<a class="food-map-btn" href="' + mapGoogleUrl + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">📍 Map</a>';
           return '<div class="food-item">'
             + '<span class="food-item-icon">' + icon + '</span>'
             + '<div class="food-item-body">'
@@ -9814,7 +9872,7 @@ function renderFoodGuide() {
             + dishHtml
             + noteHtml
             + '<div class="food-tags">' + itemTags + '</div>'
-            + '<div class="food-item-actions">' + staffBtn + detailBtn + '</div>'
+            + '<div class="food-item-actions">' + staffBtn + mapChip + detailBtn + '</div>'
             + '</div>'
             + '</div>';
         }).join('')
@@ -10274,6 +10332,7 @@ document.addEventListener('visibilitychange', () => {
   <div class="modal-subnav">
     <button class="modal-tab active" id="modal-tab-details" onclick="switchModalTab('details')">Details</button>
     <button class="modal-tab" id="modal-tab-docs" onclick="switchModalTab('docs')">Documents</button>
+    <button class="modal-tab" id="modal-tab-map" onclick="switchModalTab('map')" style="display:none">📍 Map</button>
     <button class="modal-tab addday" id="modal-tab-addday" onclick="switchModalTab('addday');populateAddDayPane()" style="display:none">＋ Add to Day</button>
   </div>
   <div id="modal-pane-details" class="hotel-modal-body">
@@ -10285,6 +10344,9 @@ document.addEventListener('visibilitychange', () => {
   </div>
   <div id="modal-pane-addday" class="hotel-modal-body" style="display:none">
     <div id="addday-pane-content"></div>
+  </div>
+  <div id="modal-pane-map" class="hotel-modal-body modal-map-body" style="display:none">
+    <div id="hotel-modal-map-container"></div>
   </div>
 </div>
 
@@ -10334,10 +10396,28 @@ function switchModalTab(tab) {
   document.getElementById('modal-tab-docs').classList.toggle('active', tab === 'docs');
   const adBtn = document.getElementById('modal-tab-addday');
   if (adBtn) adBtn.classList.toggle('active', tab === 'addday');
+  const mapBtn = document.getElementById('modal-tab-map');
+  if (mapBtn) mapBtn.classList.toggle('active', tab === 'map');
   document.getElementById('modal-pane-details').style.display = tab === 'details' ? '' : 'none';
   document.getElementById('modal-pane-docs').style.display = tab === 'docs' ? '' : 'none';
   const adPane = document.getElementById('modal-pane-addday');
   if (adPane) adPane.style.display = tab === 'addday' ? '' : 'none';
+  const mapPane = document.getElementById('modal-pane-map');
+  if (mapPane) mapPane.style.display = tab === 'map' ? '' : 'none';
+  if (tab === 'map') {
+    const mapContainer = document.getElementById('hotel-modal-map-container');
+    if (mapContainer && !mapContainer.querySelector('iframe')) {
+      const mapQuery = _currentModalContext && _currentModalContext.mapQuery;
+      if (mapQuery) {
+        const encoded = encodeURIComponent(mapQuery);
+        mapContainer.innerHTML =
+          '<iframe src="https://maps.google.com/maps?q=' + encoded + '&output=embed" class="map-embed-frame" allowfullscreen loading="lazy"></iframe>'
+          + '<a href="https://maps.google.com/?q=' + encoded + '" target="_blank" rel="noopener" class="map-open-btn">Open in Maps App ↗</a>';
+      } else {
+        mapContainer.innerHTML = '<div style="color:var(--text-muted);padding:32px;text-align:center">No location available.</div>';
+      }
+    }
+  }
 }
 
 async function loadModalAttachments(bookingRef) {
