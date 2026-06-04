@@ -5770,6 +5770,7 @@ const appState = {
 };
 let _sb = null;
 let _syncTimer = null;
+let _pendingSyncData = null; // tracks unsaved data for flush-on-hide
 
 // ── Supabase init ──
 async function initSupabase() {
@@ -5959,22 +5960,56 @@ async function applyTripActivities() {
 }
 // ─────────────────────────────────────────────────────────────────────────
 
+async function _doSync(data) {
+  if (!_sb || !data) return;
+  try {
+    await _sb.from('trip_state').upsert({ id: ROW_ID, data, updated_at: new Date().toISOString() });
+    if (_pendingSyncData === data) _pendingSyncData = null;
+    setSyncDot('');
+  } catch(e) {
+    setSyncDot('error');
+    // one retry after 4s
+    setTimeout(() => { if (_pendingSyncData) _doSync(_pendingSyncData); }, 4000);
+  }
+}
+
 function saveAppState() {
   const data = { days: appState.days, activities: appState.activities, expenses: appState.expenses, harukaBooked: appState.harukaBooked, checklists: appState.checklists, dismissedMapReminders: appState.dismissedMapReminders, customDetails: appState.customDetails || {} };
   try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
+  _pendingSyncData = data;
   if (_syncTimer) clearTimeout(_syncTimer);
   setSyncDot('syncing');
-  _syncTimer = setTimeout(async () => {
-    if (!_sb) { setSyncDot(''); return; }
-    try {
-      await _sb.from('trip_state').upsert({ id: ROW_ID, data, updated_at: new Date().toISOString() });
-      setSyncDot('');
-    } catch(e) {
-      setSyncDot('error');
-      setTimeout(() => setSyncDot(''), 3000);
-    }
-  }, 1500);
+  // 300ms debounce — fast enough to complete before most tab closes
+  _syncTimer = setTimeout(() => _doSync(data), 300);
 }
+
+// Flush immediately when the app is backgrounded (iOS fires visibilitychange)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && _pendingSyncData) {
+    if (_syncTimer) { clearTimeout(_syncTimer); _syncTimer = null; }
+    _doSync(_pendingSyncData);
+  }
+});
+
+// Last-resort keepalive flush on page unload — uses fetch keepalive so the
+// request survives even after the JS context is torn down
+window.addEventListener('pagehide', () => {
+  if (!_pendingSyncData) return;
+  const data = _pendingSyncData;
+  if (_syncTimer) { clearTimeout(_syncTimer); _syncTimer = null; }
+  try {
+    fetch(SUPA_URL + '/rest/v1/trip_state', {
+      method: 'POST', keepalive: true,
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_ANON,
+        'Authorization': 'Bearer ' + SUPA_ANON,
+        'Prefer': 'resolution=merge-duplicates',
+      },
+      body: JSON.stringify({ id: ROW_ID, data, updated_at: new Date().toISOString() }),
+    });
+  } catch(e) {}
+});
 
 function setSyncDot(s) {
   const dot = document.getElementById('sync-dot');
