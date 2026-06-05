@@ -6769,7 +6769,8 @@ async function runAiRefinement() {
   const query = input.value.trim();
   if (!query) return;
   const displayQuery = query;
-  let _rfJobId = null;
+  const _rfJobId = 'rj-' + Date.now();
+  _rjPush({ jobId: _rfJobId, query: displayQuery, action: 'refine', status: 'running', startedAt: new Date().toISOString() });
   body.innerHTML = '<div class="ai-loading-card">'
     + '<div class="ai-loading-icon">✨</div>'
     + '<div class="ai-loading-title">Refining</div>'
@@ -6782,37 +6783,14 @@ async function runAiRefinement() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'refine', existingResult: _aiLastResult, query }),
     });
-    const startData = await res.json();
-    if (!res.ok || startData.error) throw new Error(startData.error || 'Refinement failed');
-    let data = startData;
-    if (startData.jobId) {
-      _rfJobId = startData.jobId;
-      _rjPush({ jobId: _rfJobId, query: displayQuery, action: 'refine', status: 'running', startedAt: new Date().toISOString() });
-      const loadingSub = body.querySelector('.ai-loading-sub');
-      if (loadingSub) loadingSub.textContent = 'Searching the web…';
-      let done = false;
-      for (let i = 0; i < 60 && !done; i++) {
-        await new Promise(function(r) { setTimeout(r, 3000); });
-        const pollRes = await fetch(AI_RESEARCH_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'poll', jobId: _rfJobId }),
-        });
-        const pollData = await pollRes.json();
-        if (pollData.status === 'done') { data = pollData; done = true; }
-        else if (pollData.status === 'error') throw new Error(pollData.error || 'Refinement failed');
-      }
-      if (!done) {
-        _rjUpdate(_rfJobId, { status: 'timeout', completedAt: new Date().toISOString() });
-        throw new Error('Refinement timed out');
-      }
-    }
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Refinement failed');
     const resultName = data.result && data.result.name ? data.result.name : null;
-    if (_rfJobId) _rjUpdate(_rfJobId, { status: 'done', completedAt: new Date().toISOString(), resultName: resultName });
+    _rjUpdate(_rfJobId, { status: 'done', completedAt: new Date().toISOString(), resultName: resultName });
     _aiLastResult = data.result;
     _showAiResult(data.result);
   } catch (err) {
-    if (_rfJobId) _rjUpdate(_rfJobId, { status: 'failed', completedAt: new Date().toISOString(), error: err.message });
+    _rjUpdate(_rfJobId, { status: 'failed', completedAt: new Date().toISOString(), error: err.message });
     body.innerHTML = '<div style="text-align:center;padding:20px 0">'
       + '<div style="font-size:28px;margin-bottom:10px">⚠️</div>'
       + '<div style="font-size:15px;font-weight:600;margin-bottom:6px">Refinement failed</div>'
@@ -6905,7 +6883,8 @@ async function runAiResearch() {
     || (_aiCtx && _aiCtx.ctx && _aiCtx.ctx.name)
     || (action === 'enrich' ? 'this entry' : 'Japan');
 
-  let _rjJobId = null; // declared here so catch block can access it
+  const _rjJobId = 'rj-' + Date.now();
+  _rjPush({ jobId: _rjJobId, query: displayQuery, action: action, status: 'running', startedAt: new Date().toISOString() });
 
   // Replace entire sheet body with loading card
   body.innerHTML = '<div class="ai-loading-card">'
@@ -6988,47 +6967,17 @@ async function runAiResearch() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(reqBody),
     });
-    const startData = await res.json();
-    if (!res.ok || startData.error) throw new Error(startData.error || 'Research failed');
-
-    let data = startData;
-    if (startData.jobId) {
-      // Async job — record in research jobs history and poll until done
-      _rjJobId = startData.jobId;
-      _rjPush({ jobId: _rjJobId, query: displayQuery, action: action, status: 'running', startedAt: new Date().toISOString() });
-      const loadingSub = body.querySelector('.ai-loading-sub');
-      if (loadingSub) loadingSub.textContent = 'Searching the web…';
-      let done = false;
-      for (let i = 0; i < 60 && !done; i++) {
-        await new Promise(function(r) { setTimeout(r, 3000); });
-        const pollRes = await fetch(AI_RESEARCH_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'poll', jobId: _rjJobId }),
-        });
-        const pollData = await pollRes.json();
-        if (pollData.status === 'done') {
-          data = pollData;
-          done = true;
-        } else if (pollData.status === 'error') {
-          throw new Error(pollData.error || 'Research failed');
-        }
-        // status === 'pending' → keep polling
-      }
-      if (!done) {
-        _rjUpdate(_rjJobId, { status: 'timeout', completedAt: new Date().toISOString() });
-        throw new Error('Research timed out after 3 minutes');
-      }
-    }
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Research failed');
 
     if (data.results && Array.isArray(data.results)) {
-      if (_rjJobId) _rjUpdate(_rjJobId, { status: 'done', completedAt: new Date().toISOString(), resultCount: data.results.length });
+      _rjUpdate(_rjJobId, { status: 'done', completedAt: new Date().toISOString(), resultCount: data.results.length });
       _aiLastResults = data.results;
       _aiLastResult = null;
       _showAiResultList(data.results);
     } else {
       const resultName = data.result && data.result.name ? data.result.name : null;
-      if (_rjJobId) _rjUpdate(_rjJobId, { status: 'done', completedAt: new Date().toISOString(), resultName: resultName });
+      _rjUpdate(_rjJobId, { status: 'done', completedAt: new Date().toISOString(), resultName: resultName });
       _aiLastResult = data.result;
       _aiLastResults = null;
       if (autoSave) {
@@ -7038,9 +6987,7 @@ async function runAiResearch() {
       }
     }
   } catch (err) {
-    if (typeof _rjJobId !== 'undefined' && _rjJobId) {
-      _rjUpdate(_rjJobId, { status: 'failed', completedAt: new Date().toISOString(), error: err.message });
-    }
+    _rjUpdate(_rjJobId, { status: 'failed', completedAt: new Date().toISOString(), error: err.message });
     body.innerHTML = '<div style="text-align:center;padding:20px 0">'
       + '<div style="font-size:28px;margin-bottom:10px">⚠️</div>'
       + '<div style="font-size:15px;font-weight:600;margin-bottom:6px">Research failed</div>'
