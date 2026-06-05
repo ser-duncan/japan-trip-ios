@@ -6655,11 +6655,13 @@ async function runAiRefinement() {
   if (!input || !body || !_aiLastResult) return;
   const query = input.value.trim();
   if (!query) return;
-  const displayQuery = query.slice(0, 60);
+  const displayQuery = query;
+  const _rfJobId = 'rj-' + Date.now();
+  _rjPush({ jobId: _rfJobId, query: displayQuery, action: 'refine', status: 'running', startedAt: new Date().toISOString() });
   body.innerHTML = '<div class="ai-loading-card">'
     + '<div class="ai-loading-icon">✨</div>'
     + '<div class="ai-loading-title">Refining</div>'
-    + '<div class="ai-loading-query">' + displayQuery + '</div>'
+    + (function(q){ var cls = q.length > 60 ? ' expandable' : ''; var oc = q.length > 60 ? ' onclick="this.classList.toggle(\'expanded\')"' : ''; return '<div class="ai-loading-query' + cls + '"' + oc + '>' + q + '</div>'; })(displayQuery)
     + '<div class="ai-loading-sub">Continuing the research thread…</div>'
     + '</div>';
   try {
@@ -6670,9 +6672,11 @@ async function runAiRefinement() {
     });
     const data = await res.json();
     if (!res.ok || data.error) throw new Error(data.error || 'Refinement failed');
+    _rjRemove(_rfJobId);  // server saved to Supabase; remove transient local entry
     _aiLastResult = data.result;
     _showAiResult(data.result);
   } catch (err) {
+    _rjUpdate(_rfJobId, { status: 'failed', completedAt: new Date().toISOString(), error: err.message });
     body.innerHTML = '<div style="text-align:center;padding:20px 0">'
       + '<div style="font-size:28px;margin-bottom:10px">⚠️</div>'
       + '<div style="font-size:15px;font-weight:600;margin-bottom:6px">Refinement failed</div>'
@@ -6765,6 +6769,9 @@ async function runAiResearch() {
     || (_aiCtx && _aiCtx.ctx && _aiCtx.ctx.name)
     || (action === 'enrich' ? 'this entry' : 'Japan');
 
+  const _rjJobId = 'rj-' + Date.now();
+  _rjPush({ jobId: _rjJobId, query: displayQuery, action: action, status: 'running', startedAt: new Date().toISOString() });
+
   // Replace entire sheet body with loading card
   body.innerHTML = '<div class="ai-loading-card">'
     + '<div class="ai-loading-icon">✨</div>'
@@ -6783,20 +6790,61 @@ async function runAiResearch() {
       reqBody.query = query || 'interesting activity in Japan';
       const hint = _aiCtx && _aiCtx.ctx && _aiCtx.ctx.contextHint;
       if (hint) reqBody.contextHint = hint;
-      // Attach today's itinerary + city so the model can resolve contextual references
+
+      // Full itinerary — compact summary of all days
+      const fullItinerary = (appState.days || []).map(function(d) {
+        return {
+          dateLabel: d.dateLabel,
+          city: d.city,
+          title: d.title || null,
+          events: (d.events || [])
+            .filter(function(e) { return e.type === 'event' || e.type === 'callout'; })
+            .map(function(e) { return (e.time ? e.time + ' ' : '') + e.text + (e.note ? ' (' + e.note + ')' : ''); }),
+        };
+      });
+
+      // Today's day (for context about what's real-time "today")
       const todayStr = new Date().toISOString().slice(0, 10);
-      const todayDay = appState.days && appState.days.find(d => d.date === todayStr);
-      if (todayDay) {
-        reqBody.tripContext = {
-          todayDateLabel: todayDay.dateLabel,
-          todayCity: todayDay.city,
-          todayTitle: todayDay.title || null,
-          todayEvents: (todayDay.events || [])
-            .filter(e => e.type === 'event' || e.type === 'callout')
-            .map(e => ({ time: e.time || null, text: e.text, note: e.note || null })),
-          currentCity: appState.cityFilter !== 'all' ? appState.cityFilter : null,
+      const todayDay = appState.days && appState.days.find(function(d) { return d.date === todayStr; });
+
+      // Viewing day — the specific day the user had open (if any), with rich event details
+      const viewingDayId = _aiCtx && _aiCtx.ctx && _aiCtx.ctx.viewingDayId;
+      const viewingDayObj = (viewingDayId || _openDetailDayId) && appState.days &&
+        appState.days.find(function(d) { return d.id === (viewingDayId || _openDetailDayId); });
+
+      let viewingDay = null;
+      if (viewingDayObj && _aiItineraryScope === 'day') {
+        viewingDay = {
+          dateLabel: viewingDayObj.dateLabel,
+          city: viewingDayObj.city,
+          title: viewingDayObj.title || null,
+          events: (viewingDayObj.events || [])
+            .filter(function(e) { return e.type === 'event' || e.type === 'callout'; })
+            .map(function(e) {
+              const ev = { time: e.time || null, text: e.text, note: e.note || null };
+              if (e.detailKey) {
+                const det = _getExistingDetail(e.detailKey, e.detailType);
+                if (det) {
+                  ev.details = {
+                    price: det.price || null,
+                    sections: (det.sections || []).slice(0, 3).map(function(s) {
+                      return { title: s.title, rows: (s.rows || []).slice(0, 4).map(function(r) { return r.label + ': ' + r.value; }) };
+                    }),
+                  };
+                }
+              }
+              return ev;
+            }),
         };
       }
+
+      reqBody.tripContext = {
+        fullItinerary: fullItinerary,
+        todayDateLabel: todayDay ? todayDay.dateLabel : null,
+        todayCity: todayDay ? todayDay.city : null,
+        viewingDay: viewingDay,
+        currentCity: appState.cityFilter !== 'all' ? appState.cityFilter : null,
+      };
     } else {
       reqBody.query = ((_aiCtx.ctx && _aiCtx.ctx.name) || '') + (query ? ' — ' + query : '');
     }
@@ -6805,40 +6853,16 @@ async function runAiResearch() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(reqBody),
     });
-    const startData = await res.json();
-    if (!res.ok || startData.error) throw new Error(startData.error || 'Research failed');
-
-    let data = startData;
-    if (startData.jobId) {
-      // Async job — update loading text and poll until done
-      const loadingSub = body.querySelector('.ai-loading-sub');
-      if (loadingSub) loadingSub.textContent = 'Searching the web…';
-      const jobId = startData.jobId;
-      let done = false;
-      for (let i = 0; i < 60 && !done; i++) {
-        await new Promise(function(r) { setTimeout(r, 3000); });
-        const pollRes = await fetch(AI_RESEARCH_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'poll', jobId: jobId }),
-        });
-        const pollData = await pollRes.json();
-        if (pollData.status === 'done') {
-          data = pollData;
-          done = true;
-        } else if (pollData.status === 'error') {
-          throw new Error(pollData.error || 'Research failed');
-        }
-        // status === 'pending' → keep polling
-      }
-      if (!done) throw new Error('Research timed out after 3 minutes');
-    }
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Research failed');
 
     if (data.results && Array.isArray(data.results)) {
+      _rjRemove(_rjJobId);  // server saved to Supabase; remove transient local entry
       _aiLastResults = data.results;
       _aiLastResult = null;
       _showAiResultList(data.results);
     } else {
+      _rjRemove(_rjJobId);  // server saved to Supabase; remove transient local entry
       _aiLastResult = data.result;
       _aiLastResults = null;
       if (autoSave) {
@@ -6848,6 +6872,7 @@ async function runAiResearch() {
       }
     }
   } catch (err) {
+    _rjUpdate(_rjJobId, { status: 'failed', completedAt: new Date().toISOString(), error: err.message });
     body.innerHTML = '<div style="text-align:center;padding:20px 0">'
       + '<div style="font-size:28px;margin-bottom:10px">⚠️</div>'
       + '<div style="font-size:15px;font-weight:600;margin-bottom:6px">Research failed</div>'
@@ -11064,6 +11089,32 @@ let inboxLogItems = [];
 let pollerRunItems = [];
 let inboxActiveTab = 'updates';
 
+const RJ_KEY = 'japan-research-jobs';
+const RJ_MAX = 50;
+let _researchJobs = (function() {
+  try { return JSON.parse(localStorage.getItem(RJ_KEY) || '[]'); } catch(e) { return []; }
+})();
+
+function _saveResearchJobs() {
+  try { localStorage.setItem(RJ_KEY, JSON.stringify(_researchJobs.slice(0, RJ_MAX))); } catch(e) {}
+}
+
+function _rjPush(entry) {
+  _researchJobs.unshift(entry);
+  if (_researchJobs.length > RJ_MAX) _researchJobs.length = RJ_MAX;
+  _saveResearchJobs();
+}
+
+function _rjUpdate(jobId, patch) {
+  const idx = _researchJobs.findIndex(j => j.jobId === jobId);
+  if (idx !== -1) { Object.assign(_researchJobs[idx], patch); _saveResearchJobs(); }
+}
+
+function _rjRemove(jobId) {
+  _researchJobs = _researchJobs.filter(j => j.jobId !== jobId);
+  _saveResearchJobs();
+}
+
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
@@ -11333,6 +11384,103 @@ function renderPollerRuns() {
   }).join('');
 
   body.innerHTML = triggerRow + listHtml;
+}
+
+async function renderResearchJobs() {
+  const body = document.getElementById('inbox-sheet-body');
+  body.innerHTML = '<div class="inbox-empty" style="opacity:0.5">Loading…</div>';
+
+  const ACTION_LABELS = { new: '✨ new', enrich: '🔍 enrich', refine: '💬 refine', event: '📅 event' };
+  const STATUS_LABELS = { running: '⟳ Running', done: '✓ Done', failed: '✗ Failed', timeout: '⏱ Timed out' };
+
+  // Fetch completed jobs from Supabase (all devices)
+  let dbJobs = [];
+  if (_sb) {
+    try {
+      const { data } = await _sb.from('research_jobs')
+        .select('id, status, query, action, result_name, error, created_at, result')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (data) {
+        dbJobs = data.map(function(row) {
+          return {
+            jobId: row.id,
+            status: row.status,
+            query: row.query || '',
+            action: row.action || 'new',
+            resultName: row.result_name || null,
+            resultCount: (row.result && row.result.resultCount) ? row.result.resultCount : null,
+            error: row.error || null,
+            startedAt: row.created_at,
+          };
+        });
+      }
+    } catch(e) {}
+  }
+
+  // Include local in-flight / failed jobs not yet persisted to DB
+  const localJobs = _researchJobs.filter(function(j) { return j.status === 'running' || j.status === 'failed'; });
+
+  // Merge, dedup by jobId, sort newest first
+  const seen = new Set();
+  const allJobs = [];
+  localJobs.concat(dbJobs).forEach(function(j) {
+    if (!seen.has(j.jobId)) { seen.add(j.jobId); allJobs.push(j); }
+  });
+  allJobs.sort(function(a, b) { return new Date(b.startedAt) - new Date(a.startedAt); });
+
+  if (!allJobs.length) {
+    body.innerHTML = '<div class="inbox-empty">No research jobs yet.<br><span style="font-size:12px;opacity:0.6">Jobs appear here when you use the ✨ research button.</span></div>';
+    return;
+  }
+
+  const cardsHtml = allJobs.map(function(j) {
+    const actionLabel = ACTION_LABELS[j.action] || j.action || '✨';
+    const statusLabel = STATUS_LABELS[j.status] || j.status;
+    const statusCls = j.status === 'running' ? 'running' : j.status === 'done' ? 'done' : j.status === 'failed' ? 'failed' : 'timeout';
+    const timeStr = j.startedAt ? timeAgo(j.startedAt) : '';
+
+    const q = j.query || '';
+    const queryCls = q.length > 60 ? ' expandable' : '';
+    const queryOnclick = q.length > 60 ? ' onclick="this.classList.toggle(\'expanded\')"' : '';
+    const queryHtml = '<div class="rj-query' + queryCls + '"' + queryOnclick + '>' + q + '</div>';
+
+    let bottomLine = '';
+    if (j.status === 'done' && j.resultName) {
+      bottomLine = '<div class="rj-result-name">→ ' + j.resultName + '</div>';
+    } else if (j.status === 'done' && j.resultCount) {
+      bottomLine = '<div class="rj-count">→ ' + j.resultCount + ' results</div>';
+    } else if (j.status === 'failed' && j.error) {
+      bottomLine = '<div class="rj-error">' + j.error + '</div>';
+    } else if (j.status === 'timeout') {
+      bottomLine = '<div class="rj-error">No response after 3 minutes</div>';
+    }
+
+    return '<div class="rj-card">'
+      + '<div class="rj-card-header">'
+      + '<span class="rj-action-pill">' + actionLabel + '</span>'
+      + '<span class="rj-status-pill ' + statusCls + '">' + statusLabel + '</span>'
+      + '<span class="rj-time">' + timeStr + '</span>'
+      + '</div>'
+      + queryHtml
+      + bottomLine
+      + '</div>';
+  }).join('');
+
+  const clearBtn = '<div style="text-align:right"><button class="rj-clear-btn" onclick="_clearResearchJobs()">Clear history</button></div>';
+  body.innerHTML = cardsHtml + clearBtn;
+}
+
+async function _clearResearchJobs() {
+  _researchJobs = [];
+  _saveResearchJobs();
+  if (_sb) {
+    try {
+      // Delete all records (public_delete RLS policy allows this)
+      await _sb.from('research_jobs').delete().gt('created_at', '2000-01-01T00:00:00Z');
+    } catch(e) {}
+  }
+  renderResearchJobs();
 }
 
 // Swipe-to-close for inbox sheet
