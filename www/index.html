@@ -119,6 +119,7 @@
 
   /* Day detail close button */
   [data-theme="light"] .day-detail-close { background: rgba(0,0,0,0.06); color: var(--text-muted); }
+  [data-theme="light"] .day-hdr-btn { background: rgba(0,0,0,0.06); }
 
   /* Day detail tabs — inactive tab text was white/35% opacity */
   [data-theme="light"] .day-detail-tab { color: rgba(0,0,0,0.35); }
@@ -664,11 +665,14 @@
     background: rgba(126,176,255,0.08); color: rgba(126,176,255,0.7);
     border: 1px solid rgba(126,176,255,0.2); display: inline-block; margin-bottom: 14px;
   }
-  .day-ai-btn {
-    background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px 6px;
-    line-height: 1; color: var(--text-muted); -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+  .day-hdr-btn {
+    height: 30px; min-width: 30px; padding: 0 11px; border-radius: 15px; border: none;
+    background: rgba(255,255,255,0.1); display: flex; align-items: center; gap: 4px;
+    font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer;
+    flex-shrink: 0; font-family: inherit; white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
   }
-  .day-ai-btn:active { opacity: 0.6; }
+  .day-hdr-btn:active { background: rgba(255,255,255,0.2); }
   .ai-sheet-textarea {
     width: 100%; box-sizing: border-box; min-height: 80px; padding: 12px 14px;
     background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
@@ -701,12 +705,12 @@
   }
   .ai-save-btn:active { opacity: 0.7; }
   .modal-enrich-btn {
-    padding: 6px 11px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.07); color: var(--text-muted); font-size: 13px;
-    font-weight: 600; font-family: inherit; cursor: pointer; white-space: nowrap;
-    -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+    padding: 6px 12px; border-radius: 20px;
+    border: 1px solid rgba(126,176,255,0.35); background: rgba(126,176,255,0.12);
+    color: #7EB0FF; font-size: 13px; font-weight: 600; font-family: inherit;
+    cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
   }
-  .modal-enrich-btn:active { opacity: 0.7; }
+  .modal-enrich-btn:active { opacity: 0.75; }
   .ai-ask-btn {
     display: flex; align-items: center; gap: 10px; width: 100%; padding: 15px 18px;
     border-radius: 16px; background: rgba(126,176,255,0.1); border: 1.5px solid rgba(126,176,255,0.28);
@@ -1719,22 +1723,13 @@
     margin-top: 4px;
   }
   .modal-share-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    width: 30px; height: 30px;
-    border-radius: 50%; font-size: 14px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; margin-top: 4px;
-    -webkit-tap-highlight-color: transparent;
+    padding: 6px 12px; border-radius: 20px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text-muted); font-size: 13px; font-weight: 600; font-family: inherit;
+    cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 4px;
+    flex-shrink: 0; -webkit-tap-highlight-color: transparent;
   }
   .modal-share-btn:active { background: var(--surface3, rgba(255,255,255,0.08)); }
-  .day-share-btn {
-    background: none; border: none; color: var(--text-muted);
-    font-size: 18px; cursor: pointer; padding: 4px 6px; line-height: 1;
-    -webkit-tap-highlight-color: transparent; flex-shrink: 0;
-  }
-  .day-share-btn:active { opacity: 0.6; }
   .hotel-modal-body {
     padding: 20px;
     padding-bottom: max(env(safe-area-inset-bottom, 0px), 32px);
@@ -6773,11 +6768,12 @@ async function runAiRefinement() {
   if (!input || !body || !_aiLastResult) return;
   const query = input.value.trim();
   if (!query) return;
-  const displayQuery = query.slice(0, 60);
+  const displayQuery = query;
+  let _rfJobId = null;
   body.innerHTML = '<div class="ai-loading-card">'
     + '<div class="ai-loading-icon">✨</div>'
     + '<div class="ai-loading-title">Refining</div>'
-    + '<div class="ai-loading-query">' + displayQuery + '</div>'
+    + (function(q){ var cls = q.length > 60 ? ' expandable' : ''; var oc = q.length > 60 ? ' onclick="this.classList.toggle(\'expanded\')"' : ''; return '<div class="ai-loading-query' + cls + '"' + oc + '>' + q + '</div>'; })(displayQuery)
     + '<div class="ai-loading-sub">Continuing the research thread…</div>'
     + '</div>';
   try {
@@ -6786,11 +6782,37 @@ async function runAiRefinement() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'refine', existingResult: _aiLastResult, query }),
     });
-    const data = await res.json();
-    if (!res.ok || data.error) throw new Error(data.error || 'Refinement failed');
+    const startData = await res.json();
+    if (!res.ok || startData.error) throw new Error(startData.error || 'Refinement failed');
+    let data = startData;
+    if (startData.jobId) {
+      _rfJobId = startData.jobId;
+      _rjPush({ jobId: _rfJobId, query: displayQuery, action: 'refine', status: 'running', startedAt: new Date().toISOString() });
+      const loadingSub = body.querySelector('.ai-loading-sub');
+      if (loadingSub) loadingSub.textContent = 'Searching the web…';
+      let done = false;
+      for (let i = 0; i < 60 && !done; i++) {
+        await new Promise(function(r) { setTimeout(r, 3000); });
+        const pollRes = await fetch(AI_RESEARCH_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'poll', jobId: _rfJobId }),
+        });
+        const pollData = await pollRes.json();
+        if (pollData.status === 'done') { data = pollData; done = true; }
+        else if (pollData.status === 'error') throw new Error(pollData.error || 'Refinement failed');
+      }
+      if (!done) {
+        _rjUpdate(_rfJobId, { status: 'timeout', completedAt: new Date().toISOString() });
+        throw new Error('Refinement timed out');
+      }
+    }
+    const resultName = data.result && data.result.name ? data.result.name : null;
+    if (_rfJobId) _rjUpdate(_rfJobId, { status: 'done', completedAt: new Date().toISOString(), resultName: resultName });
     _aiLastResult = data.result;
     _showAiResult(data.result);
   } catch (err) {
+    if (_rfJobId) _rjUpdate(_rfJobId, { status: 'failed', completedAt: new Date().toISOString(), error: err.message });
     body.innerHTML = '<div style="text-align:center;padding:20px 0">'
       + '<div style="font-size:28px;margin-bottom:10px">⚠️</div>'
       + '<div style="font-size:15px;font-weight:600;margin-bottom:6px">Refinement failed</div>'
@@ -6883,6 +6905,8 @@ async function runAiResearch() {
     || (_aiCtx && _aiCtx.ctx && _aiCtx.ctx.name)
     || (action === 'enrich' ? 'this entry' : 'Japan');
 
+  let _rjJobId = null; // declared here so catch block can access it
+
   // Replace entire sheet body with loading card
   body.innerHTML = '<div class="ai-loading-card">'
     + '<div class="ai-loading-icon">✨</div>'
@@ -6968,7 +6992,6 @@ async function runAiResearch() {
     if (!res.ok || startData.error) throw new Error(startData.error || 'Research failed');
 
     let data = startData;
-    let _rjJobId = null;
     if (startData.jobId) {
       // Async job — record in research jobs history and poll until done
       _rjJobId = startData.jobId;
@@ -7904,8 +7927,8 @@ function openDayDetail(dayId) {
     + titleHtml
     + '<div class="day-detail-hdr-sub">' + day.dateLabel + ' · ' + (cityLabel[day.city] || day.city) + '</div>'
     + '</div>'
-    + '<button class="day-ai-btn" onclick="openAiFromDayDetail(\'' + dayId + '\')" title="Research with AI">✨</button>'
-    + '<button class="day-share-btn" onclick="shareDayItinerary(\'' + dayId + '\')" title="Share day">📤</button>'
+    + '<button class="day-hdr-btn" onclick="openAiFromDayDetail(\'' + dayId + '\')" title="Research with AI">✨ Enhance</button>'
+    + '<button class="day-hdr-btn" onclick="shareDayItinerary(\'' + dayId + '\')" title="Share day">📤 Share</button>'
     + '<button class="day-detail-close" onclick="closeDayDetail()">✕</button>'
     + '</div>'
     + tabsHtml
@@ -10720,7 +10743,7 @@ document.addEventListener('visibilitychange', () => {
       <div class="hotel-modal-sub" id="hotel-modal-sub"></div>
     </div>
     <button class="modal-enrich-btn" id="modal-enrich-btn" style="display:none">✨ Enrich</button>
-    <button class="modal-share-btn" id="modal-share-btn" onclick="shareCurrentModal()" title="Share">📤</button>
+    <button class="modal-share-btn" id="modal-share-btn" onclick="shareCurrentModal()" title="Share">📤 Share</button>
     <button class="hotel-modal-close" onclick="closeHotelDetail()">✕</button>
   </div>
   <div class="modal-subnav">
