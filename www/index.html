@@ -3147,6 +3147,171 @@
   }
   .more-sheet-item:active { background: rgba(255,255,255,0.08); }
   .more-sheet-icon { font-size: 22px; width: 28px; text-align: center; }
+
+  /* ── Trips home ── */
+  .trips-home {
+    position: fixed; inset: 0; z-index: 500; background: var(--bg);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .trips-home-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 56px 20px 16px; flex-shrink: 0;
+  }
+  .trips-home-brand { display: flex; align-items: center; gap: 10px; }
+  .trips-home-icon { width: 28px; height: 28px; border-radius: 7px; }
+  .trips-home-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .trips-new-btn {
+    background: var(--accent, #7EB0FF); color: #fff; border: none;
+    border-radius: 20px; padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .trips-scroll {
+    flex: 1; overflow-y: auto; padding: 0 16px 80px; -webkit-overflow-scrolling: touch;
+  }
+  .trips-section-heading {
+    font-size: 12px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.6px; margin: 20px 0 10px;
+  }
+  .trip-card {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; padding: 16px; margin-bottom: 12px; cursor: pointer;
+    display: flex; align-items: center; gap: 14px;
+    -webkit-tap-highlight-color: transparent; transition: background 0.15s;
+  }
+  .trip-card:active { background: rgba(255,255,255,0.09); }
+  .trip-card-emoji {
+    font-size: 28px; width: 52px; height: 52px; border-radius: 14px;
+    background: rgba(255,255,255,0.07); display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
+  }
+  .trip-card-info { flex: 1; min-width: 0; }
+  .trip-card-name { font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+  .trip-card-dates { font-size: 13px; color: var(--text-muted); margin-bottom: 3px; }
+  .trip-card-meta { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .trip-card-chevron { font-size: 20px; color: var(--text-muted); opacity: 0.4; flex-shrink: 0; }
+  [data-theme="light"] .trip-card { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.07); }
+  [data-theme="light"] .trip-card:active { background: rgba(0,0,0,0.06); }
+  [data-theme="light"] .trip-card-emoji { background: rgba(0,0,0,0.05); }
+  .trip-back-btn {
+    background: none; border: none; font-size: 13px; font-weight: 600;
+    color: var(--accent, #7EB0FF); cursor: pointer; padding: 4px 0 4px 2px;
+    display: none; align-items: center; gap: 3px; flex-shrink: 0;
+  }
+  .trip-back-btn.visible { display: flex; }
+
+  /* ── Trip wizard ── */
+  .trip-wizard-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+    z-index: 600; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  }
+  .trip-wizard {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 601;
+    background: var(--bg); border-radius: 24px 24px 0 0;
+    max-height: 93vh; display: flex; flex-direction: column; overflow: hidden;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .trip-wizard-handle {
+    width: 36px; height: 4px; background: rgba(255,255,255,0.18);
+    border-radius: 2px; margin: 10px auto 0; flex-shrink: 0;
+  }
+  [data-theme="light"] .trip-wizard-handle { background: rgba(0,0,0,0.12); }
+  .trip-wizard-header {
+    display: flex; align-items: center; padding: 12px 16px 8px;
+    flex-shrink: 0; gap: 4px;
+  }
+  .trip-wizard-back {
+    background: none; border: none; font-size: 20px; color: var(--text-muted);
+    cursor: pointer; padding: 4px 8px; border-radius: 8px; line-height: 1;
+  }
+  .trip-wizard-back:disabled { opacity: 0.18; pointer-events: none; }
+  .trip-wizard-title { flex: 1; font-size: 17px; font-weight: 700; text-align: center; }
+  .trip-wizard-close {
+    background: none; border: none; font-size: 22px; color: var(--text-muted);
+    cursor: pointer; padding: 4px 8px; line-height: 1;
+  }
+  .trip-wizard-progress { padding: 0 16px 12px; flex-shrink: 0; }
+  .trip-wizard-progress-track {
+    height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px;
+    overflow: hidden; margin-bottom: 8px;
+  }
+  [data-theme="light"] .trip-wizard-progress-track { background: rgba(0,0,0,0.08); }
+  .trip-wizard-progress-fill {
+    height: 100%; background: var(--accent, #7EB0FF);
+    border-radius: 2px; transition: width 0.3s ease;
+  }
+  .trip-wizard-step-labels {
+    display: flex; justify-content: space-between; font-size: 10px;
+    color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .trip-wizard-body {
+    flex: 1; overflow-y: auto; padding: 8px 16px 24px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .wiz-field { margin-bottom: 18px; }
+  .wiz-field label {
+    display: block; font-size: 11px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+  }
+  .wiz-input {
+    width: 100%; background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;
+    padding: 11px 13px; font-size: 15px; color: var(--text);
+    outline: none; box-sizing: border-box; -webkit-appearance: none;
+  }
+  .wiz-input:focus { border-color: var(--accent, #7EB0FF); }
+  [data-theme="light"] .wiz-input { background: #fff; border-color: rgba(0,0,0,0.12); }
+  .wiz-row { display: flex; gap: 12px; }
+  .wiz-row .wiz-field { flex: 1; }
+  .wiz-item {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 10px 12px; margin-bottom: 8px;
+  }
+  [data-theme="light"] .wiz-item { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.07); }
+  .wiz-item-main { flex: 1; min-width: 0; }
+  .wiz-item-name { font-size: 14px; font-weight: 600; }
+  .wiz-item-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .wiz-item-remove {
+    background: none; border: none; font-size: 20px; color: var(--text-muted);
+    cursor: pointer; padding: 2px 4px; line-height: 1; flex-shrink: 0; opacity: 0.6;
+  }
+  .wiz-add-btn {
+    width: 100%; background: none; border: 1px dashed rgba(255,255,255,0.2);
+    border-radius: 12px; padding: 10px; font-size: 13px; color: var(--text-muted);
+    cursor: pointer; margin-top: 2px; box-sizing: border-box;
+  }
+  [data-theme="light"] .wiz-add-btn { border-color: rgba(0,0,0,0.15); }
+  .wiz-role-pill {
+    font-size: 11px; padding: 3px 9px; border-radius: 10px;
+    cursor: pointer; font-weight: 600; background: none;
+  }
+  .wiz-role-pill.adult { color: #7EB0FF; }
+  .wiz-role-pill.teen { color: var(--hakone, #4caf82); }
+  .wiz-role-pill.kid { color: var(--kyoto, #e8963c); }
+  .wiz-ai-intro { font-size: 14px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5; }
+  .wiz-ai-option {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.09);
+    border-radius: 14px; padding: 14px; margin-bottom: 10px; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  [data-theme="light"] .wiz-ai-option { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); }
+  .wiz-ai-option.selected { border-color: var(--accent, #7EB0FF); background: rgba(126,176,255,0.08); }
+  .wiz-ai-option-icon { font-size: 26px; flex-shrink: 0; }
+  .wiz-ai-option-title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .wiz-ai-option-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+  .wiz-footer { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .wiz-primary-btn {
+    background: var(--accent, #7EB0FF); color: #fff; border: none;
+    border-radius: 14px; padding: 14px; font-size: 16px; font-weight: 700;
+    cursor: pointer; width: 100%; box-sizing: border-box;
+  }
+  .wiz-primary-btn:disabled { opacity: 0.5; }
+  .wiz-secondary-btn {
+    background: none; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px; padding: 12px; font-size: 14px; font-weight: 600;
+    cursor: pointer; width: 100%; box-sizing: border-box;
+  }
+  [data-theme="light"] .wiz-secondary-btn { border-color: rgba(0,0,0,0.12); }
 </style>
 </head>
 <body>
@@ -3161,9 +3326,28 @@
   <div class="gate-error" id="gate-error"></div>
 </div>
 
+<!-- Trips Home -->
+<div id="trips-home" class="trips-home" style="display:none">
+  <div class="trips-home-header">
+    <div class="trips-home-brand">
+      <img src="icons/icon-192.png" class="trips-home-icon" alt="">
+      <span class="trips-home-title">Nomad</span>
+    </div>
+    <button class="trips-new-btn" onclick="openNewTripWizard()">+ New Trip</button>
+  </div>
+  <div class="trips-scroll">
+    <div class="trips-section-heading">Your Trips</div>
+    <div id="trips-list"><div style="text-align:center;padding:40px;opacity:0.5;font-size:14px">Loading…</div></div>
+    <div style="text-align:center;padding:32px 0 0">
+      <button class="trips-new-btn" style="font-size:15px;padding:12px 28px" onclick="openNewTripWizard()">+ Plan a New Trip</button>
+    </div>
+  </div>
+</div>
+
 <!-- Sticky header: compact app bar + filter bar -->
 <div class="sticky-header">
   <div class="app-header">
+    <button class="trip-back-btn" id="trip-back-btn" onclick="backToTrips()">← Trips</button>
     <div class="app-header-brand">
       <img src="icons/icon-192.png" class="app-header-icon" alt="">
       <span class="app-header-title">Nomad</span>
@@ -5570,7 +5754,7 @@
 const SUPABASE_URL = 'https://ubtzeulovzfguazmdchp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVidHpldWxvdnpmZ3Vhem1kY2hwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTI1MjgsImV4cCI6MjA5NTQ4ODUyOH0.7aWtRc53i8zspqWY3d6L5Ajd2y05wxvV4dWuYq1L0Dg';
 const LS_KEY = 'japan-trip-v2';
-const ROW_ID = 'japan-2026';
+let ROW_ID = 'japan-2026';
 
 // ── Default itinerary data ──
 const DEFAULT_DAYS = [
@@ -5854,6 +6038,342 @@ let _pendingSyncData = null; // tracks unsaved data for flush-on-hide
 // ── Supabase init ──
 async function initSupabase() {
   try { _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) { _sb = null; }
+}
+
+// ── Multi-trip ─────────────────────────────────────────────────────────────
+const TRIPS_LS_KEY = 'active-trip-state-key';
+let _currentTripMeta = null;
+
+const _CITY_PRESETS = [
+  {name:'Tokyo',emoji:'🗼',value:'tokyo'},{name:'Kyoto',emoji:'⛩',value:'kyoto'},
+  {name:'Osaka',emoji:'🦀',value:'osaka'},{name:'Hakone',emoji:'🏔',value:'hakone'},
+  {name:'Hiroshima',emoji:'🕊',value:'hiroshima'},{name:'Nara',emoji:'🦌',value:'nara'},
+  {name:'Sapporo',emoji:'❄️',value:'sapporo'},{name:'Fukuoka',emoji:'🍜',value:'fukuoka'},
+  {name:'Kanazawa',emoji:'🏯',value:'kanazawa'},{name:'Nikko',emoji:'⛩',value:'nikko'},
+];
+
+async function _initTripPicker() {
+  const savedKey = localStorage.getItem(TRIPS_LS_KEY);
+  if (savedKey) {
+    ROW_ID = savedKey;
+    if (_sb) {
+      try {
+        const { data } = await _sb.from('trips').select('*').eq('state_key', savedKey).single();
+        if (data) _currentTripMeta = data;
+      } catch(e) {}
+    }
+    await _runMainTripInit();
+    return;
+  }
+  document.getElementById('trips-home').style.display = 'flex';
+  _loadAndRenderTrips();
+}
+
+async function _runMainTripInit() {
+  _goItinerary();
+  await loadAppState();
+  await Promise.all([applyItineraryEvents(), applyTripActivities()]);
+  renderTripProgress();
+  checkHarukaBanner();
+  appState.cityFilter = getSmartCityFilter();
+  _syncFilterDot();
+  renderDayCards();
+  renderActivities();
+  renderExpenses();
+  renderFoodGuide();
+  renderHotels();
+  renderTransit();
+  renderLogisticsView('all');
+  renderPhrases('');
+  initWeather();
+  const fab = document.getElementById('today-fab');
+  if (fab) fab.classList.add('visible');
+  if (_sb) document.getElementById('sync-dot').style.opacity = '0';
+  _updateTripHeader();
+}
+
+function _updateTripHeader() {
+  const backBtn = document.getElementById('trip-back-btn');
+  if (backBtn) backBtn.classList.add('visible');
+  const titleEl = document.querySelector('.app-header-title');
+  if (titleEl && _currentTripMeta && _currentTripMeta.name) {
+    titleEl.textContent = _currentTripMeta.name;
+  }
+}
+
+function _fmtTripDate(d) {
+  try { return new Date(d + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); } catch(e) { return d; }
+}
+
+function _tripEsc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function _loadAndRenderTrips() {
+  const listEl = document.getElementById('trips-list');
+  if (!listEl) return;
+  let trips = [];
+  if (_sb) {
+    try {
+      const { data } = await _sb.from('trips').select('*').order('created_at', { ascending: false });
+      if (data) trips = data;
+    } catch(e) {}
+  }
+  // Auto-register legacy Japan 2026 trip
+  if (_sb && !trips.length) {
+    try {
+      const { data: sr } = await _sb.from('trip_state').select('id').eq('id','japan-2026').single();
+      if (sr) {
+        const leg = {
+          name:'Japan 2026', start_date:'2026-05-25', end_date:'2026-06-05',
+          cities:[{name:'Tokyo',emoji:'🗼',value:'tokyo'},{name:'Hakone',emoji:'🏔',value:'hakone'},{name:'Kyoto',emoji:'⛩',value:'kyoto'},{name:'Osaka',emoji:'🦀',value:'osaka'}],
+          travelers:[{name:'Jake',role:'adult'},{name:'Sarah',role:'adult'},{name:'Oliver',role:'teen'},{name:'Leo',role:'kid'},{name:'Mia',role:'kid'}],
+          cover_emoji:'⛩', state_key:'japan-2026'
+        };
+        const { data: nt } = await _sb.from('trips').insert(leg).select().single();
+        if (nt) trips = [nt];
+      }
+    } catch(e) {}
+  }
+  if (!trips.length) {
+    listEl.innerHTML = '<div style="text-align:center;padding:40px 20px;opacity:0.5;font-size:14px;line-height:1.7">No trips yet.<br>Tap <strong>+ Plan a New Trip</strong> to get started.</div>';
+    return;
+  }
+  listEl.innerHTML = trips.map(t => {
+    const cities = (t.cities||[]).map(c=>(c.emoji||'')+(c.name||c.value||c)).join(' · ');
+    const travelers = (t.travelers||[]).map(x=>x.name||x).join(', ');
+    const dr = (t.start_date ? _fmtTripDate(t.start_date) : '') + (t.end_date ? ' – '+_fmtTripDate(t.end_date) : '');
+    return `<div class="trip-card" onclick="_openTripById('${t.id}')">
+      <div class="trip-card-emoji">${t.cover_emoji||'✈️'}</div>
+      <div class="trip-card-info">
+        <div class="trip-card-name">${_tripEsc(t.name)}</div>
+        ${dr ? `<div class="trip-card-dates">${dr}</div>` : ''}
+        ${cities ? `<div class="trip-card-meta">${cities}</div>` : ''}
+        ${travelers ? `<div class="trip-card-meta" style="margin-top:2px;opacity:0.7">${_tripEsc(travelers)}</div>` : ''}
+      </div>
+      <div class="trip-card-chevron">›</div>
+    </div>`;
+  }).join('');
+}
+
+async function _openTripById(tripId) {
+  if (!_sb) return;
+  try {
+    const { data } = await _sb.from('trips').select('*').eq('id', tripId).single();
+    if (data) await _enterTrip(data);
+  } catch(e) {}
+}
+
+async function _enterTrip(tripMeta) {
+  _currentTripMeta = tripMeta;
+  ROW_ID = tripMeta.state_key || tripMeta.id;
+  localStorage.setItem(TRIPS_LS_KEY, ROW_ID);
+  document.getElementById('trips-home').style.display = 'none';
+  appState.days = null; appState.activities = null; appState.expenses = [];
+  appState.customDetails = {}; appState.checklists = {};
+  await _runMainTripInit();
+}
+
+function backToTrips() {
+  localStorage.removeItem(TRIPS_LS_KEY);
+  _currentTripMeta = null;
+  const titleEl = document.querySelector('.app-header-title');
+  if (titleEl) titleEl.textContent = 'Nomad';
+  const backBtn = document.getElementById('trip-back-btn');
+  if (backBtn) backBtn.classList.remove('visible');
+  document.getElementById('trips-home').style.display = 'flex';
+  _loadAndRenderTrips();
+}
+
+// ── Trip creation wizard ───────────────────────────────────────────────────
+let _wizStep = 0;
+const _wizData = { name:'', startDate:'', endDate:'', cities:[], travelers:[], aiDepth:'structure' };
+const _WIZ_STEPS = ['Basics','Cities','Travelers','✨ AI'];
+
+function openNewTripWizard() {
+  _wizStep = 0; _wizData.name=''; _wizData.startDate=''; _wizData.endDate='';
+  _wizData.cities=[]; _wizData.travelers=[]; _wizData.aiDepth='structure';
+  document.getElementById('trip-wizard-overlay').style.display = '';
+  document.getElementById('trip-wizard').style.display = 'flex';
+  _renderWizStep();
+}
+
+function closeTripWizard() {
+  document.getElementById('trip-wizard-overlay').style.display = 'none';
+  document.getElementById('trip-wizard').style.display = 'none';
+}
+
+function _renderWizStep() {
+  document.getElementById('wiz-progress-fill').style.width = ((_wizStep+1)/_WIZ_STEPS.length*100)+'%';
+  document.getElementById('wiz-title').textContent = _WIZ_STEPS[_wizStep];
+  const backBtn = document.getElementById('wiz-back-btn');
+  if (backBtn) backBtn.disabled = _wizStep === 0;
+  _WIZ_STEPS.forEach((_,i)=>{
+    const el = document.getElementById('wiz-lbl-'+i);
+    if (el){ el.style.fontWeight = i===_wizStep?'700':''; el.style.color = i===_wizStep?'var(--text)':''; }
+  });
+  const body = document.getElementById('wiz-body');
+  if (_wizStep === 0) {
+    body.innerHTML = `
+      <div class="wiz-field">
+        <label>Trip name</label>
+        <input class="wiz-input" id="wiz-name" type="text" placeholder="e.g. Japan 2027" value="${_tripEsc(_wizData.name)}" oninput="_wizData.name=this.value">
+      </div>
+      <div class="wiz-row">
+        <div class="wiz-field"><label>Start date</label><input class="wiz-input" type="date" value="${_wizData.startDate}" onchange="_wizData.startDate=this.value"></div>
+        <div class="wiz-field"><label>End date</label><input class="wiz-input" type="date" value="${_wizData.endDate}" onchange="_wizData.endDate=this.value"></div>
+      </div>
+      <div class="wiz-footer"><button class="wiz-primary-btn" onclick="_wizNext()">Next →</button></div>`;
+    setTimeout(()=>document.getElementById('wiz-name')?.focus(), 120);
+  } else if (_wizStep === 1) {
+    body.innerHTML = `
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Which cities will you visit?</div>
+      <div id="wiz-cities-list">${_wizCitiesHtml()}</div>
+      <button class="wiz-add-btn" onclick="_wizShowCityPicker()">+ Add city</button>
+      <div class="wiz-footer" style="margin-top:20px"><button class="wiz-primary-btn" onclick="_wizNext()">Next →</button></div>`;
+  } else if (_wizStep === 2) {
+    body.innerHTML = `
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Who's coming on this trip?</div>
+      <div id="wiz-travelers-list">${_wizTravelersHtml()}</div>
+      <button class="wiz-add-btn" onclick="_wizAddTraveler()">+ Add traveler</button>
+      <div class="wiz-footer" style="margin-top:20px"><button class="wiz-primary-btn" onclick="_wizNext()">Next →</button></div>`;
+  } else {
+    body.innerHTML = `
+      <p class="wiz-ai-intro">Let AI build your initial day structure. You can edit everything after.</p>
+      <div class="wiz-ai-option${_wizData.aiDepth==='structure'?' selected':''}" onclick="_setWizAiDepth('structure')">
+        <div class="wiz-ai-option-icon">🗓️</div>
+        <div><div class="wiz-ai-option-title">Day titles + structure</div>
+        <div class="wiz-ai-option-desc">Creates day titles and key events for each city. Fast (10–15 s).</div></div>
+      </div>
+      <div class="wiz-ai-option${_wizData.aiDepth==='full'?' selected':''}" onclick="_setWizAiDepth('full')">
+        <div class="wiz-ai-option-icon">✨</div>
+        <div><div class="wiz-ai-option-title">Full itinerary suggestions</div>
+        <div class="wiz-ai-option-desc">AI suggests activities and restaurants for every day — a real starting point. Takes 30–60 s.</div></div>
+      </div>
+      <div class="wiz-footer" style="margin-top:20px">
+        <button class="wiz-primary-btn" id="wiz-start-btn" onclick="_createTripFromWizard(false)">✨ Start Planning</button>
+        <button class="wiz-secondary-btn" onclick="_createTripFromWizard(true)">Skip AI — set up manually</button>
+      </div>`;
+  }
+}
+
+function _wizNext() {
+  if (_wizStep === 0 && !_wizData.name.trim()) { document.getElementById('wiz-name')?.focus(); return; }
+  if (_wizStep < _WIZ_STEPS.length - 1) { _wizStep++; _renderWizStep(); }
+}
+function _wizBack() { if (_wizStep > 0) { _wizStep--; _renderWizStep(); } }
+
+function _wizCitiesHtml() {
+  if (!_wizData.cities.length) return '<div style="font-size:13px;color:var(--text-muted);opacity:0.6;padding-bottom:8px">No cities yet.</div>';
+  return _wizData.cities.map((c,i)=>`
+    <div class="wiz-item">
+      <div style="font-size:22px;flex-shrink:0">${c.emoji||'📍'}</div>
+      <div class="wiz-item-main">
+        <div class="wiz-item-name">${_tripEsc(c.name)}</div>
+        ${(c.startDate||c.endDate)?`<div class="wiz-item-sub">${c.startDate||'?'} → ${c.endDate||'?'}</div>`:''}
+      </div>
+      <button class="wiz-item-remove" onclick="_wizRemoveCity(${i})" aria-label="Remove">×</button>
+    </div>`).join('');
+}
+
+function _wizShowCityPicker() {
+  const el = document.createElement('div');
+  el.className = 'trip-wizard-overlay';
+  el.style.cssText = 'z-index:700;display:flex;align-items:flex-end';
+  el.innerHTML = `<div style="background:var(--bg);width:100%;border-radius:20px 20px 0 0;padding:20px 16px 48px;max-height:72vh;overflow-y:auto">
+    <div style="font-size:16px;font-weight:700;margin-bottom:14px">Choose a city</div>
+    ${_CITY_PRESETS.map(c=>`<div data-v="${c.value}" data-n="${c.name}" data-e="${c.emoji}" style="padding:12px;border-radius:12px;cursor:pointer;font-size:15px;display:flex;align-items:center;gap:12px"><span style="font-size:22px">${c.emoji}</span><span>${c.name}</span></div>`).join('')}
+    <div data-v="custom" style="padding:12px;border-radius:12px;cursor:pointer;font-size:15px;display:flex;align-items:center;gap:12px"><span style="font-size:22px">📍</span><span>Other…</span></div>
+    <button onclick="this.closest('div.trip-wizard-overlay').remove()" style="width:100%;margin-top:12px;background:none;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:12px;color:var(--text-muted);cursor:pointer;box-sizing:border-box">Cancel</button>
+  </div>`;
+  el.addEventListener('click', e => {
+    const row = e.target.closest('[data-v]');
+    if (!row) { if (e.target === el) el.remove(); return; }
+    const v = row.dataset.v, n = row.dataset.n||'', em = row.dataset.e||'📍';
+    el.remove();
+    if (v === 'custom') {
+      const cn = prompt('City name:'); if (!cn) return;
+      _wizData.cities.push({value:cn.toLowerCase().replace(/\s+/g,'-'),name:cn,emoji:'📍',startDate:_wizData.startDate,endDate:_wizData.endDate});
+    } else {
+      _wizData.cities.push({value:v,name:n,emoji:em,startDate:_wizData.startDate,endDate:_wizData.endDate});
+    }
+    document.getElementById('wiz-cities-list').innerHTML = _wizCitiesHtml();
+  });
+  document.body.appendChild(el);
+}
+
+function _wizRemoveCity(i) {
+  _wizData.cities.splice(i,1);
+  document.getElementById('wiz-cities-list').innerHTML = _wizCitiesHtml();
+}
+
+function _wizTravelersHtml() {
+  if (!_wizData.travelers.length) return '<div style="font-size:13px;color:var(--text-muted);opacity:0.6;padding-bottom:8px">No travelers yet.</div>';
+  return _wizData.travelers.map((t,i)=>`
+    <div class="wiz-item" style="flex-direction:column;align-items:stretch">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <input class="wiz-input" style="flex:1" value="${_tripEsc(t.name)}" placeholder="Name" oninput="_wizData.travelers[${i}].name=this.value">
+        <button class="wiz-item-remove" onclick="_wizRemoveTraveler(${i})">×</button>
+      </div>
+      <div style="display:flex;gap:6px">
+        ${['adult','teen','kid'].map(r=>`<button class="wiz-role-pill ${r}" style="border:2px solid ${t.role===r?'currentColor':'rgba(255,255,255,0.15)'};padding:4px 10px" onclick="_wizSetRole(${i},'${r}')">${r}</button>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function _wizAddTraveler() {
+  _wizData.travelers.push({name:'',role:'adult'});
+  document.getElementById('wiz-travelers-list').innerHTML = _wizTravelersHtml();
+  const ins = document.querySelectorAll('#wiz-travelers-list .wiz-input');
+  if (ins.length) ins[ins.length-1].focus();
+}
+function _wizRemoveTraveler(i) { _wizData.travelers.splice(i,1); document.getElementById('wiz-travelers-list').innerHTML = _wizTravelersHtml(); }
+function _wizSetRole(i, r) { _wizData.travelers[i].role = r; document.getElementById('wiz-travelers-list').innerHTML = _wizTravelersHtml(); }
+function _setWizAiDepth(d) {
+  _wizData.aiDepth = d;
+  document.querySelectorAll('.wiz-ai-option').forEach((el,i)=>el.classList.toggle('selected', (d==='structure'&&i===0)||(d==='full'&&i===1)));
+}
+
+async function _createTripFromWizard(skipAi) {
+  const name = _wizData.name.trim() || 'New Trip';
+  const stateKey = 'trip-' + Date.now();
+  const tripRecord = {
+    name, start_date: _wizData.startDate||null, end_date: _wizData.endDate||null,
+    cities: _wizData.cities, travelers: _wizData.travelers,
+    cover_emoji: (_wizData.cities[0]&&_wizData.cities[0].emoji)||'✈️', state_key: stateKey,
+  };
+  let newMeta = { ...tripRecord, id: stateKey };
+  if (_sb) {
+    try { const {data} = await _sb.from('trips').insert(tripRecord).select().single(); if (data) newMeta = data; } catch(e) {}
+  }
+  closeTripWizard();
+  _currentTripMeta = newMeta;
+  ROW_ID = stateKey;
+  localStorage.setItem(TRIPS_LS_KEY, ROW_ID);
+  appState.days = []; appState.activities = []; appState.expenses = [];
+  appState.customDetails = {}; appState.checklists = {}; appState.dismissedMapReminders = []; appState.harukaBooked = false;
+  document.getElementById('trips-home').style.display = 'none';
+
+  if (!skipAi) {
+    _goItinerary();
+    _updateTripHeader();
+    const bodyEl = document.querySelector('.day-swiper-wrap') || document.querySelector('.section-body');
+    if (bodyEl) bodyEl.innerHTML = `<div style="text-align:center;padding:60px 20px">
+      <div style="font-size:36px;margin-bottom:14px;animation:ai-pulse 1.6s ease-in-out infinite">✨</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:8px">Planning your trip…</div>
+      <div style="font-size:13px;color:var(--text-muted)">${_wizData.aiDepth==='full'?'Building a full itinerary. Up to 60 seconds.':'Creating your day structure…'}</div>
+    </div>`;
+    try {
+      const res = await fetch(AI_RESEARCH_URL, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'plan-trip', tripName:name, startDate:_wizData.startDate, endDate:_wizData.endDate, cities:_wizData.cities, travelers:_wizData.travelers, aiDepth:_wizData.aiDepth }),
+      });
+      const data = await res.json();
+      if (data.days && data.days.length) appState.days = data.days;
+    } catch(e) { console.warn('AI trip planning failed', e); }
+  }
+  saveAppState();
+  await _runMainTripInit();
 }
 
 // ── Persistence ──
@@ -6785,8 +7305,7 @@ async function runAiRefinement() {
     });
     const data = await res.json();
     if (!res.ok || data.error) throw new Error(data.error || 'Refinement failed');
-    const resultName = data.result && data.result.name ? data.result.name : null;
-    _rjUpdate(_rfJobId, { status: 'done', completedAt: new Date().toISOString(), resultName: resultName });
+    _rjRemove(_rfJobId);  // server saved to Supabase; remove transient local entry
     _aiLastResult = data.result;
     _showAiResult(data.result);
   } catch (err) {
@@ -6971,13 +7490,12 @@ async function runAiResearch() {
     if (!res.ok || data.error) throw new Error(data.error || 'Research failed');
 
     if (data.results && Array.isArray(data.results)) {
-      _rjUpdate(_rjJobId, { status: 'done', completedAt: new Date().toISOString(), resultCount: data.results.length });
+      _rjRemove(_rjJobId);  // server saved to Supabase; remove transient local entry
       _aiLastResults = data.results;
       _aiLastResult = null;
       _showAiResultList(data.results);
     } else {
-      const resultName = data.result && data.result.name ? data.result.name : null;
-      _rjUpdate(_rjJobId, { status: 'done', completedAt: new Date().toISOString(), resultName: resultName });
+      _rjRemove(_rjJobId);  // server saved to Supabase; remove transient local entry
       _aiLastResult = data.result;
       _aiLastResults = null;
       if (autoSave) {
@@ -10453,37 +10971,16 @@ function _goItinerary() {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-  // Pin to itinerary immediately — before any async work — so no other
-  // code can switch tabs while initSupabase/loadAppState are in flight.
-  _goItinerary();
-
   await initSupabase();
-  await loadAppState();
-  await Promise.all([applyItineraryEvents(), applyTripActivities()]);
-  renderTripProgress();
-  checkHarukaBanner();
-  // Set smart city filter based on today's location in Japan.
-  appState.cityFilter = getSmartCityFilter();
-  _syncFilterDot();
-  renderDayCards();
-  renderActivities();
-  renderExpenses();
-  renderFoodGuide();
-  renderHotels();
-  renderTransit();
-  renderLogisticsView('all');
-  renderPhrases('');
-  initWeather();
-  const fab = document.getElementById('today-fab');
-  if (fab) fab.classList.add('visible');
-  // Show sync dot only if Supabase connected
-  if (_sb) document.getElementById('sync-dot').style.opacity = '0';
+  await _initTripPicker();
 });
 
 // iOS fires `pageshow` (not DOMContentLoaded) when restoring a page from
 // its back-forward / app-switcher cache, so DOMContentLoaded never re-runs.
 // Catch that here so cold PWA opens always land on Itinerary.
-window.addEventListener('pageshow', () => { _goItinerary(); renderItinerary(); });
+window.addEventListener('pageshow', () => {
+  if (localStorage.getItem(TRIPS_LS_KEY)) { _goItinerary(); renderItinerary(); }
+});
 
 // Also reset after 15 min in background (user opens app icon after a while)
 async function refreshItinerary() {
@@ -10504,7 +11001,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
     _hiddenAt = Date.now();
   } else if (document.visibilityState === 'visible' && _hiddenAt > 0) {
-    if (Date.now() - _hiddenAt > 5 * 60 * 1000) {
+    if (Date.now() - _hiddenAt > 5 * 60 * 1000 && localStorage.getItem(TRIPS_LS_KEY)) {
       // Bust caches so any new poller data is picked up
       try { localStorage.removeItem('ie_cache'); } catch(e) {}
       try { Object.keys(localStorage).filter(k => k.startsWith('bu_')).forEach(k => localStorage.removeItem(k)); } catch(e) {}
@@ -11227,6 +11724,12 @@ function _rjUpdate(jobId, patch) {
   if (idx !== -1) { Object.assign(_researchJobs[idx], patch); _saveResearchJobs(); }
 }
 
+function _rjRemove(jobId) {
+  _researchJobs = _researchJobs.filter(j => j.jobId !== jobId);
+  _saveResearchJobs();
+}
+
+
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
@@ -11501,17 +12004,55 @@ function renderPollerRuns() {
   body.innerHTML = triggerRow + listHtml;
 }
 
-function renderResearchJobs() {
+async function renderResearchJobs() {
   const body = document.getElementById('inbox-sheet-body');
-  if (!_researchJobs.length) {
-    body.innerHTML = '<div class="inbox-empty">No research jobs yet.<br><span style="font-size:12px;opacity:0.6">Jobs appear here when you use the ✨ research button.</span></div>';
-    return;
-  }
+  body.innerHTML = '<div class="inbox-empty" style="opacity:0.5">Loading…</div>';
 
   const ACTION_LABELS = { new: '✨ new', enrich: '🔍 enrich', refine: '💬 refine', event: '📅 event' };
   const STATUS_LABELS = { running: '⟳ Running', done: '✓ Done', failed: '✗ Failed', timeout: '⏱ Timed out' };
 
-  const cardsHtml = _researchJobs.map(function(j, idx) {
+  // Fetch completed jobs from Supabase (all devices)
+  let dbJobs = [];
+  if (_sb) {
+    try {
+      const { data } = await _sb.from('research_jobs')
+        .select('id, status, query, action, result_name, error, created_at, result')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (data) {
+        dbJobs = data.map(function(row) {
+          return {
+            jobId: row.id,
+            status: row.status,
+            query: row.query || '',
+            action: row.action || 'new',
+            resultName: row.result_name || null,
+            resultCount: (row.result && row.result.resultCount) ? row.result.resultCount : null,
+            error: row.error || null,
+            startedAt: row.created_at,
+          };
+        });
+      }
+    } catch(e) {}
+  }
+
+  // Include local in-flight / failed jobs not yet persisted to DB
+  const localJobs = _researchJobs.filter(function(j) { return j.status === 'running' || j.status === 'failed'; });
+
+  // Merge, dedup by jobId, sort newest first
+  const seen = new Set();
+  const allJobs = [];
+  localJobs.concat(dbJobs).forEach(function(j) {
+    if (!seen.has(j.jobId)) { seen.add(j.jobId); allJobs.push(j); }
+  });
+  allJobs.sort(function(a, b) { return new Date(b.startedAt) - new Date(a.startedAt); });
+
+  if (!allJobs.length) {
+    body.innerHTML = '<div class="inbox-empty">No research jobs yet.<br><span style="font-size:12px;opacity:0.6">Jobs appear here when you use the ✨ research button.</span></div>';
+    return;
+  }
+
+  const cardsHtml = allJobs.map(function(j) {
     const actionLabel = ACTION_LABELS[j.action] || j.action || '✨';
     const statusLabel = STATUS_LABELS[j.status] || j.status;
     const statusCls = j.status === 'running' ? 'running' : j.status === 'done' ? 'done' : j.status === 'failed' ? 'failed' : 'timeout';
@@ -11548,9 +12089,15 @@ function renderResearchJobs() {
   body.innerHTML = cardsHtml + clearBtn;
 }
 
-function _clearResearchJobs() {
+async function _clearResearchJobs() {
   _researchJobs = [];
   _saveResearchJobs();
+  if (_sb) {
+    try {
+      // Delete all records (public_delete RLS policy allows this)
+      await _sb.from('research_jobs').delete().gt('created_at', '2000-01-01T00:00:00Z');
+    } catch(e) {}
+  }
   renderResearchJobs();
 }
 
@@ -11660,5 +12207,28 @@ function initTheme() {
 
 document.addEventListener('DOMContentLoaded', initTheme);
 </script>
+
+<!-- New Trip Wizard -->
+<div id="trip-wizard-overlay" class="trip-wizard-overlay" style="display:none" onclick="closeTripWizard()"></div>
+<div id="trip-wizard" class="trip-wizard" style="display:none">
+  <div class="trip-wizard-handle"></div>
+  <div class="trip-wizard-header">
+    <button class="trip-wizard-back" id="wiz-back-btn" onclick="_wizBack()" disabled>←</button>
+    <div class="trip-wizard-title" id="wiz-title">New Trip</div>
+    <button class="trip-wizard-close" onclick="closeTripWizard()">×</button>
+  </div>
+  <div class="trip-wizard-progress">
+    <div class="trip-wizard-progress-track">
+      <div class="trip-wizard-progress-fill" id="wiz-progress-fill" style="width:25%"></div>
+    </div>
+    <div class="trip-wizard-step-labels">
+      <span id="wiz-lbl-0">Basics</span>
+      <span id="wiz-lbl-1">Cities</span>
+      <span id="wiz-lbl-2">Travelers</span>
+      <span id="wiz-lbl-3">✨ AI</span>
+    </div>
+  </div>
+  <div class="trip-wizard-body" id="wiz-body"></div>
+</div>
 </body>
 </html>
